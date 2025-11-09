@@ -13,7 +13,8 @@
     "@maxhub/max-ui": "^0.1.12",
     "axios": "^1.13.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

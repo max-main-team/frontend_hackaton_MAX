@@ -1,51 +1,71 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api } from "./services/api";
-import { Panel, Grid, Container, Flex, Avatar, Typography } from '@maxhub/max-ui';
+import LoadingPage from "./pages/LoadingPage";
+import AdminPage from "./pages/AdminPage.tsx";
+import TeacherPage from "./pages/TeacherPage.tsx";
+import StudentPage from "./pages/StudentPage.tsx";
+import MultiSelectPage from "./pages/MultiSelectPage.tsx";
 
-function App() {
-  const { initData} = useMaxWebApp();
+
+function AppInner() {
+  const {
+    webAppData,
+    saveAccessToken,
+    saveRefreshToken,
+  } = useMaxWebApp();
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!initData) return;
+    if (!webAppData) return;
     setLoading(true);
 
-    api.post("/auth/webapp-init", initData)
-      .then(res => {
-        const token = res.data?.token;
-        if (token) localStorage.setItem("access_token", token);
+    api.post("/auth/webapp-init", webAppData)
+      .then(async res => {
+        const access = res.data?.token;
+        const refresh = res.data?.refresh_token;
+        if (access) await saveAccessToken(access);
+        if (refresh) await saveRefreshToken(refresh);
+
+        const types: string[] = res.data?.type_user ?? [];
+
+        if (Array.isArray(types) && types.length > 0) {
+          if (types.length === 1) {
+            if (types[0] == "student") navigate("/student", { replace: true });
+            if (types[0] == "teacher") navigate("/teacher", { replace: true });
+            if (types[0] == "admin") navigate("/admin", { replace: true });
+          } else {
+            navigate("/select", { replace: true });
+          }
+        } else {
+          navigate("/select", { replace: true });
+        }
       })
       .catch(err => {
         console.error("auth failed", err);
       })
       .finally(() => setLoading(false));
-  }, [initData]);
+  }, [webAppData, navigate, saveAccessToken, saveRefreshToken]);
+
+  if (loading || !webAppData) return <LoadingPage />;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>MiniApp</h1>
-      {loading && <p>Авторизация...</p>}
-      {!loading && (
-        <>
-          <Panel mode="secondary" className="panel">
-            <Grid gap={12} cols={1}>
-                <Container className="me">
-                    <Flex direction="column" align="center">
-                        <Avatar.Container size={72} form="squircle" className="me__avatar">
-                            <Avatar.Image src="https://sun9-21.userapi.com/1N-rJz6-7hoTDW7MhpWe19e_R_TdGV6Wu5ZC0A/67o6-apnAks.jpg" />
-                        </Avatar.Container>
-
-                        <Typography.Title>Иван Иванов</Typography.Title>
-                    </Flex>
-                </Container>
-            </Grid>
-        </Panel>
-        </>
-      )}
-    </div>
+    <Routes>
+      <Route path="/student" element={<StudentPage />} />
+      <Route path="/teacher" element={<TeacherPage />} />
+      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/select" element={<MultiSelectPage />} />
+      <Route path="*" element={<MultiSelectPage />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppInner />
+    </BrowserRouter>
+  );
+}
