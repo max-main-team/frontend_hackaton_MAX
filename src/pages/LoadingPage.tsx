@@ -3,16 +3,12 @@ import '../css/MainLayout.css';
 
 export default function LoadingPage() {
   return (
-    <div style={{ padding: 20 }}>
-      <div className="full-screen-page">
-        <Panel className="full-screen-panel" mode="secondary">
+        <Panel>
           <Container style={{ padding: 28 }}>
-            <Flex direction="column" align="center" justify="center" style={{ minHeight: 120 }}>
+            <Flex>
               <Typography.Title variant="large-strong">Загрузка...</Typography.Title>
             </Flex>
           </Container>
         </Panel>
-      </div>
-    </div>
   );
 }
