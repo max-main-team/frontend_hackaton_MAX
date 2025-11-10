@@ -1,4 +1,3 @@
-// src/services/api.ts
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosResponse } from "axios";
 import {
@@ -6,8 +5,9 @@ import {
   setDeviceItem,
   getSecureItem,
   setSecureItem,
-  removeSecureItem
-} from "../services/webappStorage"; 
+  removeSecureItem,
+  removeDeviceItem
+} from "./webappStorage";
 
 const isDev = import.meta.env.DEV;
 const envBase = import.meta.env.VITE_BACKEND_URL as string | undefined;
@@ -20,6 +20,10 @@ export const api = axios.create({
   timeout: 10000,
 });
 
+let memoryAccessToken: string | null = null;
+export function setAccessTokenInMemory(token: string | null) {
+  memoryAccessToken = token;
+}
 
 let isRefreshing = false;
 let refreshQueue: Array<(token: string | null) => void> = [];
@@ -29,12 +33,14 @@ async function doRefreshToken(): Promise<string> {
   if (!refresh) throw new Error("No refresh token available");
 
   const res = await rawAxios.post("/auth/refresh", { refresh_token: refresh });
+
   const newAccess = res.data?.token;
   const newRefresh = res.data?.refresh_token;
 
   if (!newAccess) throw new Error("Refresh did not return access token");
 
   await setDeviceItem("access_token", newAccess);
+  memoryAccessToken = newAccess;
   if (newRefresh) await setSecureItem("refresh_token", newRefresh);
 
   return newAccess;
@@ -42,7 +48,11 @@ async function doRefreshToken(): Promise<string> {
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) : Promise<InternalAxiosRequestConfig> => {
   try {
-    const token = await getDeviceItem("access_token");
+    let token = memoryAccessToken;
+    if (!token) {
+      token = await getDeviceItem("access_token");
+      memoryAccessToken = token ?? null;
+    }
     if (token) {
       const safeHeaders = (config.headers ?? {}) as Record<string, string>;
       safeHeaders["Authorization"] = `Bearer ${token}`;
@@ -54,13 +64,21 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) : Promis
   return config;
 }, (error) => Promise.reject(error));
 
-
 api.interceptors.response.use(
   (resp: AxiosResponse) => resp,
   async (error) => {
+    if (!error || !error.config) return Promise.reject(error);
+
     const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (!error.response || error.response.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    const url = (original.url || "").toString();
+    if (url.includes("/auth/refresh")) {
+      try { await removeSecureItem("refresh_token"); await removeDeviceItem("access_token"); } catch (e) { console.warn("Failed to remove tokens", e); }
+      memoryAccessToken = null;
       return Promise.reject(error);
     }
 
@@ -89,14 +107,14 @@ api.interceptors.response.use(
       refreshQueue.forEach(cb => cb(newToken));
       refreshQueue = [];
       isRefreshing = false;
-
       original.headers = {
         ...(original.headers ?? {}),
         Authorization: `Bearer ${newToken}`
       } as InternalAxiosRequestConfig["headers"];
       return api(original);
     } catch (refreshErr) {
-      try { await removeSecureItem("refresh_token"); } catch (e) { console.warn("Failed to remove secure token", e); }
+      try { await removeSecureItem("refresh_token"); await removeDeviceItem("access_token"); } catch (e) { console.warn("Failed to cleanup tokens", e); }
+      memoryAccessToken = null;
       refreshQueue.forEach(cb => cb(null));
       refreshQueue = [];
       isRefreshing = false;
