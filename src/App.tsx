@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api } from "./services/api";
+import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
-import AdminPage from "./pages/AdminPage.tsx";
-import TeacherPage from "./pages/TeacherPage.tsx";
-import StudentPage from "./pages/StudentPage.tsx";
-import MultiSelectPage from "./pages/MultiSelectPage.tsx";
-
+import AdminPage from "./pages/AdminPage";
+import TeacherPage from "./pages/TeacherPage";
+import StudentPage from "./pages/StudentPage";
+import MultiSelectPage from "./pages/MultiSelectPage";
 
 function AppInner() {
   const {
     webAppData,
     saveAccessToken,
-    saveRefreshToken,
   } = useMaxWebApp();
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,20 +21,24 @@ function AppInner() {
     if (!webAppData) return;
     setLoading(true);
 
-    api.post("/auth/webapp-init", webAppData)
+    api.post("/auth/login", webAppData)
       .then(async res => {
-        const access = res.data?.token;
-        const refresh = res.data?.refresh_token;
-        if (access) await saveAccessToken(access);
-        if (refresh) await saveRefreshToken(refresh);
+        const access = res.data?.access_token;
 
-        const types: string[] = res.data?.type_user ?? [];
+        if (access) {
+          if (typeof saveAccessToken === "function") {
+            await saveAccessToken(access);
+          }
+          setAccessTokenInMemory(access);
+        }
 
-        if (Array.isArray(types) && types.length > 0) {
-          if (types.length === 1) {
-            if (types[0] == "student") navigate("/student", { replace: true });
-            if (types[0] == "teacher") navigate("/teacher", { replace: true });
-            if (types[0] == "admin") navigate("/admin", { replace: true });
+        const roles: string[] = res.data?.user_roles;
+
+        if (Array.isArray(roles) && roles.length > 0) {
+          if (roles.length === 1) {
+            if (roles[0] === "student") navigate("/student", { replace: true });
+            if (roles[0] === "teacher") navigate("/teacher", { replace: true });
+            if (roles[0] === "admin") navigate("/admin", { replace: true });
           } else {
             navigate("/select", { replace: true });
           }
@@ -47,7 +50,7 @@ function AppInner() {
         console.error("auth failed", err);
       })
       .finally(() => setLoading(false));
-  }, [webAppData, navigate, saveAccessToken, saveRefreshToken]);
+  }, [webAppData, navigate, saveAccessToken]);
 
   if (loading || !webAppData) return <LoadingPage />;
 
