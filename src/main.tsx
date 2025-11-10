@@ -1,15 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import { MaxUI } from '@maxhub/max-ui';
-import '@maxhub/max-ui/dist/styles.css';
-import App from './App.tsx'
+import { createRoot } from "react-dom/client";
+import "@maxhub/max-ui/dist/styles.css";
+import "./index.css";
+import { MaxUI } from "@maxhub/max-ui";
+import App from "./App";
 
 const Root = () => (
     <MaxUI>
-       <StrictMode>
         <App />
-      </StrictMode>
     </MaxUI>
 )
 
