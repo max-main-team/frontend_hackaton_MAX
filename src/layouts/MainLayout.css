@@ -158,6 +158,24 @@
 }
 .tab-link.active .tab-label { color: var(--primary); }
 
+.full-screen-page {
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.full-screen-panel {
+  width: 100%;
+  box-shadow: none;
+  border-radius: 8px;
+  min-height: calc(100vh - 140px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: transparent;
+}
+
+
 @media (max-width: 680px) {
   .main-header { padding: 12px; }
   .main-content { padding: 12px; }
