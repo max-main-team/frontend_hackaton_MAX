@@ -1,4 +1,5 @@
 import { Panel, Container, Flex, Typography } from "@maxhub/max-ui";
+import './MainLayout.css';
 
 export default function LoadingPage() {
   return (
