@@ -1,7 +1,7 @@
 import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
-import "./admin-page.css";
+import "../css/admin-page.css";
 
 export default function StudentPage() {
   const { webAppData } = useMaxWebApp();
@@ -57,7 +57,7 @@ export default function StudentPage() {
           </Container>
         </Panel>
       </Grid>
-      
+
       <div style={{ marginTop: 18 }}>
         <Panel className="card card--feature">
           <Container style={{ padding: 12 }}>
