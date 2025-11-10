@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
-import './MainLayout.css';
+import '../css/MainLayout.css';
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 
 const TAB_ITEMS = [

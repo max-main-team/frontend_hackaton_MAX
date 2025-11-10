@@ -1,7 +1,7 @@
 import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
-import "./css/admin-page.css";
+import "../css/admin-page.css";
 
 export default function TeacherPage() {
   const { webAppData } = useMaxWebApp();
