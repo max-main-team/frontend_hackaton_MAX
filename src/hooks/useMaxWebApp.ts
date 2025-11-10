@@ -5,10 +5,8 @@ import {
   setDeviceItem,
   getDeviceItem,
   removeDeviceItem,
-  setSecureItem,
-  getSecureItem,
-  removeSecureItem
 } from "../services/webappStorage";
+import { setAccessTokenInMemory } from "../services/api";
 
 export type WebAppDataAny = any;
 
@@ -17,36 +15,28 @@ export function useMaxWebApp() {
   const [rawInitData, setRawInitData] = useState<WebAppDataAny | null>(null);
   const [webAppData, setWebAppData] = useState<WebAppDataAny | null>(null);
 
-  const isDev = import.meta.env.DEV && import.meta.env.VITE_WEBAPP_MOCK === "1";
-
   useEffect(() => {
-    if (window.WebApp) {
-      setWebApp(window.WebApp);
+    if ((window as any).WebApp) {
+      const w = (window as any).WebApp as WebApp;
+      setWebApp(w);
       try {
-        window.WebApp.ready?.(() => {
-          const data = window.WebApp?.initData;
+        w.ready?.(() => {
+          const data = w.initData;
           setRawInitData(data);
           setWebAppData(data);
         });
       } catch (e) {
         console.warn("WebApp ready error", e);
       }
-    } else if (isDev) {
-      const mock = createMockWebApp();
-      window.WebApp = mock;
-      setWebApp(mock);
-      const data = mock.initData;
-      setRawInitData(data);
-      setWebAppData(data);
     } else {
-      console.warn("window.WebApp not available");
+      console.warn("window.WebApp not available — running outside MAX client");
     }
-  }, [isDev]);
-
+  }, []);
 
   const saveAccessToken = useCallback(async (token: string) => {
     if (!token) return;
     await setDeviceItem("access_token", token);
+    try { setAccessTokenInMemory(token); } catch (e) { console.warn("Error with set access_token in memory", e); }
   }, []);
 
   const loadAccessToken = useCallback(async (): Promise<string | null> => {
@@ -54,27 +44,16 @@ export function useMaxWebApp() {
   }, []);
 
   const removeAccessToken = useCallback(async () => {
-    await removeDeviceItem("access_token");
-  }, []);
-
-  const saveRefreshToken = useCallback(async (token: string) => {
-    if (!token) return;
-    await setSecureItem("refresh_token", token);
-  }, []);
-
-  const loadRefreshToken = useCallback(async (): Promise<string | null> => {
-    return await getSecureItem("refresh_token");
-  }, []);
-
-  const removeRefreshToken = useCallback(async () => {
-    await removeSecureItem("refresh_token");
+    try {
+      await removeDeviceItem("access_token");
+    } finally {
+      try { setAccessTokenInMemory(null); } catch (e) { console.warn("Error with set access_token in memory", e); }
+    }
   }, []);
 
   const clearAuthStorage = useCallback(async () => {
-    await removeRefreshToken();
     await removeAccessToken();
-  }, [removeRefreshToken, removeAccessToken]);
-
+  }, [removeAccessToken]);
 
   const helpers = useMemo(() => ({
     close: () => webApp?.close?.(),
@@ -84,18 +63,12 @@ export function useMaxWebApp() {
     saveAccessToken,
     loadAccessToken,
     removeAccessToken,
-    saveRefreshToken,
-    loadRefreshToken,
-    removeRefreshToken,
     clearAuthStorage
   }), [
     webApp,
     saveAccessToken,
     loadAccessToken,
     removeAccessToken,
-    saveRefreshToken,
-    loadRefreshToken,
-    removeRefreshToken,
     clearAuthStorage
   ]);
 
@@ -105,27 +78,4 @@ export function useMaxWebApp() {
     webAppData,
     ...helpers
   } as const;
-}
-
-
-function createMockWebApp() {
-  return {
-    initData: {
-      query_id: "dev-query-1",
-      auth_date: Math.floor(Date.now()/1000),
-      hash: "",
-      user: {
-        id: 123456,
-        first_name: "Dev",
-        last_name: "Tester",
-        username: "devtester",
-        language_code: "ru"
-      },
-      chat: { id: 42, type: "private" },
-      start_param: { foo: "bar" }
-    },
-    ready: (cb: any) => setTimeout(cb, 50),
-    close: () => console.log("mock close"),
-    openLink: (u: string) => { window.open(u, "_blank"); }
-  };
 }
