@@ -4,7 +4,7 @@ import '../css/MainLayout.css';
 export default function LoadingPage() {
   return (
         <Panel>
-          <Container style={{ padding: 28 }}>
+          <Container>
             <Flex>
               <Typography.Title variant="large-strong">Загрузка...</Typography.Title>
             </Flex>
