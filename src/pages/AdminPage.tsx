@@ -1,4 +1,4 @@
-import "../css/admin-page.css";
+import "../css/AdminPage.css";
 import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 
