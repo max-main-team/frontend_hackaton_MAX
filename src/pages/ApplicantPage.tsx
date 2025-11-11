@@ -153,7 +153,7 @@ export default function ApplicantPage(): JSX.Element {
         user_role: joinRole,
       };
 
-      const res = await api.post("/universities/", body);
+      const res = await api.post("/universities/join", body);
       const message = res.data?.message ?? "Заявка отправлена успешно.";
       setJoinResult(typeof message === "string" ? message : "Успешно");
     } catch (e: any) {
