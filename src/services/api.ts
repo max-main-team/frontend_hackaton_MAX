@@ -7,7 +7,7 @@ import {
 } from "./webappStorage";
 
 const envBase = import.meta.env.VITE_BACKEND_URL as string | undefined;
-const baseURL = envBase;
+const baseURL = envBase ? envBase.replace(/\/$/, '') + '/' : '/';
 
 const rawAxios = axios.create({
   baseURL,
