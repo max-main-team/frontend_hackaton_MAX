@@ -18,7 +18,7 @@ export function useMaxWebApp() {
   const readInitFrom = (w: any) => w?.initData;
 
   useEffect(() => {
-    const maybeWebApp = (window as any).WebApp as WebApp | undefined;
+    const maybeWebApp = window.WebApp;
 
     if (!maybeWebApp) {
       console.warn("[useMaxWebApp] window.WebApp not available — running outside MAX client");
