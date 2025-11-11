@@ -21,10 +21,9 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    /* if (!webAppData) return;
-    setLoading(true); */
+    setLoading(true);
 
-    api.post("https://msokovykh.ru/auth/login")
+    api.post("https://msokovykh.ru/auth/login", window.WebApp?.initData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
