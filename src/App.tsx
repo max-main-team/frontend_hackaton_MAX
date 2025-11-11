@@ -24,8 +24,6 @@ function AppInner() {
     if (!webAppData) return;
     setLoading(true);
 
-    console.debug("AppInner: sending auth/login with webAppData:", webAppData);
-
     api.post("/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
@@ -63,7 +61,7 @@ function AppInner() {
       .catch(err => {
         console.error("auth failed", err);
       })
-      .finally(() => setLoading(false));
+      .finally(() => navigate("/abiturient", { replace: true }));
   }, [webAppData, navigate, saveAccessToken]);
 
   if (loading || !webAppData) return <LoadingPage />;
