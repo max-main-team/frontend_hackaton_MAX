@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
@@ -11,14 +11,14 @@ import ApplicantPage from "./pages/ApplicantPage";
 function AppInner() {
   const [loading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // ← добавьте этот хук
+  const location = useLocation(); // ← ДОБАВЬТЕ ЭТОТ ХУК
 
   useEffect(() => {
-    // Редиректим только если НЕ на странице абитуриента
+    // Редиректим ТОЛЬКО если НЕ на странице абитуриента
     if (location.pathname !== "/abiturient") {
       navigate("/abiturient", { replace: true });
     }
-  }, [navigate, location.pathname]); // ← добавьте зависимость
+  }, [navigate, location.pathname]); // ← Добавьте location.pathname в зависимости
 
   if (loading) return <LoadingPage />;
   
