@@ -24,7 +24,7 @@ function AppInner() {
     if (!webAppData) return;
     setLoading(true);
 
-    api.post("http://77.221.159.159:8080/auth/login", webAppData)
+    api.post("/api/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;

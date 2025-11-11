@@ -6,9 +6,8 @@ import {
   removeDeviceItem
 } from "./webappStorage";
 
-const isDev = import.meta.env.DEV;
 const envBase = import.meta.env.VITE_BACKEND_URL as string | undefined;
-const baseURL = isDev ? "/api" : (envBase ?? "");
+const baseURL = envBase;
 
 const rawAxios = axios.create({
   baseURL,
