@@ -15,39 +15,63 @@ export function useMaxWebApp() {
   const [rawInitData, setRawInitData] = useState<WebAppDataAny | null>(null);
   const [webAppData, setWebAppData] = useState<WebAppDataAny | null>(null);
 
+  const readInitFrom = (w: any) => w?.initData;
+
   useEffect(() => {
-    if ((window as any).WebApp) {
-      const w = (window as any).WebApp as WebApp;
-      setWebApp(w);
+    const maybeWebApp = (window as any).WebApp as WebApp | undefined;
+
+    if (!maybeWebApp) {
+      console.warn("[useMaxWebApp] window.WebApp not available — running outside MAX client");
+      return;
+    }
+
+    const w = maybeWebApp;
+    setWebApp(w);
+
+    try {
+      const sync = readInitFrom(w);
+      if (sync) {
+        setRawInitData(sync);
+        setWebAppData(sync);
+        console.debug("[useMaxWebApp] used synchronous initData", sync);
+      }
+    } catch (e) {
+      console.warn("[useMaxWebApp] error reading initData synchronously", e);
+    }
+
+    if (typeof w.ready === "function") {
       try {
-        w.ready?.(() => {
-          const data = w.initData;
-          setRawInitData(data);
-          setWebAppData(data);
+        w.ready(() => {
+          try {
+            const d = readInitFrom(w);
+            setRawInitData(d);
+            setWebAppData(d);
+            console.debug("[useMaxWebApp] ready callback set initData", d);
+          } catch (inner) {
+            console.warn("[useMaxWebApp] error in ready callback", inner);
+          }
         });
       } catch (e) {
-        console.warn("WebApp ready error", e);
+        console.warn("[useMaxWebApp] WebApp.ready threw", e);
       }
-    } else {
-      console.warn("window.WebApp not available — running outside MAX client");
     }
   }, []);
 
   const saveAccessToken = useCallback(async (token: string) => {
     if (!token) return;
     await setDeviceItem("access_token", token);
-    try { setAccessTokenInMemory(token); } catch (e) { console.warn("Error with set access_token in memory", e); }
+    try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
   }, []);
 
   const loadAccessToken = useCallback(async (): Promise<string | null> => {
-    return await getDeviceItem("access_token");
+    try { return await getDeviceItem("access_token"); } catch { return null; }
   }, []);
 
   const removeAccessToken = useCallback(async () => {
     try {
       await removeDeviceItem("access_token");
     } finally {
-      try { setAccessTokenInMemory(null); } catch (e) { console.warn("Error with set access_token in memory", e); }
+      try { setAccessTokenInMemory(null); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
     }
   }, []);
 
@@ -59,18 +83,11 @@ export function useMaxWebApp() {
     close: () => webApp?.close?.(),
     openLink: (url: string) => webApp?.openLink?.(url),
     raw: webApp,
-
     saveAccessToken,
     loadAccessToken,
     removeAccessToken,
     clearAuthStorage
-  }), [
-    webApp,
-    saveAccessToken,
-    loadAccessToken,
-    removeAccessToken,
-    clearAuthStorage
-  ]);
+  }), [webApp, saveAccessToken, loadAccessToken, removeAccessToken, clearAuthStorage]);
 
   return {
     webApp,

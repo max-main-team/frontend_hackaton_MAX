@@ -24,7 +24,7 @@ function AppInner() {
     if (!webAppData) return;
     setLoading(true);
 
-    api.post("http://77.221.159.159:8080/auth/login", webAppData)
+    api.post("/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
@@ -64,7 +64,7 @@ function AppInner() {
       .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
 
-  if (loading) return <LoadingPage />;
+  if (loading || !webAppData) return <LoadingPage />;
 
   return (
     <Routes>
