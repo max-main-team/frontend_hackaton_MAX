@@ -61,7 +61,6 @@ function AppInner() {
       .catch(err => {
         console.error("auth failed", err);
       })
-      .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
 
   if (loading || !webAppData) return <LoadingPage />;
