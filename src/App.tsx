@@ -64,7 +64,7 @@ function AppInner() {
       .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
 
-  if (loading || !webAppData) return <LoadingPage />;
+  if (loading) return <LoadingPage />;
 
   return (
     <Routes>
