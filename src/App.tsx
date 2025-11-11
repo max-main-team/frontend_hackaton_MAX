@@ -21,6 +21,8 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.warn("Failed to persist user/roles");
+    console.log("Failed to persist user/roles");
     if (!webAppData) return;
     setLoading(true);
 
@@ -58,7 +60,7 @@ function AppInner() {
           navigate("/abiturient", { replace: true });
         }
       })
-      .finally(() => {setLoading(false); navigate("/abiturient", { replace: true });} );
+      .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
 
   if (loading || !webAppData) return <LoadingPage />;
