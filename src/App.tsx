@@ -17,7 +17,7 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate("/abiturient", { replace: true });
+    navigate("/profile", { replace: true });
     
   }, [navigate]);
 
