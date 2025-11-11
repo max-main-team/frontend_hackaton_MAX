@@ -58,10 +58,10 @@ function AppInner() {
           navigate("/abiturient", { replace: true });
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {setLoading(false); navigate("/abiturient", { replace: true });} );
   }, [webAppData, navigate, saveAccessToken]);
 
-  if (loading ) return <LoadingPage />;
+  if (loading || !webAppData) return <LoadingPage />;
 
   return (
     <Routes>
