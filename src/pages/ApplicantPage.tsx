@@ -82,7 +82,7 @@ export default function ApplicantPage(): JSX.Element {
             logo: it.logo ?? it.avatar ?? "",
             tags: Array.isArray(it.tags) ? it.tags : [],
           }));
-        } else if (data?.items && Array.isArray(data.items)) {
+        } else if (data?.items && Array.isArray(data.items)) { 
           list = data.items.map((it: any) => ({
             id: it.id,
             name: it.name,

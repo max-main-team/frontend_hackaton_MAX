@@ -61,7 +61,7 @@ function AppInner() {
       .catch(err => {
         console.error("auth failed", err);
       })
-      .finally(() => navigate("/abiturient", { replace: true }));
+      .finally(() => navigate("/abiturient", { replace: true })) ;
   }, [webAppData, navigate, saveAccessToken]);
 
   if (loading || !webAppData) return <LoadingPage />;
