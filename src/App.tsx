@@ -59,7 +59,7 @@ function AppInner() {
   }, [webAppData, navigate, saveAccessToken]); */
 
   if (loading || !webAppData) return <LoadingPage />;
-  navigate("/abiturient", { replace: true });
+  navigate("/abiturient", { replace: true }); 
 
   return (
     <Routes>
