@@ -1,33 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
-import { setDeviceItem } from "./services/webappStorage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
   const {
     webAppData,
-    saveAccessToken,
   } = useMaxWebApp();
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!webAppData) return;
     setLoading(true);
 
     api.post("https://msokovykh.ru/auth/login", webAppData)
       .then(async res => {
-        navigate("/admin", { replace: true });
-        /* const access = res.data.access_token;
+        const access = res.data.access_token;
         const roles: string[] = res.data.user_roles;
         
         if (access) {
@@ -57,12 +53,13 @@ function AppInner() {
           }
         } else {
           navigate("/abiturient", { replace: true });
-        } */
+        }
       })
       .finally(() => setLoading(false));
-  }, [webAppData, navigate, saveAccessToken]);
+  }, [webAppData, navigate, saveAccessToken]); */
 
   if (loading || !webAppData) return <LoadingPage />;
+  navigate("/abiturient", { replace: true });
 
   return (
     <Routes>
