@@ -9,7 +9,7 @@ export default ({ mode } : { mode: string }) => {
       port: 5173,
       proxy: {
         "/api": {
-          target: env.VITE_BACKEND_URL || "http://localhost:4000",
+          target: env.VITE_BACKEND_URL,
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, "")
