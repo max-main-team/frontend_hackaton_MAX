@@ -64,7 +64,7 @@ function AppInner() {
       .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
 
-  if (loading) return <LoadingPage />;
+  if (loading || !webAppData) return <LoadingPage />;
 
   return (
     <Routes>
@@ -74,7 +74,6 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
-      <Route path="*" element={<ApplicantPage />} />
     </Routes>
   );
 }
