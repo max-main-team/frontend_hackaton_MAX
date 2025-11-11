@@ -31,7 +31,6 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
-      <Route path="*" element={<ApplicantPage />} />
     </Routes>
   );
 }
