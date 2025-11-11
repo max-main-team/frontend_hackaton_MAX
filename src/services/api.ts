@@ -31,7 +31,7 @@ let refreshQueue: Array<(token: string | null) => void> = [];
 
 
 async function doRefreshToken(): Promise<string> {
-  const res = await rawAxios.post("/auth/refresh", undefined);
+  const res = await rawAxios.post("https://msokovykh.ru/auth/refresh", undefined);
   const newAccess = res.data?.access_token;
 
   if (!newAccess) {
