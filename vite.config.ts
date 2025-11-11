@@ -11,7 +11,7 @@ export default ({ mode } : { mode: string }) => {
         "/api": {
           target: env.VITE_BACKEND_URL,
           changeOrigin: true,
-          secure: false,
+          secure: true,
           rewrite: (path) => path.replace(/^\/api/, "")
         },
         /* '/auth': {
