@@ -21,6 +21,7 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!webAppData) return;
     setLoading(true);
 
     api.post("https://msokovykh.ru/auth/login", webAppData)
