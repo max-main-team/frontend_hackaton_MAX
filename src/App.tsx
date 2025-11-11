@@ -24,6 +24,8 @@ function AppInner() {
     if (!webAppData) return;
     setLoading(true);
 
+    console.debug("AppInner: sending auth/login with webAppData:", webAppData);
+
     api.post("/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
