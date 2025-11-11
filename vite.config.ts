@@ -11,7 +11,8 @@ export default ({ mode } : { mode: string }) => {
         "/api": {
           target: env.VITE_BACKEND_URL || "http://localhost:4000",
           changeOrigin: true,
-          secure: false
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, "")
         }
       }
     }
