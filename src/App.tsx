@@ -55,7 +55,7 @@ function AppInner() {
             navigate("/select", { replace: true });
           }
         } else {
-          navigate("/select", { replace: true });
+          navigate("/abiturient", { replace: true });
         }
       })
       .catch(err => {

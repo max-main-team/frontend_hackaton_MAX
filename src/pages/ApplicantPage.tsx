@@ -31,9 +31,10 @@ const FALLBACK_UNIS: University[] = [
   { id: "spbpu", name: "СПб Политех", short: "Политехнический университет", city: "Санкт-Петербург", logo: "", tags: ["Инженерия", "Технологии"] },
 ];
 
-export default function UniversitySearchPage(): JSX.Element {
+export default function ApplicantPage(): JSX.Element {
   const { webAppData } = useMaxWebApp();
   const user = webAppData?.user;
+  const userId = webAppData?.user.id;
   const navigate = useNavigate();
 
   const [query, setQuery] = useState<string>("");
@@ -41,7 +42,13 @@ export default function UniversitySearchPage(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<University[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<University | null>(null);
+
+  const [joinOpen, setJoinOpen] = useState(false);
+  const [joinUni, setJoinUni] = useState<University | null>(null);
+  const [joinRole, setJoinRole] = useState<"student" | "teacher" | "admin">("student");
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinResult, setJoinResult] = useState<string | null>(null);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query.trim()), 300);
@@ -105,11 +112,21 @@ export default function UniversitySearchPage(): JSX.Element {
     return () => { mounted = false; };
   }, [debounced]);
 
-  const handleOpen = (u: University) => setSelected(u);
-  const handleClose = () => setSelected(null);
+  const handleOpen = (u: University) => {
+    setJoinError(null);
+    setJoinResult(null);
+    setJoinUni(u);
+    setJoinRole("student");
+    setJoinOpen(true);
+  };
+  const handleClose = () => {
+    setJoinOpen(false);
+    setJoinUni(null);
+    setJoinError(null);
+    setJoinResult(null);
+  };
 
   const goProfile = () => navigate("/profile");
-  const goMain = () => navigate("/", { replace: true });
 
   const emptyState = useMemo(() => (
     <Panel mode="secondary" className="card" style={{ padding: 16 }}>
@@ -117,6 +134,36 @@ export default function UniversitySearchPage(): JSX.Element {
       <Typography.Label>Попробуйте другое имя или уберите часть запроса.</Typography.Label>
     </Panel>
   ), []);
+
+  async function handleJoinSubmit() {
+    if (!joinUni) return;
+    if (!userId) {
+      setJoinError("Не удалось определить идентификатор пользователя. Попробуйте ещё раз.");
+      return;
+    }
+
+    setJoinLoading(true);
+    setJoinError(null);
+    setJoinResult(null);
+
+    try {
+      const body = {
+        user_id: userId,
+        university_id: joinUni.id,
+        user_role: joinRole,
+      };
+
+      const res = await api.post("/universities/", body);
+      const message = res.data?.message ?? "Заявка отправлена успешно.";
+      setJoinResult(typeof message === "string" ? message : "Успешно");
+    } catch (e: any) {
+      console.error("Join request failed", e);
+      const msg = e?.response?.data?.message ?? e?.message ?? "Ошибка отправки заявки";
+      setJoinError(String(msg));
+    } finally {
+      setJoinLoading(false);
+    }
+  }
 
   return (
     <MainLayout>
@@ -139,7 +186,7 @@ export default function UniversitySearchPage(): JSX.Element {
         <Panel mode="secondary" className="card card--feature" style={{ padding: 12, marginBottom: 14 }}>
           <Container>
             <Typography.Label>
-              Найдите университет по названию — посмотрите описание и переходите на главную страницу выбранного университета.
+              Найдите университет по названию — посмотрите описание и вступайте в группу выбранного университета.
             </Typography.Label>
 
             <div style={{ marginTop: 12 }}>
@@ -191,8 +238,16 @@ export default function UniversitySearchPage(): JSX.Element {
                     </div>
                   </div>
 
-                  <div>
-                    <Button mode="tertiary" size="small" onClick={(e) => { e.stopPropagation(); handleOpen(u); }}>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Button
+                      mode="primary"
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); setJoinError(null); setJoinResult(null); setJoinUni(u); setJoinRole("student"); setJoinOpen(true); }}
+                    >
+                      Вступить в группу {u.name}
+                    </Button>
+
+                    <Button mode="tertiary" size="small" onClick={(e) => { e.stopPropagation(); setJoinUni(u); setJoinOpen(true); }}>
                       Подробнее
                     </Button>
                   </div>
@@ -202,32 +257,58 @@ export default function UniversitySearchPage(): JSX.Element {
           </Grid>
         )}
 
-        {selected && (
+        {joinOpen && joinUni && (
           <div className="fullscreen-overlay">
             <Panel className="panel-inner" mode="secondary" centeredX centeredY>
-              <Container style={{ padding: 18, maxWidth: 880 }}>
-                <Flex justify="space-between" align="center">
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <Avatar.Container size={72} form="squircle">
-                      {selected.logo ? <Avatar.Image src={selected.logo} /> : <Avatar.Text>{(selected.name||"U").slice(0,2)}</Avatar.Text>}
-                    </Avatar.Container>
+              <Container style={{ padding: 18, maxWidth: 680 }}>
+                <Flex direction="column" gap={12}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <Avatar.Container size={56} form="squircle">
+                        {joinUni.logo ? <Avatar.Image src={joinUni.logo} /> : <Avatar.Text>{(joinUni.name||"U").slice(0,2)}</Avatar.Text>}
+                      </Avatar.Container>
+                      <div>
+                        <Typography.Title variant="medium-strong" style={{ margin: 0 }}>{joinUni.name}</Typography.Title>
+                        <Typography.Label className="uni-short">{joinUni.city ?? ""}</Typography.Label>
+                      </div>
+                    </div>
+
                     <div>
-                      <Typography.Title variant="medium-strong">{selected.name}</Typography.Title>
-                      <Typography.Label className="uni-short">{selected.city ?? ""}</Typography.Label>
+                      <Button mode="tertiary" onClick={handleClose}>Закрыть</Button>
                     </div>
                   </div>
 
                   <div>
-                    <Button mode="tertiary" onClick={handleClose}>Закрыть</Button>
+                    <Typography.Label style={{ display: "block", marginBottom: 8 }}>Выберите роль, в которой хотите вступить</Typography.Label>
+                    <select
+                      className="uni-role-select"
+                      value={joinRole}
+                      onChange={(e) => setJoinRole(e.target.value as any)}
+                    >
+                      <option value="student">Студент</option>
+                      <option value="teacher">Преподаватель</option>
+                      <option value="admin">Администратор</option>
+                    </select>
                   </div>
-                </Flex>
 
-                <div style={{ marginTop: 12 }}>
-                  <Typography.Label>{selected.description ?? selected.short ?? "Описание отсутствует."}</Typography.Label>
-                </div>
+                  {joinError && (
+                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
+                      <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{joinError}</Typography.Label>
+                    </Panel>
+                  )}
 
-                <Flex justify="end" style={{ marginTop: 18 }}>
-                  <Button onClick={() => { handleClose(); goMain(); }} mode="primary">Перейти на главную</Button>
+                  {joinResult && (
+                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
+                      <Typography.Label style={{ color: "var(--maxui-primary, #0ea5e9)" }}>{joinResult}</Typography.Label>
+                    </Panel>
+                  )}
+
+                  <Flex justify="end" gap={8}>
+                    <Button mode="tertiary" onClick={handleClose}>Отмена</Button>
+                    <Button mode="primary" onClick={handleJoinSubmit} disabled={joinLoading}>
+                      {joinLoading ? "Отправка..." : `Вступить как ${joinRole}`}
+                    </Button>
+                  </Flex>
                 </Flex>
               </Container>
             </Panel>
