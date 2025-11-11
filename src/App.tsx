@@ -21,14 +21,13 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.warn("Failed to persist user/roles");
-    console.log("Failed to persist user/roles");
     if (!webAppData) return;
     setLoading(true);
 
     api.post("https://msokovykh.ru/auth/login", webAppData)
       .then(async res => {
-        const access = res.data.access_token;
+        navigate("/admin", { replace: true });
+        /* const access = res.data.access_token;
         const roles: string[] = res.data.user_roles;
         
         if (access) {
@@ -58,7 +57,7 @@ function AppInner() {
           }
         } else {
           navigate("/abiturient", { replace: true });
-        }
+        } */
       })
       .finally(() => setLoading(false));
   }, [webAppData, navigate, saveAccessToken]);
