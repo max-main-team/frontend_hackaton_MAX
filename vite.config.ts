@@ -13,7 +13,12 @@ export default ({ mode } : { mode: string }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, "")
-        }
+        },
+        '/auth': {
+          target: env.VITE_BACKEND_URL,
+          changeOrigin: true,
+          secure: false,
+        },
       }
     }
   });
