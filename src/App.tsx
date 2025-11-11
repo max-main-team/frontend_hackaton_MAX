@@ -15,8 +15,8 @@ function AppInner() {
 
   useEffect(() => {
     // Редиректим ТОЛЬКО если НЕ на странице абитуриента
-    if (location.pathname !== "/abiturient") {
-      navigate("/abiturient", { replace: true });
+    if (location.pathname !== "/teacher") {
+      navigate("/teacher", { replace: true });
     }
   }, [navigate, location.pathname]); // ← Добавьте location.pathname в зависимости
 
