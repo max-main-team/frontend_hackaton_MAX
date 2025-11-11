@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
@@ -9,17 +9,16 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  /* const {
-    webAppData,
-  } = useMaxWebApp(); */
-
   const [loading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // ← добавьте этот хук
 
   useEffect(() => {
-    navigate("/profile", { replace: true });
-    
-  }, [navigate]);
+    // Редиректим только если НЕ на странице абитуриента
+    if (location.pathname !== "/abiturient") {
+      navigate("/abiturient", { replace: true });
+    }
+  }, [navigate, location.pathname]); // ← добавьте зависимость
 
   if (loading) return <LoadingPage />;
   
@@ -31,6 +30,7 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
+      <Route path="*" element={<ApplicantPage />} />
     </Routes>
   );
 }
