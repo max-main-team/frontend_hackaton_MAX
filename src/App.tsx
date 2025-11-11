@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
@@ -10,57 +9,20 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  const {
+  /* const {
     webAppData,
-  } = useMaxWebApp();
+  } = useMaxWebApp(); */
 
   const [loading] = useState(false);
   const navigate = useNavigate();
 
-  /* useEffect(() => {
-    if (!webAppData) return;
-    setLoading(true);
+  useEffect(() => {
+    navigate("/abiturient", { replace: true });
+    
+  }, [navigate]);
 
-    api.post("https://msokovykh.ru/auth/login", webAppData)
-      .then(async res => {
-        const access = res.data.access_token;
-        const roles: string[] = res.data.user_roles;
-        
-        if (access) {
-          if (typeof saveAccessToken === "function") {
-            await saveAccessToken(access);
-          }
-          setAccessTokenInMemory(access);
-        }
-
-        try {
-          if (Array.isArray(roles)) {
-            await setDeviceItem("user_roles", JSON.stringify(roles));
-          }
-        } catch (e) {
-          console.warn("Failed to persist user/roles", e);
-        }
-
-        
-
-        if (Array.isArray(roles) && roles.length > 0) {
-          if (roles.length === 1) {
-            if (roles[0] === "student") navigate("/student", { replace: true });
-            if (roles[0] === "teacher") navigate("/teacher", { replace: true });
-            if (roles[0] === "admin") navigate("/admin", { replace: true });
-          } else {
-            navigate("/select", { replace: true });
-          }
-        } else {
-          navigate("/abiturient", { replace: true });
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [webAppData, navigate, saveAccessToken]); */
-
-  if (loading || !webAppData) return <LoadingPage />;
-  navigate("/abiturient", { replace: true }); 
-
+  if (loading) return <LoadingPage />;
+  
   return (
     <Routes>
       <Route path="/student" element={<StudentPage />} />
