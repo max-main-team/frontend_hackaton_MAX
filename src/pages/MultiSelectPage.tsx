@@ -153,8 +153,9 @@ export default function MultiSelectPage() {
               return (
                 <div key={key}>
                   <Button
-                    mode="primary"
+                    mode="link"
                     size="large"
+                    type="button"
                     onClick={() => onSelectRole(key)}
                     style={{ width: "100%", justifyContent: "flex-start", paddingLeft: 16 }}
                   >
