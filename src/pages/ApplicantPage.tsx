@@ -31,7 +31,7 @@ const FALLBACK_UNIS: University[] = [
 ];
 
 export default function ApplicantPage(): JSX.Element {
-  const user = "Артем";
+  const user = "Aртем";
   const userId = "404";
   const navigate = useNavigate();
 
