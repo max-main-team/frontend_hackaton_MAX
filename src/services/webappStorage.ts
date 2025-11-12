@@ -12,7 +12,7 @@ export async function setDeviceItem(key: string, value: string): Promise<void> {
       await tryCallMaybePromise(w.DeviceStorage.setItem(key, value));
       return;
     }
-    //localStorage.setItem(key, value);
+    localStorage.setItem(key, value);
   } catch (e) {
     console.warn("[webappStorage] setItem failed, fallback/localStorage attempted", e);
     try { localStorage.setItem(key, value); } catch (e2) { console.warn("[webappStorage] localStorage.setItem also failed", e2); }
@@ -26,8 +26,8 @@ export async function getDeviceItem(key: string): Promise<string | null> {
       const v = await tryCallMaybePromise<string | null>(w.DeviceStorage.getItem(key));
       return v ?? null;
     }
-    //const v = localStorage.getItem(key);
-    return null;
+    const v = localStorage.getItem(key);
+    return v;
   } catch (e) {
     console.warn("[webappStorage] getItem failed, falling back to localStorage", e);
     try { return localStorage.getItem(key); } catch (e2) { console.warn("[webappStorage] localStorage.getItem failed", e2); return null; }
@@ -41,7 +41,7 @@ export async function removeDeviceItem(key: string): Promise<void> {
       await tryCallMaybePromise(w.DeviceStorage.removeItem(key));
       return;
     }
-    //localStorage.removeItem(key);
+    localStorage.removeItem(key);
   } catch (e) {
     console.warn("[webappStorage] removeItem failed; attempted localStorage", e);
     try { localStorage.removeItem(key); } catch (e2) { console.warn("[webappStorage] localStorage.removeItem failed", e2); }
