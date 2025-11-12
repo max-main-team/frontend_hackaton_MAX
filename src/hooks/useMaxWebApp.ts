@@ -58,10 +58,14 @@ export function useMaxWebApp() {
   }, []);
 
   const saveAccessToken = useCallback(async (token: string) => {
-    if (!token) return;
-    await setDeviceItem("access_token", token);
-    try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
-  }, []);
+  if (!token) return;
+
+  try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory failed", e); }
+
+  setDeviceItem("access_token", token).catch(e => {
+    console.warn("saveAccessToken: persist failed", e);
+  });
+}, []);
 
   const loadAccessToken = useCallback(async (): Promise<string | null> => {
     try { return await getDeviceItem("access_token"); } catch { return null; }
