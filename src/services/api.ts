@@ -6,11 +6,6 @@ import {
   removeDeviceItem
 } from "./webappStorage";
 
-const rawAxios = axios.create({
-  timeout: 10000,
-  withCredentials: true,
-});
-
 export const api = axios.create({
   timeout: 10000,
   withCredentials: true,
@@ -26,7 +21,7 @@ let refreshQueue: Array<(token: string | null) => void> = [];
 
 
 async function doRefreshToken(): Promise<string> {
-  const res = await rawAxios.post("/auth/refresh", undefined);
+  const res = await axios.post("/auth/refresh", undefined);
   const newAccess = res.data?.access_token;
 
   if (!newAccess) {
