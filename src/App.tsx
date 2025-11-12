@@ -8,7 +8,7 @@ import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
-import { setDeviceItem } from "./services/webappStorage";
+//import { setDeviceItem } from "./services/webappStorage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
@@ -29,12 +29,12 @@ function AppInner() {
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
-          window.WebApp?.DeviceStorage?.setItem("access_token", access);
+          await window.WebApp?.DeviceStorage?.setItem("access_token", access);
         }
 
         try {
           if (Array.isArray(roles)) {
-            await setDeviceItem("user_roles", JSON.stringify(roles));
+            await window.WebApp?.DeviceStorage?.setItem("user_roles", JSON.stringify(roles));
           }
         } catch (e) {
           console.warn("Failed to persist user/roles", e);
