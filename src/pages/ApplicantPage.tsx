@@ -59,7 +59,7 @@ export default function ApplicantPage(): JSX.Element {
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get("/user/me");
+        const res = await api.get("https://msokovykh.ru/user/me");
         const data = res.data;
         const u = data?.user;
         if (!mounted) return;
@@ -90,7 +90,7 @@ export default function ApplicantPage(): JSX.Element {
       setResults(null);
 
       try {
-        const res = await api.get("/universities/", { params: q ? { q } : undefined });
+        const res = await api.get("https://msokovykh.ru/universities/", { params: q ? { q } : undefined });
         const data = res.data;
 
         let list: University[] = [];
