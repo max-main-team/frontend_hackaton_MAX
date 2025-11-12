@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Panel, Container, Flex, Typography, Button, Grid } from "@maxhub/max-ui";
+import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
+import api from "../services/api";
 
 const ROLE_LABEL: Record<string, string> = {
   admin: "Администратор",
@@ -16,37 +17,33 @@ export default function MultiSelectPage() {
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // NEW: store token and raw roles string for display
-  const [storedToken, setStoredToken] = useState<string | null>(null);
-  const [storedRolesRaw, setStoredRolesRaw] = useState<string | null>(null);
+  // user profile info from /user/me
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
+    // fetch roles and token from device storage (getDeviceItem has fallback)
     let mounted = true;
-    async function load() {
+    async function loadRoles() {
       setLoading(true);
       try {
         const cached = await getDeviceItem("user_roles");
-        const token = await getDeviceItem("access_token");
         if (!mounted) return;
-
-        setStoredToken(token ?? null);
-        setStoredRolesRaw(cached ?? null);
 
         if (cached) {
           try {
             const parsed = JSON.parse(cached);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              if (!mounted) return;
               setRoles(parsed.map(String));
               setLoading(false);
               return;
             }
           } catch {
-            // ignore parse error, we'll show raw below
+            // parse error -> treat as no roles
           }
         }
 
-        // no roles in storage -> show empty
+        // no roles in storage -> empty array
         setRoles([]);
       } catch (e) {
         console.error("Failed to load roles/token", e);
@@ -55,7 +52,36 @@ export default function MultiSelectPage() {
         if (mounted) setLoading(false);
       }
     }
-    load();
+
+    loadRoles();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    // fetch profile from backend
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.get("/user/me");
+        const data = res.data;
+        const u = data?.user;
+        if (!mounted) return;
+        if (u) {
+          const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || null;
+          setUserName(fullName);
+          setUserPhoto(u.photo_url ?? null);
+        } else {
+          setUserName(null);
+          setUserPhoto(null);
+        }
+      } catch (e) {
+        console.warn("Failed to load user profile", e);
+        if (!mounted) return;
+        setUserName(null);
+        setUserPhoto(null);
+      }
+    })();
+
     return () => { mounted = false; };
   }, []);
 
@@ -70,23 +96,30 @@ export default function MultiSelectPage() {
     navigate("/profile");
   }
 
+  const initials = (name?: string | null) => {
+    if (!name) return "U";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+
   return (
     <MainLayout>
       <Container style={{ paddingTop: 8 }}>
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
             <Typography.Title variant="large-strong">Выберите профиль</Typography.Title>
-            {(
-              <Typography.Label>
-                "dgfdg"
-              </Typography.Label>
+            {userName ? (
+              <Typography.Label>{userName}</Typography.Label>
+            ) : (
+              <Typography.Label>Гость</Typography.Label>
             )}
           </div>
 
-          <div>
-            <Button onClick={goProfile} mode="tertiary" size="small">
-              Профиль
-            </Button>
+          <div style={{ cursor: "pointer" }} onClick={goProfile} aria-label="Профиль">
+            <Avatar.Container size={40} form="circle">
+              {userPhoto ? <Avatar.Image src={userPhoto} /> : <Avatar.Text>{initials(userName)}</Avatar.Text>}
+            </Avatar.Container>
           </div>
         </Flex>
 
@@ -109,27 +142,6 @@ export default function MultiSelectPage() {
             <Typography.Label style={{ display: "block", marginBottom: 8 }}>
               Не удалось определить доступные роли. Попробуйте перезайти в приложение.
             </Typography.Label>
-
-            {/* NEW: debug info — показываем токен и то, что хранилось в user_roles */}
-            <div style={{ marginTop: 8, wordBreak: "break-all" }}>
-              <Typography.Label style={{ fontWeight: 600 }}>Токен (access_token):</Typography.Label>
-              <Typography.Label style={{ display: "block", marginBottom: 8 }}>
-                {storedToken ?? <span style={{ color: "var(--maxui-muted, #6b7280)" }}>не найден</span>}
-              </Typography.Label>
-
-              <Typography.Label style={{ fontWeight: 600 }}>Роли (raw from storage):</Typography.Label>
-              <Typography.Label style={{ display: "block" }}>
-                {storedRolesRaw ?? <span style={{ color: "var(--maxui-muted, #6b7280)" }}>не найдены</span>}
-              </Typography.Label>
-
-              {/* Попробуем показать распарсенные роли, если можно */}
-              <div style={{ marginTop: 8 }}>
-                <Typography.Label style={{ fontWeight: 600 }}>Роли (parsed):</Typography.Label>
-                <Typography.Label style={{ display: "block" }}>
-                  {Array.isArray(roles) && roles.length > 0 ? roles.join(", ") : <span style={{ color: "var(--maxui-muted, #6b7280)" }}>нет</span>}
-                </Typography.Label>
-              </div>
-            </div>
           </Panel>
         )}
 
