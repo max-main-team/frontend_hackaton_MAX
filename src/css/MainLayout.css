@@ -1,25 +1,45 @@
+:root {
+  --header-height: 72px;   /* desktop header height */
+  --bottom-height: 72px;   /* bottom tabs height */
+  --content-padding: 16px;
+}
+
+/* ensure the app root can use full viewport height */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Layout shell */
 .main-layout {
+  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background: linear-gradient(180deg, var(--maxui-bg, #ffffff), var(--maxui-surface, #f8fafc));
   color: var(--maxui-text, #0f1724);
   font-family: inherit;
 }
 
+/* fixed header */
 .main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 18px 16px;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: transparent;
+  padding: 12px 16px;
+  z-index: 60;
+  background: rgba(255,255,255,0.9);
   backdrop-filter: blur(6px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
 }
 
+/* decorative large watermark (hidden on small screens) */
 .main-header::before {
   content: "SERVICES";
   position: absolute;
@@ -41,15 +61,21 @@
 .main-header-left { display:flex; align-items:center; gap:12px; z-index:1; }
 .main-header-right { display:flex; align-items:center; gap:12px; z-index:1; }
 
+/* main content takes remaining viewport, scrolls internally */
 .main-content {
-  flex: 1;
-  padding: 16px;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
+  padding: var(--content-padding);
+  /* reserve space for header and bottom tabs */
+  margin-top: var(--header-height);
+  margin-bottom: var(--bottom-height);
+  height: calc(100vh - var(--header-height) - var(--bottom-height));
+  overflow: auto;
 }
 
+/* visual cards */
 .main-layout .admin-card {
   box-shadow: var(--maxui-shadow, 0 6px 18px rgba(18, 23, 30, 0.06));
   transition: transform .12s ease, box-shadow .12s ease;
@@ -59,20 +85,32 @@
   box-shadow: 0 12px 28px rgba(18,23,30,0.08);
 }
 
+/* fixed bottom tabs */
 .main-bottom-tabs {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
+  height: var(--bottom-height);
   padding: 10px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.8), var(--maxui-bg, #ffffff));
+  z-index: 60;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), var(--maxui-bg, #ffffff));
   box-shadow: 0 -8px 24px rgba(18, 23, 30, 0.04);
-  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* inner panel for tabs */
 .tabs-panel {
+  width: 100%;
+  max-width: 1100px;
   border-radius: 14px;
   padding: 8px;
+  box-sizing: border-box;
 }
 
+/* tab links */
 .tab-link {
   display: inline-flex;
   text-decoration: none;
@@ -93,6 +131,7 @@
 }
 .tab-link.active .tab-label { color: var(--maxui-primary, #0ea5e9); }
 
+/* fullscreen modal overlay */
 .fullscreen-overlay {
   position: fixed;
   inset: 0;
@@ -114,16 +153,23 @@
   justify-content:center;
 }
 
+/* responsive tweaks */
 @media (max-width: 680px) {
-  .main-header { padding: 12px; }
+  :root {
+    --header-height: 64px;
+    --bottom-height: 82px;
+    --content-padding: 12px;
+  }
+  .main-header { padding: 10px 12px; }
   .main-content { padding: 12px; }
-  .main-header::before { display: none; }
-  .admin-card--tall { min-height: 140px; }
 }
 
+/* dark mode */
 @media (prefers-color-scheme: dark) {
   .main-layout {
     background: linear-gradient(180deg, var(--maxui-bg, #0b0b0b), var(--maxui-surface, #0f1112));
     color: var(--maxui-text, #e6eef8);
   }
+  .main-header { background: rgba(10,10,10,0.7); }
+  .main-bottom-tabs { background: linear-gradient(180deg, rgba(10,10,10,0.7), var(--maxui-bg, #0b0b0b)); }
 }
