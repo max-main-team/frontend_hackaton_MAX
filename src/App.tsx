@@ -29,12 +29,12 @@ function AppInner() {
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
-          await window.WebApp?.DeviceStorage?.setItem("access_token", access);
+          window.WebApp?.DeviceStorage?.setItem("access_token", access);
         }
 
         try {
           if (Array.isArray(roles)) {
-            await window.WebApp?.DeviceStorage?.setItem("user_roles", JSON.stringify(roles));
+            window.WebApp?.DeviceStorage?.setItem("user_roles", JSON.stringify(roles));
           }
         } catch (e) {
           console.warn("Failed to persist user/roles", e);
