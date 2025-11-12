@@ -29,9 +29,9 @@ function AppInner() {
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
-          if (typeof saveAccessToken === "function") {
+          /* if (typeof saveAccessToken === "function") {
             await saveAccessToken(access);
-          }
+          } */
           setAccessTokenInMemory(access);
         }
 
