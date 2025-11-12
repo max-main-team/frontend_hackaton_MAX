@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import LoadingPage from "./pages/LoadingPage";
+import ApplicantPage from "./pages/ApplicantPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
-import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
   const [loading] = useState(false);
@@ -15,8 +15,8 @@ function AppInner() {
 
   useEffect(() => {
     // Редиректим ТОЛЬКО если НЕ на странице абитуриента
-    if (location.pathname !== "/teacher") {
-      navigate("/teacher", { replace: true });
+    if (location.pathname !== "/abiturient") {
+      navigate("/abiturient", { replace: true });
     }
   }, [navigate, location.pathname]); // ← Добавьте location.pathname в зависимости
 
