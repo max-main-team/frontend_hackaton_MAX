@@ -16,12 +16,22 @@ export default function MultiSelectPage() {
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // NEW: store token and raw roles string for display
+  const [storedToken, setStoredToken] = useState<string | null>(null);
+  const [storedRolesRaw, setStoredRolesRaw] = useState<string | null>(null);
+
   useEffect(() => {
     let mounted = true;
     async function load() {
       setLoading(true);
       try {
         const cached = await getDeviceItem("user_roles");
+        const token = await getDeviceItem("access_token");
+        if (!mounted) return;
+
+        setStoredToken(token ?? null);
+        setStoredRolesRaw(cached ?? null);
+
         if (cached) {
           try {
             const parsed = JSON.parse(cached);
@@ -32,13 +42,14 @@ export default function MultiSelectPage() {
               return;
             }
           } catch {
-            // ignore parse error
+            // ignore parse error, we'll show raw below
           }
         }
 
+        // no roles in storage -> show empty
         setRoles([]);
       } catch (e) {
-        console.error("Failed to load roles", e);
+        console.error("Failed to load roles/token", e);
         setRoles([]);
       } finally {
         if (mounted) setLoading(false);
@@ -95,9 +106,30 @@ export default function MultiSelectPage() {
 
         {!loading && (!roles || roles.length === 0) && (
           <Panel mode="secondary" className="card" style={{ padding: 14 }}>
-            <Typography.Label>
+            <Typography.Label style={{ display: "block", marginBottom: 8 }}>
               Не удалось определить доступные роли. Попробуйте перезайти в приложение.
             </Typography.Label>
+
+            {/* NEW: debug info — показываем токен и то, что хранилось в user_roles */}
+            <div style={{ marginTop: 8, wordBreak: "break-all" }}>
+              <Typography.Label style={{ fontWeight: 600 }}>Токен (access_token):</Typography.Label>
+              <Typography.Label style={{ display: "block", marginBottom: 8 }}>
+                {storedToken ?? <span style={{ color: "var(--maxui-muted, #6b7280)" }}>не найден</span>}
+              </Typography.Label>
+
+              <Typography.Label style={{ fontWeight: 600 }}>Роли (raw from storage):</Typography.Label>
+              <Typography.Label style={{ display: "block" }}>
+                {storedRolesRaw ?? <span style={{ color: "var(--maxui-muted, #6b7280)" }}>не найдены</span>}
+              </Typography.Label>
+
+              {/* Попробуем показать распарсенные роли, если можно */}
+              <div style={{ marginTop: 8 }}>
+                <Typography.Label style={{ fontWeight: 600 }}>Роли (parsed):</Typography.Label>
+                <Typography.Label style={{ display: "block" }}>
+                  {Array.isArray(roles) && roles.length > 0 ? roles.join(", ") : <span style={{ color: "var(--maxui-muted, #6b7280)" }}>нет</span>}
+                </Typography.Label>
+              </div>
+            </div>
           </Panel>
         )}
 
