@@ -62,7 +62,7 @@ export default function MultiSelectPage() {
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get("/user/me");
+        const res = await api.get("https://msokovykh.ru/user/me");
         const data = res.data;
         const u = data?.user;
         if (!mounted) return;
