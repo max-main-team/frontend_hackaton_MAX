@@ -23,7 +23,7 @@ function AppInner() {
   useEffect(() => {
     setLoading(true);
 
-    api.post("/auth/login", webAppData)
+    api.post("https://msokovykh.ru/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
