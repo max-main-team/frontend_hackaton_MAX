@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import '../css/MainLayout.css';
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
 
 const TAB_ITEMS = [
   { key: "people", path: "/people", label: "Люди" },
@@ -13,8 +12,6 @@ const TAB_ITEMS = [
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
-  const { webAppData } = useMaxWebApp();
-  const user = webAppData?.user;
 
   return (
     <div className="main-layout">
@@ -27,7 +24,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Button asChild>
             <Link to="/profile" aria-label="Profile">
               <Avatar.Container size={40} form="circle">
-                <Avatar.Image src={user?.avatar_url ?? user?.photo_url ?? ""} />
               </Avatar.Container>
             </Link>
           </Button>
