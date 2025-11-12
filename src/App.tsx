@@ -43,8 +43,6 @@ function AppInner() {
           console.warn("Failed to persist user/roles", e);
         }
 
-        
-
         if (Array.isArray(roles) && roles.length > 0) {
           if (roles.length === 1) {
             if (roles[0] === "student") navigate("/student", { replace: true });

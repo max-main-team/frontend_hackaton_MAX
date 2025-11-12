@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
 
@@ -13,8 +12,6 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default function MultiSelectPage() {
   const navigate = useNavigate();
-  const { webAppData } = useMaxWebApp();
-  const userFromWebApp = webAppData?.user ?? null;
 
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -49,7 +46,7 @@ export default function MultiSelectPage() {
     }
     load();
     return () => { mounted = false; };
-  }, [webAppData]);
+  }, []);
 
   function onSelectRole(role: string) {
     if (role === "student") navigate("/student", { replace: true });
@@ -68,9 +65,9 @@ export default function MultiSelectPage() {
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
             <Typography.Title variant="large-strong">Выберите профиль</Typography.Title>
-            {userFromWebApp?.first_name && (
+            {(
               <Typography.Label>
-                {userFromWebApp.first_name} {userFromWebApp.last_name ?? ""}
+                "dgfdg"
               </Typography.Label>
             )}
           </div>
