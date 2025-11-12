@@ -1,30 +1,49 @@
-export async function setDeviceItem(key: string, value: string) {
-  if (typeof window === "undefined" || !window.WebApp?.DeviceStorage?.setItem) {
-    localStorage.setItem(key, value); // fallback для dev
-    return;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getCachedWebApp } from "./webappClient";
+
+async function tryCallMaybePromise<T>(fnResult: any): Promise<T | undefined> {
+  return await Promise.resolve(fnResult);
+}
+
+export async function setDeviceItem(key: string, value: string): Promise<void> {
+  try {
+    const w = getCachedWebApp() ?? ((typeof window !== "undefined") ? (window as any).WebApp : null);
+    if (w?.DeviceStorage && typeof w.DeviceStorage.setItem === "function") {
+      await tryCallMaybePromise(w.DeviceStorage.setItem(key, value));
+      return;
+    }
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("[webappStorage] setItem failed, fallback/localStorage attempted", e);
+    try { localStorage.setItem(key, value); } catch (e2) { console.warn("[webappStorage] localStorage.setItem also failed", e2); }
   }
-  await window.WebApp.DeviceStorage.setItem(key, value);
 }
 
 export async function getDeviceItem(key: string): Promise<string | null> {
-  if (typeof window === "undefined" || !window.WebApp?.DeviceStorage?.getItem) {
-    return localStorage.getItem(key);
+  try {
+    const w = getCachedWebApp() ?? ((typeof window !== "undefined") ? (window as any).WebApp : null);
+    if (w?.DeviceStorage && typeof w.DeviceStorage.getItem === "function") {
+      const v = await tryCallMaybePromise<string | null>(w.DeviceStorage.getItem(key));
+      return v ?? null;
+    }
+    const v = localStorage.getItem(key);
+    return v;
+  } catch (e) {
+    console.warn("[webappStorage] getItem failed, falling back to localStorage", e);
+    try { return localStorage.getItem(key); } catch (e2) { console.warn("[webappStorage] localStorage.getItem failed", e2); return null; }
   }
-  return await window.WebApp.DeviceStorage.getItem(key);
 }
 
-export async function removeDeviceItem(key: string) {
-  if (typeof window === "undefined" || !window.WebApp?.DeviceStorage?.removeItem) {
+export async function removeDeviceItem(key: string): Promise<void> {
+  try {
+    const w = getCachedWebApp() ?? ((typeof window !== "undefined") ? (window as any).WebApp : null);
+    if (w?.DeviceStorage && typeof w.DeviceStorage.removeItem === "function") {
+      await tryCallMaybePromise(w.DeviceStorage.removeItem(key));
+      return;
+    }
     localStorage.removeItem(key);
-    return;
+  } catch (e) {
+    console.warn("[webappStorage] removeItem failed; attempted localStorage", e);
+    try { localStorage.removeItem(key); } catch (e2) { console.warn("[webappStorage] localStorage.removeItem failed", e2); }
   }
-  await window.WebApp.DeviceStorage.removeItem(key);
-}
-
-export async function initBiometrics() {
-  if (!window.WebApp?.BiometricManager) return null;
-  if (!window.WebApp.BiometricManager.isInited) {
-    await window.WebApp.BiometricManager.init();
-  }
-  return window.WebApp.BiometricManager;
 }

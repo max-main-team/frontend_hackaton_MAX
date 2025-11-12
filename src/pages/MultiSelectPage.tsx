@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-//import { getDeviceItem } from "../services/webappStorage";
+import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -25,8 +25,8 @@ export default function MultiSelectPage() {
     async function load() {
       setLoading(true);
       try {
-        const cached = await window.WebApp?.DeviceStorage?.getItem("user_roles");
-        const token = await window.WebApp?.DeviceStorage?.getItem("access_token");
+        const cached = await getDeviceItem("user_roles");
+        const token = await getDeviceItem("access_token");
         if (!mounted) return;
 
         setStoredToken(token ?? null);

@@ -7,6 +7,7 @@ import {
   removeDeviceItem,
 } from "../services/webappStorage";
 import { setAccessTokenInMemory } from "../services/api";
+import { setCachedWebApp, onWebAppReady, getCachedWebApp } from "../services/webappClient";
 
 export type WebAppDataAny = any;
 
@@ -18,35 +19,44 @@ export function useMaxWebApp() {
   const readInitFrom = (w: any) => w?.initData;
 
   useEffect(() => {
-    const maybeWebApp = window.WebApp;
-
+    const maybeWebApp = (window as any).WebApp ?? null;
     if (!maybeWebApp) {
       console.warn("[useMaxWebApp] window.WebApp not available — running outside MAX client");
+      // We still call onWebAppReady to detect it if it appears later
+      onWebAppReady(() => {
+        const w = getCachedWebApp();
+        if (w) {
+          setWebApp(w as any);
+          // set raw initData as before
+          const sync = readInitFrom(w);
+          if (sync) {
+            setRawInitData(sync);
+            setWebAppData(sync);
+          }
+        }
+      });
       return;
     }
 
-    const w = maybeWebApp;
-    setWebApp(w);
+    // cache it once for everyone
+    setCachedWebApp(maybeWebApp);
+    setWebApp(maybeWebApp);
 
     try {
-      const sync = readInitFrom(w);
+      const sync = readInitFrom(maybeWebApp);
       if (sync) {
         setRawInitData(sync);
         setWebAppData(sync);
-        console.debug("[useMaxWebApp] used synchronous initData", sync);
       }
-    } catch (e) {
-      console.warn("[useMaxWebApp] error reading initData synchronously", e);
-    }
+    } catch (e) { console.warn("[useMaxWebApp] error reading initData synchronously", e); }
 
-    if (typeof w.ready === "function") {
+    if (typeof maybeWebApp.ready === "function") {
       try {
-        w.ready(() => {
+        maybeWebApp.ready(() => {
           try {
-            const d = readInitFrom(w);
+            const d = readInitFrom(maybeWebApp);
             setRawInitData(d);
             setWebAppData(d);
-            console.debug("[useMaxWebApp] ready callback set initData", d);
           } catch (inner) {
             console.warn("[useMaxWebApp] error in ready callback", inner);
           }
@@ -57,27 +67,27 @@ export function useMaxWebApp() {
     }
   }, []);
 
-  const saveAccessToken = useCallback(async (token: string) => {
-  if (!token) return;
+    const saveAccessToken = useCallback(async (token: string) => {
+    if (!token) return;
 
-  try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory failed", e); }
+    try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory failed", e); }
 
-  setDeviceItem("access_token", token).catch(e => {
-    console.warn("saveAccessToken: persist failed", e);
-  });
-}, []);
-
-  const loadAccessToken = useCallback(async (): Promise<string | null> => {
-    try { return await getDeviceItem("access_token"); } catch { return null; }
+    setDeviceItem("access_token", token).catch(e => {
+      console.warn("saveAccessToken: persist failed", e);
+    });
   }, []);
 
-  const removeAccessToken = useCallback(async () => {
-    try {
-      await removeDeviceItem("access_token");
-    } finally {
-      try { setAccessTokenInMemory(null); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
-    }
-  }, []);
+    const loadAccessToken = useCallback(async (): Promise<string | null> => {
+      try { return await getDeviceItem("access_token"); } catch { return null; }
+    }, []);
+
+    const removeAccessToken = useCallback(async () => {
+      try {
+        await removeDeviceItem("access_token");
+      } finally {
+        try { setAccessTokenInMemory(null); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
+      }
+    }, []);
 
   const clearAuthStorage = useCallback(async () => {
     await removeAccessToken();
