@@ -21,7 +21,7 @@ let refreshQueue: Array<(token: string | null) => void> = [];
 
 
 async function doRefreshToken(): Promise<string> {
-  const res = await axios.post("/auth/refresh", undefined);
+  const res = await axios.post("https://msokovykh.ru/auth/refresh", undefined);
   const newAccess = res.data?.access_token;
 
   if (!newAccess) {
