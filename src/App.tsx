@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api, setAccessTokenInMemory } from "./services/api";
+import { api } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
@@ -29,10 +29,7 @@ function AppInner() {
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
-          if (typeof saveAccessToken === "function") {
-            saveAccessToken(access);
-          }
-          setAccessTokenInMemory(access);
+          window.WebApp?.DeviceStorage?.setItem("access_token", access);
         }
 
         try {
