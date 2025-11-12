@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { Panel, Container, Flex, Avatar, Typography, Button, Grid } from "@maxhub/max-ui";
-
+import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { getDeviceItem } from "../services/webappStorage";
+import { useEffect, useState } from "react";
 import api from "../services/api";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -64,7 +62,7 @@ export default function MultiSelectPage() {
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get("https://msokovykh.ru/user/me");
+        const res = await api.get("/user/me");
         const data = res.data;
         const u = data?.user;
         if (!mounted) return;
@@ -88,10 +86,9 @@ export default function MultiSelectPage() {
   }, []);
 
   function onSelectRole(role: string) {
-    console.log("onSelectRole:", role);
-    if (role === "student") navigate("/student");
-    else if (role === "teacher") navigate("/teacher");
-    else if (role === "admin") navigate("/admin");
+    if (role === "student") navigate("/student", { replace: true });
+    else if (role === "teacher") navigate("/teacher", { replace: true });
+    else if (role === "admin") navigate("/admin", { replace: true });
     else console.warn("Unknown role", role);
   }
 
@@ -119,11 +116,7 @@ export default function MultiSelectPage() {
             )}
           </div>
 
-          <div
-            style={{ cursor: "pointer" }}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); goProfile(); }}
-            aria-label="Профиль"
-          >
+          <div style={{ cursor: "pointer" }} onClick={goProfile} aria-label="Профиль">
             <Avatar.Container size={40} form="circle">
               {userPhoto ? <Avatar.Image src={userPhoto} /> : <Avatar.Text>{initials(userName)}</Avatar.Text>}
             </Avatar.Container>
@@ -162,7 +155,7 @@ export default function MultiSelectPage() {
                   <Button
                     mode="primary"
                     size="large"
-                    onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onSelectRole(key); }}
+                    onClick={() => onSelectRole(key)}
                     style={{ width: "100%", justifyContent: "flex-start", paddingLeft: 16 }}
                   >
                     <Flex align="center" style={{ width: "100%" }}>
