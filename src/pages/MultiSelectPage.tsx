@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
+import MainLayout from "../layouts/MainLayout";
 import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
 import api from "../services/api";
@@ -103,6 +104,7 @@ export default function MultiSelectPage() {
   };
 
   return (
+    <MainLayout>
       <Container style={{ paddingTop: 8 }}>
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
@@ -174,5 +176,6 @@ export default function MultiSelectPage() {
           </Grid>
         )}
       </Container>
+    </MainLayout>
   );
 }
