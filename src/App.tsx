@@ -40,6 +40,7 @@ function AppInner() {
             await setDeviceItem("user_roles", JSON.stringify(roles));
           }
         } catch (e) {
+          navigate("/student", { replace: true });
           console.warn("Failed to persist user/roles", e);
         }
 
@@ -71,7 +72,7 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
-      <Route path="*" element={<TeacherPage />} />
+      <Route path="*" element={<ApplicantPage />} />
     </Routes>
   );
 }
