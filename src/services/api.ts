@@ -6,17 +6,12 @@ import {
   removeDeviceItem
 } from "./webappStorage";
 
-const envBase = import.meta.env.VITE_BACKEND_URL as string | undefined;
-const baseURL = envBase ? envBase.replace(/\/$/, '') + '/' : '/';
-
 const rawAxios = axios.create({
-  baseURL,
   timeout: 10000,
   withCredentials: true,
 });
 
 export const api = axios.create({
-  baseURL,
   timeout: 10000,
   withCredentials: true,
 });
@@ -31,7 +26,7 @@ let refreshQueue: Array<(token: string | null) => void> = [];
 
 
 async function doRefreshToken(): Promise<string> {
-  const res = await rawAxios.post("https://msokovykh.ru/auth/refresh", undefined);
+  const res = await rawAxios.post("/auth/refresh", undefined);
   const newAccess = res.data?.access_token;
 
   if (!newAccess) {

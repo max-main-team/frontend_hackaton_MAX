@@ -99,13 +99,12 @@ export default function ApplicantPage(): JSX.Element {
 
         if (rawItems.length > 0) {
           list = rawItems.map((it: any) => ({
-            id: it.id ?? it.uni_id ?? it.code ?? JSON.stringify(it),
-            name: it.uni_name ?? it.name ?? it.title ?? "Без названия",
-            short: it.uni_short_name ?? it.short ?? it.subtitle ?? "",
+            id: it.id ?? "",
+            name: it.uni_name ?? "Без названия",
+            short: it.uni_short_name ?? "",
             description: it.description ?? "",
             city: it.city ?? "",
             logo: it.logo ?? it.avatar ?? "",
-            tags: Array.isArray(it.tags) ? it.tags : [],
             site: it.site_url ?? it.site ?? "",
           }));
         } else {
@@ -198,7 +197,7 @@ export default function ApplicantPage(): JSX.Element {
         user_role: joinRole,
       };
 
-      const res = await api.post("/universities/", body);
+      const res = await api.post("https://msokovykh.ru/universities/", body);
       const message = res.data?.message ?? "Заявка отправлена успешно.";
       setJoinResult(typeof message === "string" ? message : "Успешно");
     } catch (e: any) {
