@@ -11,7 +11,6 @@ import {
   Grid,
 } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
 import "../css/ApplicantPage.css";
 
@@ -32,9 +31,8 @@ const FALLBACK_UNIS: University[] = [
 ];
 
 export default function ApplicantPage(): JSX.Element {
-  const { webAppData } = useMaxWebApp();
-  const user = webAppData?.user;
-  const userId = webAppData?.user.id;
+  const user = "Артем";
+  const userId = "404";
   const navigate = useNavigate();
 
   const [query, setQuery] = useState<string>("");
@@ -171,8 +169,8 @@ export default function ApplicantPage(): JSX.Element {
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
             <Typography.Title variant="large-strong">Абитуриент</Typography.Title>
-            {user?.first_name && (
-              <Typography.Label>{user.first_name} {user.last_name ?? ""}</Typography.Label>
+            {user && (
+              <Typography.Label>{user} {user ?? ""}</Typography.Label>
             )}
           </div>
 

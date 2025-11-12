@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import LoadingPage from "./pages/LoadingPage";
 import ApplicantPage from "./pages/ApplicantPage";
+import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
