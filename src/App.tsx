@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api, setAccessTokenInMemory } from "./services/api";
+import { api } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
-//import { setDeviceItem } from "./services/webappStorage";
+import { setDeviceItem } from "./services/webappStorage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
@@ -25,23 +25,23 @@ function AppInner() {
 
     api.post("https://msokovykh.ru/auth/login", webAppData)
       .then(async res => {
-        const access = res.data?.access_token;
+        //const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
-        if (access) {
+        /* if (access) {
           if (typeof saveAccessToken === "function") {
             await saveAccessToken(access);
           }
           setAccessTokenInMemory(access);
-        }
+        } */
 
-        /* try {
+        try {
           if (Array.isArray(roles)) {
             await setDeviceItem("user_roles", JSON.stringify(roles));
           }
         } catch (e) {
           console.warn("Failed to persist user/roles", e);
-        } */
+        }
 
         if (Array.isArray(roles) && roles.length > 0) {
           if (roles.length === 1) {
