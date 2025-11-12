@@ -197,7 +197,7 @@ export default function ApplicantPage(): JSX.Element {
         user_role: joinRole,
       };
 
-      const res = await api.post("https://msokovykh.ru/universities/", body);
+      const res = await api.post("/universities/", body);
       const message = res.data?.message ?? "Заявка отправлена успешно.";
       setJoinResult(typeof message === "string" ? message : "Успешно");
     } catch (e: any) {
