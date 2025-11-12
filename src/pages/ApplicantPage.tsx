@@ -22,6 +22,7 @@ type University = {
   city?: string;
   logo?: string;
   tags?: string[];
+  site?: string;
 };
 
 const FALLBACK_UNIS: University[] = [
@@ -31,8 +32,9 @@ const FALLBACK_UNIS: University[] = [
 ];
 
 export default function ApplicantPage(): JSX.Element {
-  const user = "Aртем";
-  const userId = "404";
+  const [user, setUser] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | number | null>(null);
+
   const navigate = useNavigate();
 
   const [query, setQuery] = useState<string>("");
@@ -55,49 +57,94 @@ export default function ApplicantPage(): JSX.Element {
 
   useEffect(() => {
     let mounted = true;
-    async function search(q: string) {
+    (async () => {
+      try {
+        const res = await api.get("/user/me");
+        const data = res.data;
+        const u = data?.user;
+        if (!mounted) return;
+        if (u) {
+          const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || "Пользователь";
+          setUser(fullName);
+          setUserId(u.id ?? null);
+        } else {
+          setUser(null);
+          setUserId(null);
+        }
+      } catch (e: any) {
+        console.warn("Failed to load user info", e);
+        if (!mounted) return;
+        setUser(null);
+        setUserId(null);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchUnis(q: string) {
       setError(null);
       setLoading(true);
       setResults(null);
-      try {
-        if (!q) {
-          if (!mounted) return;
-          setResults(FALLBACK_UNIS);
-          return;
-        }
 
-        const res = await api.get("/universities", { params: { q } });
+      try {
+        const res = await api.get("/universities/", { params: q ? { q } : undefined });
         const data = res.data;
+
         let list: University[] = [];
 
-        if (Array.isArray(data)) {
-          list = data.map((it: any) => ({
-            id: it.id ?? it.code ?? it.slug ?? JSON.stringify(it),
-            name: it.name ?? it.title ?? "Без названия",
-            short: it.short ?? it.subtitle ?? "",
+        const rawItems: any[] = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []);
+
+        if (rawItems.length > 0) {
+          list = rawItems.map((it: any) => ({
+            id: it.id ?? it.uni_id ?? it.code ?? JSON.stringify(it),
+            name: it.uni_name ?? it.name ?? it.title ?? "Без названия",
+            short: it.uni_short_name ?? it.short ?? it.subtitle ?? "",
             description: it.description ?? "",
             city: it.city ?? "",
             logo: it.logo ?? it.avatar ?? "",
             tags: Array.isArray(it.tags) ? it.tags : [],
-          }));
-        } else if (data?.items && Array.isArray(data.items)) {
-          list = data.items.map((it: any) => ({
-            id: it.id,
-            name: it.name,
-            short: it.short,
-            description: it.description,
-            city: it.city,
-            logo: it.logo,
-            tags: it.tags,
+            site: it.site_url ?? it.site ?? "",
           }));
         } else {
-          list = FALLBACK_UNIS;
+          if (!Array.isArray(data) && data && typeof data === "object") {
+            const maybeArr = Object.values(data).filter(v => typeof v === "object");
+            if (maybeArr.length > 0) {
+              list = maybeArr.map((it: any) => ({
+                id: it.id ?? it.uni_id ?? it.code ?? JSON.stringify(it),
+                name: it.uni_name ?? it.name ?? it.title ?? "Без названия",
+                short: it.uni_short_name ?? it.short ?? "",
+                description: it.description ?? "",
+                city: it.city ?? "",
+                logo: it.logo ?? "",
+                tags: Array.isArray(it.tags) ? it.tags : [],
+                site: it.site_url ?? "",
+              }));
+            }
+          }
         }
 
-        if (!mounted) return;
-        setResults(list);
+        if (q && list.length > 0) {
+          const ql = q.toLowerCase();
+          list = list.filter(u => (
+            (u.name ?? "").toLowerCase().includes(ql) ||
+            (u.short ?? "").toLowerCase().includes(ql) ||
+            (u.city ?? "").toLowerCase().includes(ql)
+          ));
+        }
+
+        if (list.length === 0) {
+          setError("По вашему запросу ничего не найдено. Показываем популярные университеты.");
+          if (!mounted) return;
+          setResults(FALLBACK_UNIS);
+        } else {
+          if (!mounted) return;
+          setResults(list);
+        }
       } catch (e: any) {
-        console.warn("Universities search failed, using fallback", e);
+        console.warn("Universities fetch failed", e);
         if (!mounted) return;
         setError("Сервис поиска временно недоступен — показываем популярные университеты.");
         setResults(FALLBACK_UNIS);
@@ -106,7 +153,7 @@ export default function ApplicantPage(): JSX.Element {
       }
     }
 
-    search(debounced);
+    fetchUnis(debounced);
     return () => { mounted = false; };
   }, [debounced]);
 
@@ -169,8 +216,10 @@ export default function ApplicantPage(): JSX.Element {
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
             <Typography.Title variant="large-strong">Абитуриент</Typography.Title>
-            {user && (
-              <Typography.Label>{user} {user ?? ""}</Typography.Label>
+            {user ? (
+              <Typography.Label>{user}</Typography.Label>
+            ) : (
+              <Typography.Label>Гость</Typography.Label>
             )}
           </div>
 
