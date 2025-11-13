@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
+import { Panel, Container, Flex, Typography, Grid, Avatar } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
@@ -152,7 +152,6 @@ export default function MultiSelectPage() {
               const label = ROLE_LABEL[key] ?? key;
               return (
                 <div key={key}>
-                  <Button asChild>
                   <button type="button" onClick={() => onSelectRole(key)}
                           style={{ width: "100%", display: "block", paddingLeft: 16 }}>
                     <div style={{display: "flex", alignItems: "center", width: "100%"}}>
@@ -165,7 +164,7 @@ export default function MultiSelectPage() {
                       <div><Typography.Label>→</Typography.Label></div>
                     </div>
                   </button>
-                </Button>
+                
                 </div>
               );
             })}
