@@ -3,7 +3,6 @@
   line-height: 1.5;
   font-weight: 400;
 
-  /* Всегда темная тема */
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -13,7 +12,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* CSS переменные для темной темы */
   --maxui-bg: #0b0b0b;
   --maxui-text: #e6eef8;
   --maxui-surface: #0f1112;
