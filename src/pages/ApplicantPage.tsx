@@ -7,7 +7,6 @@ import {
   Avatar,
   Typography,
   Button,
-  Grid,
 } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import api from "../services/api";
@@ -207,62 +206,52 @@ export default function ApplicantPage(): JSX.Element {
   return (
     <MainLayout>
       <Container className="applicant-container" style={{ 
-        paddingTop: 12, 
+        padding: '12px 16px 20px 16px', // Добавляем равные отступы со всех сторон
         maxWidth: '100%', 
         overflowX: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
       }}>
-        <div style={{ 
-          width: '100%', 
-          maxWidth: '800px', 
-          marginBottom: 24 
-        }}>
+        {/* Заголовок */}
+        <div style={{ marginBottom: 24 }}>
           <Typography.Title variant="large-strong" style={{ margin: 0 }}>
             Абитуриент {user || 'Гость'}
           </Typography.Title>
         </div>
 
+        {/* Карточка поиска */}
         <Panel mode="secondary" className="card card--feature" style={{ 
           padding: 20, 
           marginBottom: 20,
-          width: '100%',
-          maxWidth: '800px'
+          width: '100%'
         }}>
-          <Container>
-            <Typography.Label className="search-description">
-              Найдите университет по названию — посмотрите описание и вступайте в группу выбранного университета.
-            </Typography.Label>
+          <Typography.Label className="search-description">
+            Найдите университет по названию — посмотрите описание и вступайте в группу выбранного университета.
+          </Typography.Label>
 
-            <div style={{ marginTop: 16 }}>
-              <div className="uni-search-input">
-                <input
-                  placeholder="Поиск по названию университета (например: ИТМО, МГУ...)"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="uni-input"
-                />
-                <Button mode="primary" className="search-button">
-                  Найти
-                </Button>
-              </div>
+          <div style={{ marginTop: 16 }}>
+            <div className="uni-search-input">
+              <input
+                placeholder="Поиск по названию университета (например: ИТМО, МГУ...)"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="uni-input"
+              />
+              <Button mode="primary" className="search-button">
+                Найти
+              </Button>
             </div>
-          </Container>
+          </div>
         </Panel>
 
-        <div className="results-scroll-container" style={{
-          width: '100%',
-          maxWidth: '800px'
-        }}>
+        {/* Контейнер результатов с фиксированной высотой */}
+        <div className="results-scroll-container">
           {loading && (
-            <Panel mode="secondary" className="card" style={{ padding: 16 }}>
+            <Panel mode="secondary" className="card" style={{ padding: 16, marginBottom: 16 }}>
               <Typography.Label>Поиск...</Typography.Label>
             </Panel>
           )}
 
           {error && (
-            <Panel mode="secondary" className="card" style={{ padding: 16 }}>
+            <Panel mode="secondary" className="card" style={{ padding: 16, marginBottom: 16 }}>
               <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{error}</Typography.Label>
             </Panel>
           )}
@@ -270,9 +259,9 @@ export default function ApplicantPage(): JSX.Element {
           {!loading && results && results.length === 0 && emptyState}
 
           {!loading && results && results.length > 0 && (
-            <Grid cols={1} gap={16}>
+            <div style={{ width: '100%' }}>
               {results.map((u) => (
-                <Panel key={u.id} mode="secondary" className="uni-card">
+                <Panel key={u.id} mode="secondary" className="uni-card" style={{ marginBottom: 16 }}>
                   <Flex direction="column" gap={12} style={{ width: "100%" }}>
                     <Flex align="center" gap={12}>
                       <Avatar.Container size={64} form="squircle">
@@ -299,18 +288,14 @@ export default function ApplicantPage(): JSX.Element {
                     )}
                     
                     <Flex justify="end" gap={8} style={{ marginTop: 12 }}>
-                     <Button
+                      <Button
                         mode="primary"
                         size="small"
                         onClick={() => handleOpen(u)}
                         style={{
-                          whiteSpace: 'normal',
-                          wordWrap: 'break-word',
-                          height: 'auto',
-                          minHeight: '32px',
-                          padding: '6px 12px',
-                          lineHeight: '1.2',
-                          textAlign: 'center'
+                          whiteSpace: 'nowrap',
+                          height: '32px',
+                          padding: '6px 12px'
                         }}
                       >
                         Вступить в группу
@@ -319,7 +304,7 @@ export default function ApplicantPage(): JSX.Element {
                   </Flex>
                 </Panel>
               ))}
-            </Grid>
+            </div>
           )}
         </div>
 

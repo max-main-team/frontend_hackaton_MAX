@@ -1,8 +1,8 @@
 .applicant-container {
   max-width: 100%;
   overflow-x: hidden;
-  padding-bottom: 20px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .search-description {
@@ -44,7 +44,6 @@
   max-height: calc(100vh - 280px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 16px 20px 16px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -166,5 +165,9 @@ body, html {
 }
 
 * {
+  box-sizing: border-box;
+}
+
+.maxui-panel {
   box-sizing: border-box;
 }
