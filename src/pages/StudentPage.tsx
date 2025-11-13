@@ -9,7 +9,7 @@ export default function StudentPage() {
   const name = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "Студент";
 
   return (
-      <div style={{ marginBottom: 12 }}>
+      <div style={{ marginBottom: 12 }}> 
         <Flex align="center" gap={12}> 
           <Avatar.Container size={56} form="circle">
             <Avatar.Image src={user?.full_avatar_url ?? user?.avatar_url ?? ""} />
