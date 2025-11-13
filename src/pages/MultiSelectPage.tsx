@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
-import { useEffect, useState, useCallback } from "react";
+import { Panel, Container, Typography, Button, Grid } from "@maxhub/max-ui";
+import { useEffect, useState } from "react";
 import api from "../services/api";
 import MainLayout from "../layouts/MainLayout";
 
@@ -15,17 +15,6 @@ export default function MultiSelectPage() {
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [userName, setUserName] = useState<string | null>(null);
-  const [userPhoto, setUserPhoto] = useState<string | null>(null);
-  const [isNavigating, setIsNavigating] = useState<boolean>(false);
-
-  const safeNavigate = useCallback((path: string) => {
-    if (isNavigating) return;
-    
-    setIsNavigating(true);
-    setTimeout(() => {
-      navigate(path, { replace: true });
-    }, 100);
-  }, [navigate, isNavigating]);
 
   useEffect(() => {
     let mounted = true;
@@ -75,16 +64,13 @@ export default function MultiSelectPage() {
         if (u) {
           const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || null;
           setUserName(fullName);
-          setUserPhoto(u.photo_url ?? null);
         } else {
           setUserName(null);
-          setUserPhoto(null);
         }
       } catch (e) {
         console.warn("Failed to load user profile", e);
         if (!mounted) return;
         setUserName(null);
-        setUserPhoto(null);
       }
     }
 
@@ -93,88 +79,55 @@ export default function MultiSelectPage() {
   }, []);
 
   const onSelectRole = (role: string) => {
-  switch (role) {
-    case "student":
-      navigate("/student", { replace: true });
-      break;
-    case "teacher":
-      navigate("/teacher", { replace: true });
-      break;
-    case "admin":
-      navigate("/admin", { replace: true });
-      break;
-    default:
-      console.warn("Unknown role", role);
-  }
-};
-
-  const goProfile = useCallback(() => {
-    if (isNavigating) return;
-    safeNavigate("/profile");
-  }, [safeNavigate, isNavigating]);
-
-  const initials = (name?: string | null) => {
-    if (!name) return "U";
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+    switch (role) {
+      case "student":
+        navigate("/student", { replace: true });
+        break;
+      case "teacher":
+        navigate("/teacher", { replace: true });
+        break;
+      case "admin":
+        navigate("/admin", { replace: true });
+        break;
+      default:
+        console.warn("Unknown role", role);
+    }
   };
 
-  // Если происходит навигация, показываем loading
-  if (isNavigating) {
-    return (
-        <Container style={{ paddingTop: 8 }}>
-          <Typography.Title variant="large-strong">Переход...</Typography.Title>
-        </Container>
-    );
-  }
-
   return (
-    <MainLayout>
+    <MainLayout hideTabs={true}>
       <Container style={{ paddingTop: 8 }}>
-        <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
-          <div>
-            <Typography.Title variant="large-strong">Выберите профиль</Typography.Title>
-            {userName ? (
-              <Typography.Label>{userName}</Typography.Label>
-            ) : (
-              <Typography.Label>Гость</Typography.Label>
-            )}
-          </div>
+        {/* Заголовок с именем пользователя */}
+        <div style={{ marginBottom: 16 }}>
+          <Typography.Title variant="large-strong" style={{ marginBottom: 4 }}>
+            Выберите профиль, {userName || "Гость"}
+          </Typography.Title>
+        </div>
 
-          <div style={{ cursor: "pointer" }} onClick={goProfile} aria-label="Профиль">
-            <Avatar.Container size={40} form="circle">
-              {userPhoto ? (
-                <Avatar.Image src={userPhoto} />
-              ) : (
-                <Avatar.Text>{initials(userName)}</Avatar.Text>
-              )}
-            </Avatar.Container>
-          </div>
-        </Flex>
-
-        <Panel mode="secondary" className="card card--feature" style={{ padding: 12, marginBottom: 14 }}>
-          <Container>
-            <Typography.Label>
-              Выберите роль, в которой хотите работать в этом сеансе.
-            </Typography.Label>
-          </Container>
+        {/* Панель с пояснением */}
+        <Panel mode="secondary" style={{ padding: 16, marginBottom: 16, borderRadius: 8 }}>
+          <Typography.Label>
+            Выберите роль, в которой хотите работать в этом сеансе.
+          </Typography.Label>
         </Panel>
 
+        {/* Состояние загрузки */}
         {loading && (
-          <Panel mode="secondary" className="card" style={{ padding: 14 }}>
+          <Panel mode="secondary" style={{ padding: 16, borderRadius: 8 }}>
             <Typography.Label>Загрузка...</Typography.Label>
           </Panel>
         )}
 
+        {/* Состояние ошибки */}
         {!loading && (!roles || roles.length === 0) && (
-          <Panel mode="secondary" className="card" style={{ padding: 14 }}>
+          <Panel mode="secondary" style={{ padding: 16, borderRadius: 8 }}>
             <Typography.Label style={{ display: "block", marginBottom: 8 }}>
               Не удалось определить доступные роли. Попробуйте перезайти в приложение.
             </Typography.Label>
           </Panel>
         )}
 
+        {/* Список ролей */}
         {!loading && roles && roles.length > 0 && (
           <Grid cols={1} gap={12}>
             {roles.map((r) => {
@@ -183,28 +136,18 @@ export default function MultiSelectPage() {
               return (
                 <div key={key}>
                   <Button 
-                    asChild
-                    onClick={(e: React.MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onSelectRole(key);
+                    onClick={() => onSelectRole(key)}
+                    style={{ 
+                      width: "100%", 
+                      padding: "12px 16px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center"
                     }}
-                    style={{ width: "100%", display: "block", paddingLeft: 16 }}
-                    disabled={isNavigating}
                   >
-                    <button type="button" style={{ width: "100%" }}>
-                      <div style={{display: "flex", alignItems: "center", width: "100%"}}>
-                        <div style={{ flex: 1 }}>
-                          <Typography.Title variant="small-strong" style={{ margin: 0 }}>
-                            {label}
-                          </Typography.Title>
-                          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-                            Войти как {label.toLowerCase()}
-                          </Typography.Label>
-                        </div>
-                        <div><Typography.Label>→</Typography.Label></div>
-                      </div>
-                    </button>
+                    <Typography.Title variant="small-strong" style={{ margin: 0 }}>
+                      {label}
+                    </Typography.Title>
                   </Button>
                 </div>
               );

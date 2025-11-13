@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
+import { Panel, Flex, Avatar, Button } from "@maxhub/max-ui";
 import "../css/MainLayout.css";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
@@ -12,7 +12,13 @@ const TAB_ITEMS = [
   { key: "settings", path: "/settings", label: "Настройки" },
 ];
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+// Добавляем пропс для скрытия табов
+interface MainLayoutProps {
+  children: React.ReactNode;
+  hideTabs?: boolean;
+}
+
+export default function MainLayout({ children, hideTabs = false }: MainLayoutProps) {
   const navigate = useNavigate();
   const loc = useLocation();
   const { webAppData } = useMaxWebApp();
@@ -71,8 +77,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="main-layout">
       <header className="main-header">
+        {/* Убрали текст "Сервисы" из левой части */}
         <div className="main-header-left">
-          <Typography.Title variant="large-strong">Сервисы</Typography.Title>
+          {/* Оставляем пустой для выравнивания */}
         </div>
 
         <div className="main-header-right">
@@ -90,32 +97,35 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
       <main className="main-content">{children}</main>
 
-      <nav className="main-bottom-tabs">
-        <Panel mode="primary" className="tabs-panel">
-          <Flex justify="space-between" align="center" style={{ width: "100%" }}>
-            {TAB_ITEMS.map((tab) => {
-              const active = loc.pathname.startsWith(tab.path);
-              return (
-                <Button
-                  key={tab.key}
-                  type="button"
-                  mode={active ? "primary" : "tertiary"}
-                  size="small"
-                  onClick={onTabClick(tab.path)}
-                  aria-current={active ? "page" : undefined}
-                  className={`tab-button ${active ? "active" : ""}`}
-                  style={{ flex: 1, display: "flex", justifyContent: "center"}}
-                >
-                  <div className="tab-item">
-                    <div className="tab-icon">🔹</div>
-                    <div className="tab-label">{tab.label}</div>
-                  </div>
-                </Button>
-              );
-            })}
-          </Flex>
-        </Panel>
-      </nav>
+      {/* Условный рендеринг нижней панели */}
+      {!hideTabs && (
+        <nav className="main-bottom-tabs">
+          <Panel mode="primary" className="tabs-panel">
+            <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+              {TAB_ITEMS.map((tab) => {
+                const active = loc.pathname.startsWith(tab.path);
+                return (
+                  <Button
+                    key={tab.key}
+                    type="button"
+                    mode={active ? "primary" : "tertiary"}
+                    size="small"
+                    onClick={onTabClick(tab.path)}
+                    aria-current={active ? "page" : undefined}
+                    className={`tab-button ${active ? "active" : ""}`}
+                    style={{ flex: 1, display: "flex", justifyContent: "center"}}
+                  >
+                    <div className="tab-item">
+                      <div className="tab-icon">🔹</div>
+                      <div className="tab-label">{tab.label}</div>
+                    </div>
+                  </Button>
+                );
+              })}
+            </Flex>
+          </Panel>
+        </nav>
+      )}
     </div>
   );
 }
