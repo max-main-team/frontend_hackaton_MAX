@@ -40,7 +40,6 @@ export default function MultiSelectPage() {
           }
         }
 
-        // no roles in storage -> empty array
         setRoles([]);
       } catch (e) {
         console.error("Failed to load roles/token", e);
