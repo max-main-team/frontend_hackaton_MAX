@@ -34,7 +34,6 @@ export default function ApplicantPage(): JSX.Element {
   const [user, setUser] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | number | null>(null);
 
-
   const [query, setQuery] = useState<string>("");
   const [debounced, setDebounced] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -207,10 +206,10 @@ export default function ApplicantPage(): JSX.Element {
 
   return (
     <MainLayout>
-      <Container style={{ paddingTop: 12, maxWidth: '100%', overflowX: 'hidden' }}>
+      <Container className="applicant-container" style={{ paddingTop: 12 }}>
         <div style={{ marginBottom: 24 }}>
           <Typography.Title variant="large-strong" style={{ marginBottom: 4 }}>
-            Абитуриент
+            Абитуриент 
           </Typography.Title>
           {user ? (
             <Typography.Title variant="medium-strong" style={{ margin: 0, fontSize: '20px' }}>
@@ -221,9 +220,9 @@ export default function ApplicantPage(): JSX.Element {
           )}
         </div>
 
-        <Panel mode="secondary" className="card card--feature" style={{ padding: 16, marginBottom: 20 }}>
+        <Panel mode="secondary" className="card card--feature" style={{ padding: 20, marginBottom: 20 }}>
           <Container>
-            <Typography.Label>
+            <Typography.Label className="search-description">
               Найдите университет по названию — посмотрите описание и вступайте в группу выбранного университета.
             </Typography.Label>
 
@@ -234,9 +233,8 @@ export default function ApplicantPage(): JSX.Element {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="uni-input"
-                  style={{ color: '#000' }}
                 />
-                <Button mode="primary" onClick={() => setDebounced(query)}>
+                <Button mode="primary" className="search-button">
                   Найти
                 </Button>
               </div>
@@ -244,63 +242,65 @@ export default function ApplicantPage(): JSX.Element {
           </Container>
         </Panel>
 
-        {loading && (
-          <Panel mode="secondary" className="card" style={{ padding: 16 }}>
-            <Typography.Label>Поиск...</Typography.Label>
-          </Panel>
-        )}
+        <div className="results-scroll-container">
+          {loading && (
+            <Panel mode="secondary" className="card" style={{ padding: 16 }}>
+              <Typography.Label>Поиск...</Typography.Label>
+            </Panel>
+          )}
 
-        {error && (
-          <Panel mode="secondary" className="card" style={{ padding: 16 }}>
-            <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{error}</Typography.Label>
-          </Panel>
-        )}
+          {error && (
+            <Panel mode="secondary" className="card" style={{ padding: 16 }}>
+              <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{error}</Typography.Label>
+            </Panel>
+          )}
 
-        {!loading && results && results.length === 0 && emptyState}
+          {!loading && results && results.length === 0 && emptyState}
 
-        {!loading && results && results.length > 0 && (
-          <Grid cols={1} gap={16}>
-            {results.map((u) => (
-              <Panel key={u.id} mode="secondary" className="uni-card">
-                <Flex direction="column" gap={12} style={{ width: "100%" }}>
-                  <Flex align="center" gap={12}>
-                    <Avatar.Container size={64} form="squircle">
-                      {u.logo ? <Avatar.Image src={u.logo} /> : <Avatar.Text>{(u.name || "U").slice(0,2).toUpperCase()}</Avatar.Text>}
-                    </Avatar.Container>
-                    <div style={{ flex: 1 }}>
-                      <Typography.Title variant="small-strong" style={{ margin: 0, fontSize: '18px' }}>{u.name}</Typography.Title>
-                      <Typography.Label className="uni-short" style={{ fontSize: '14px' }}>{u.short ?? u.city}</Typography.Label>
-                    </div>
+          {!loading && results && results.length > 0 && (
+            <Grid cols={1} gap={16}>
+              {results.map((u) => (
+                <Panel key={u.id} mode="secondary" className="uni-card">
+                  <Flex direction="column" gap={12} style={{ width: "100%" }}>
+                    <Flex align="center" gap={12}>
+                      <Avatar.Container size={64} form="squircle">
+                        {u.logo ? <Avatar.Image src={u.logo} /> : <Avatar.Text>{(u.name || "U").slice(0,2).toUpperCase()}</Avatar.Text>}
+                      </Avatar.Container>
+                      <div style={{ flex: 1 }}>
+                        <Typography.Title variant="small-strong" style={{ margin: 0, fontSize: '18px' }}>{u.name}</Typography.Title>
+                        <Typography.Label className="uni-short" style={{ fontSize: '14px' }}>{u.short ?? u.city}</Typography.Label>
+                      </div>
+                    </Flex>
+                    
+                    {u.tags && u.tags.length > 0 && (
+                      <div style={{ marginTop: 8 }}>
+                        {u.tags.slice(0,3).map(t => (
+                          <span key={t} className="uni-tag">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <Flex justify="end" gap={8} style={{ marginTop: 12 }}>
+                      <Button
+                        mode="primary"
+                        size="small"
+                        onClick={() => handleOpen(u)}
+                      >
+                        Вступить в группу
+                      </Button>
+                    </Flex>
                   </Flex>
-                  
-                  {u.tags && u.tags.length > 0 && (
-                    <div style={{ marginTop: 8 }}>
-                      {u.tags.slice(0,3).map(t => (
-                        <span key={t} className="uni-tag">{t}</span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <Flex justify="end" gap={8} style={{ marginTop: 12 }}>
-                    <Button
-                      mode="primary"
-                      size="small"
-                      onClick={() => handleOpen(u)}
-                    >
-                      Вступить в группу
-                    </Button>
-                  </Flex>
-                </Flex>
-              </Panel>
-            ))}
-          </Grid>
-        )}
+                </Panel>
+              ))}
+            </Grid>
+          )}
+        </div>
 
         {joinOpen && joinUni && (
           <div className="fullscreen-overlay">
             <Panel className="panel-inner" mode="secondary" centeredX centeredY>
-              <Container style={{ padding: 20, maxWidth: 500 }}>
-                <Flex direction="column" gap={16}>
+              <Container style={{ padding: 18, maxWidth: 680 }}>
+                <Flex direction="column" gap={12}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                       <Avatar.Container size={56} form="squircle">
@@ -331,13 +331,13 @@ export default function ApplicantPage(): JSX.Element {
                   </div>
 
                   {joinError && (
-                    <Panel mode="secondary" className="card" style={{ padding: 12 }}>
+                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
                       <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{joinError}</Typography.Label>
                     </Panel>
                   )}
 
                   {joinResult && (
-                    <Panel mode="secondary" className="card" style={{ padding: 12 }}>
+                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
                       <Typography.Label style={{ color: "var(--maxui-primary, #0ea5e9)" }}>{joinResult}</Typography.Label>
                     </Panel>
                   )}

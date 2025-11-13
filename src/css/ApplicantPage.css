@@ -1,20 +1,68 @@
+.applicant-container {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-bottom: 20px;
+}
+
+.search-description {
+  font-size: 16px;
+  line-height: 1.4;
+  display: block;
+}
+
 .uni-search-input {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
   margin-top: 8px;
 }
 
 .uni-input {
   flex: 1;
-  height: 40px;
-  padding: 8px 12px;
+  height: 48px;
+  padding: 8px 16px;
   border-radius: 10px;
   border: 1px solid rgba(0,0,0,0.06);
   background: var(--maxui-card-bg, #fff);
   outline: none;
   font-family: inherit;
   color: #000;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.search-button {
+  height: 48px !important;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.results-scroll-container {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding: 8px 4px 20px 4px;
+  margin: 0 -4px;
+}
+
+/* Стилизация скроллбара */
+.results-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.results-scroll-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 3px;
+}
+
+.results-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.results-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.3);
 }
 
 .uni-card {
@@ -23,6 +71,7 @@
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease;
   width: 100%;
+  margin-bottom: 8px;
 }
 .uni-card:hover {
   transform: translateY(-2px);
@@ -45,6 +94,7 @@
   margin-bottom: 4px;
 }
 
+/* modal / overlay */
 .fullscreen-overlay {
   position: fixed;
   inset: 0;
@@ -62,6 +112,7 @@
   margin: 20px;
 }
 
+/* role select */
 .uni-role-select {
   width: 100%;
   height: 44px;
@@ -71,9 +122,4 @@
   font-family: inherit;
   font-size: 14px;
   background: white;
-}
-
-.container {
-  max-width: 100%;
-  overflow-x: hidden;
 }
