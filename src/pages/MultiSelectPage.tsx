@@ -152,24 +152,20 @@ export default function MultiSelectPage() {
               const label = ROLE_LABEL[key] ?? key;
               return (
                 <div key={key}>
-                  <Button
-                  mode="primary"
-                  size="large"
-                  onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onSelectRole(key); }}
-                  style={{ width: "100%", justifyContent: "flex-start", paddingLeft: 16 }}
-                  >
-                    <Flex align="center" style={{ width: "100%" }}>
+                  <Button asChild>
+                  <button type="button" onClick={() => onSelectRole(key)}
+                          style={{ width: "100%", display: "block", paddingLeft: 16 }}>
+                    <div style={{display: "flex", alignItems: "center", width: "100%"}}>
                       <div style={{ flex: 1 }}>
                         <Typography.Title variant="small-strong" style={{ margin: 0 }}>{label}</Typography.Title>
                         <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
                           Войти как {label.toLowerCase()}
                         </Typography.Label>
                       </div>
-                      <div>
-                        <Typography.Label>→</Typography.Label>
-                      </div>
-                    </Flex>
-                  </Button>
+                      <div><Typography.Label>→</Typography.Label></div>
+                    </div>
+                  </button>
+                </Button>
                 </div>
               );
             })}
