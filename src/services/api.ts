@@ -11,9 +11,6 @@ export const api = axios.create({
   baseURL: BACKEND || undefined,
   timeout: 10000,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 let memoryAccessToken: string | null = null;
