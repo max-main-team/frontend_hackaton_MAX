@@ -330,7 +330,7 @@ export default function ApplicantPage(): JSX.Element {
                     </Button>
                   </Flex>
 
-                  <div>
+                  <div style={{ width: '100%' }}>
                     <Typography.Label style={{ display: "block", marginBottom: 8 }}>
                       Выберите роль, в которой хотите вступить
                     </Typography.Label>
@@ -362,7 +362,7 @@ export default function ApplicantPage(): JSX.Element {
                     </Panel>
                   )}
 
-                  <Flex justify="end" gap={8} style={{ width: '100%' }}>
+                  <Flex justify="space-between" gap={8} style={{ width: '100%' }}>
                     <Button mode="tertiary" onClick={handleClose}>Отмена</Button>
                     <Button mode="primary" onClick={handleJoinSubmit} disabled={joinLoading}>
                       {joinLoading ? "Отправка..." : `Вступить как ${joinRole}`}
