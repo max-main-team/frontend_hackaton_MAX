@@ -160,7 +160,6 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
                     className={`tab-button ${active ? "active" : ""}`}
                     aria-current={active ? "page" : undefined}
                     title={tab.label}
-                    color="white"
                   >
                     <div className="tab-item" aria-hidden>
                       <div className="tab-icon">
