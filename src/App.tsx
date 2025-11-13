@@ -10,7 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  //const { webAppData } = useMaxWebApp();
+  const webAppData = window.WebApp?.initData;
   const [loading, setLoading] = useState(true);
   const [authCompleted, setAuthCompleted] = useState(false);
   const navigate = useNavigate();
@@ -29,8 +29,8 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    if (authCompleted || !window.WebApp?.initData) {
-      if (!window.WebApp?.initData) setLoading(false);
+    if (authCompleted || !webAppData) {
+      if (!webAppData) setLoading(false);
       return;
     }
 
@@ -39,7 +39,7 @@ function AppInner() {
         setLoading(true);
         console.log("Starting authentication...");
         
-        const res = await api.post("https://msokovykh.ru/auth/login", window.WebApp?.initData);
+        const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
@@ -69,7 +69,7 @@ function AppInner() {
     };
 
     checkAuth();
-  }, [navigate, handleRoleNavigation, authCompleted]);
+  }, [navigate, handleRoleNavigation, authCompleted, webAppData]);
 
   useEffect(() => {
     const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
