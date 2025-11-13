@@ -153,6 +153,7 @@ export default function MultiSelectPage() {
               return (
                 <div key={key}>
                   <Button
+                    type="button" 
                     mode="primary"
                     size="large"
                     onClick={() => onSelectRole(key)}
