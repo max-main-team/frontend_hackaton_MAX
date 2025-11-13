@@ -28,7 +28,6 @@ function AppInner() {
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
-        console.log("SET PARAMS");
         
         if (access) {
           localStorage.setItem("access_token", access);
@@ -49,6 +48,7 @@ function AppInner() {
             if (roles[0] === "admin") navigate("/admin", { replace: true });
           } else {
             navigate("/select", { replace: true });
+            console.log("SELECT");
           }
         } else {
           navigate("/abiturient", { replace: true });
