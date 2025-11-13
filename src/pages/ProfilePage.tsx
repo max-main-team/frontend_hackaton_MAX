@@ -19,71 +19,31 @@ export default function ProfilePage() {
   return (
     <MainLayout>
       <Container style={{ paddingTop: 8 }}>
-        <Panel 
-          mode="secondary" 
-          style={{ 
-            padding: 24, 
-            borderRadius: 12,
-            marginTop: 12
-          }}
-        >
-          <Flex direction="column" align="center" gap={16}>
-            {/* Аватар */}
-            <Avatar.Container size={96} form="circle">
+        <Typography.Title variant="large-strong">Профиль</Typography.Title>
+
+        <Panel mode="secondary" className="card card--feature" style={{ padding: 16, marginTop: 12 }}>
+          <Flex align="center" gap={12}>
+            <Avatar.Container size={96} form="squircle">
               <Avatar.Image src={user?.avatar_url ?? user?.photo_url ?? ""} />
             </Avatar.Container>
 
-            {/* Имя и фамилия */}
-            <Flex direction="column" align="center" gap={4}>
-              <Typography.Title variant="large-strong" style={{ margin: 0, textAlign: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <Typography.Title variant="medium-strong" style={{ margin: 0 }}>
                 {user?.first_name ?? ""} {user?.last_name ?? ""}
               </Typography.Title>
-              
-              {/* Username */}
-              {user?.username && (
-                <Typography.Label style={{ color: 'var(--maxui-muted, #6b7280)' }}>
-                  @{user.username}
-                </Typography.Label>
-              )}
-            </Flex>
-
-            {/* Описание и университет */}
-            <Flex direction="column" align="center" gap={8} style={{ width: '100%' }}>
-              {user?.description && (
-                <Typography.Label style={{ textAlign: 'center' }}>
-                  {user.description}
-                </Typography.Label>
-              )}
-              
-              {user?.university && (
-                <Typography.Label style={{ textAlign: 'center' }}>
-                  {user.university}
-                </Typography.Label>
-              )}
-            </Flex>
-
-            {/* Кнопки */}
-            <Flex gap={8} style={{ width: '100%', marginTop: 8 }}>
-              <Button 
-                mode="secondary" 
-                appearance="neutral" 
-                stretched
-                onClick={() => navigate(-1)}
-              >
-                Назад
-              </Button>
-              
-              <Button 
-                mode="secondary" 
-                appearance="neutral" 
-                stretched
-                onClick={onLogout}
-              >
-                Выйти
-              </Button>
-            </Flex>
+              {user?.username && <Typography.Label>@{user.username}</Typography.Label>}
+              <div style={{ marginTop: 8 }}>
+                {user?.description && <Typography.Label>{user.description}</Typography.Label>}
+                {user?.university && <Typography.Label style={{ display: "block", marginTop: 6 }}>{user.university}</Typography.Label>}
+              </div>
+            </div>
           </Flex>
         </Panel>
+
+        <div style={{ marginTop: 18 }}>
+          <Button mode="tertiary" onClick={() => navigate(-1)}>Назад</Button>
+          <Button mode="tertiary" style={{ marginLeft: 8 }} onClick={onLogout}>Выйти</Button>
+        </div>
       </Container>
     </MainLayout>
   );
