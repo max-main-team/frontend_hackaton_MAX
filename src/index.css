@@ -3,7 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark dark;
+  /* Всегда темная тема */
+  color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
@@ -11,6 +12,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* CSS переменные для темной темы */
+  --maxui-bg: #0b0b0b;
+  --maxui-text: #e6eef8;
+  --maxui-surface: #0f1112;
+  --maxui-muted: #9ca3af;
+  --maxui-primary: #0ea5e9;
+  --maxui-border: #1f2937;
+  --maxui-surface-secondary: #111827;
+  --maxui-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
 
 a {
