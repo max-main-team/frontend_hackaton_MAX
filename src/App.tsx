@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
@@ -13,16 +13,9 @@ import ApplicantPage from "./pages/ApplicantPage";
 function AppInner() {
   const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleRoleNavigation = useCallback((roles: string[]) => {
-    // Если пользователь уже на какой-то странице, не перенаправляем
-    if (location.pathname !== "/") {
-      return;
-    }
-
     if (roles.length === 0) {
       navigate("/abiturient", { replace: true });
     } else if (roles.length === 1) {
@@ -33,14 +26,9 @@ function AppInner() {
     } else {
       navigate("/select", { replace: true });
     }
-  }, [navigate, location.pathname]);
+  }, [navigate]);
 
   useEffect(() => {
-    // Если уже проверили авторизацию или пользователь уже на какой-то странице кроме корневой
-    if (authChecked || (location.pathname !== "/" && location.pathname !== "")) {
-      return;
-    }
-
     const checkAuth = async () => {
       if (!webAppData) {
         setLoading(false);
@@ -69,21 +57,16 @@ function AppInner() {
         navigate("/abiturient", { replace: true });
       } finally {
         setLoading(false);
-        setAuthChecked(true);
       }
     };
 
     checkAuth();
-  }, [webAppData, navigate, handleRoleNavigation, authChecked, location.pathname]);
+  }, [webAppData, navigate, handleRoleNavigation]);
 
-  // Если загрузка и мы на корневой странице
-  if (loading && (location.pathname === "/" || location.pathname === "")) {
-    return <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
 
   return (
     <Routes>
-      <Route path="/" element={<LoadingPage />} />
       <Route path="/student" element={<StudentPage />} />
       <Route path="/teacher" element={<TeacherPage />} />
       <Route path="/admin" element={<AdminPage />} />
