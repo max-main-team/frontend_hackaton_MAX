@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
+import { Panel, Flex, Avatar, Button } from "@maxhub/max-ui";
 import "../css/MainLayout.css";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
@@ -71,9 +71,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="main-layout">
       <header className="main-header">
-        <div className="main-header-left">
-          <Typography.Title variant="large-strong">Сервисы</Typography.Title>
-        </div>
 
         <div className="main-header-right">
           <Button type="button" mode="tertiary" onClick={goProfile} aria-label="Profile">
