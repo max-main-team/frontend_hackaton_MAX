@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-import { getDeviceItem } from "../services/webappStorage";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -17,17 +16,15 @@ export default function MultiSelectPage() {
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // user profile info from /user/me
   const [userName, setUserName] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
-    // fetch roles and token from device storage (getDeviceItem has fallback)
     let mounted = true;
     async function loadRoles() {
       setLoading(true);
       try {
-        const cached = await getDeviceItem("user_roles");
+        const cached = await localStorage.getItem("user_roles");
         if (!mounted) return;
 
         if (cached) {

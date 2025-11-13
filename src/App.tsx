@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api, setAccessTokenInMemory } from "./services/api";
+import { api } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
@@ -13,8 +13,7 @@ import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
   const {
-    webAppData,
-    saveAccessToken,
+    webAppData
   } = useMaxWebApp();
 
   const [loading, setLoading] = useState(false);
@@ -32,10 +31,7 @@ function AppInner() {
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
-          if (typeof saveAccessToken === "function") {
-            saveAccessToken(access);
-          }
-          setAccessTokenInMemory(access);
+          localStorage.setItem("access_token", access);
         }
 
         try {
@@ -62,7 +58,7 @@ function AppInner() {
         console.error("auth failed", err);
       })
       .finally(() => setLoading(false));
-  }, [webAppData, navigate, saveAccessToken]);
+  }, [webAppData, navigate]);
 
   if (loading || !webAppData) return <LoadingPage />;
 
@@ -74,7 +70,6 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
-      <Route path="*" element={<ApplicantPage />} />
     </Routes>
   );
 }
