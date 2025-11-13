@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
-import MainLayout from "../layouts/MainLayout";
 import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 
@@ -18,12 +17,10 @@ export default function MultiSelectPage() {
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
-  // Блокировка навигации для предотвращения множественных переходов
   const safeNavigate = useCallback((path: string) => {
     if (isNavigating) return;
     
     setIsNavigating(true);
-    // Используем setTimeout чтобы дать React время обработать состояние
     setTimeout(() => {
       navigate(path, { replace: true });
     }, 100);
@@ -130,16 +127,13 @@ export default function MultiSelectPage() {
   // Если происходит навигация, показываем loading
   if (isNavigating) {
     return (
-      <MainLayout>
         <Container style={{ paddingTop: 8 }}>
           <Typography.Title variant="large-strong">Переход...</Typography.Title>
         </Container>
-      </MainLayout>
     );
   }
 
   return (
-    <MainLayout>
       <Container style={{ paddingTop: 8 }}>
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <div>
@@ -221,6 +215,5 @@ export default function MultiSelectPage() {
           </Grid>
         )}
       </Container>
-    </MainLayout>
   );
 }
