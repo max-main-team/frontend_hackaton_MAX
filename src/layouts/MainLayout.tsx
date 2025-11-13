@@ -6,17 +6,17 @@ import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
 
 const TAB_ITEMS = [
-  { key: "people", path: "/people", label: "Люди" },
+  { key: "people", path: "/people", label: "Зачётка" },
   { key: "schedule", path: "/schedule", label: "Расписание" },
   { key: "feed", path: "/feed", label: "Актуальное" },
-  { key: "settings", path: "/settings", label: "Настройки" },
+  { key: "services", path: "/services", label: "Сервисы" },
 ];
 
-const ICONS: Record<string,string> = {
-  people: "https://images.unsplash.com/photo-1531123414780-f8f8e9f9d3a9?w=256&q=60",     // заменить на свои
-  schedule: "https://images.unsplash.com/photo-1508780709619-79562169bc64?w=256&q=60",
-  feed: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=256&q=60",
-  settings: "https://images.unsplash.com/photo-1503602642458-232111445657?w=256&q=60",
+const ICONS: Record<string, string> = {
+  people: "https://i.postimg.cc/3xq4m7mM/tab-people.png",
+  schedule: "https://i.postimg.cc/4Np6Xhzs/tab-schedule.png",
+  feed: "https://i.postimg.cc/FK7xJ9xV/tab-feed.png",
+  services: "https://i.postimg.cc/3Rx1V6Wx/tab-services.png",
 };
 
 interface MainLayoutProps {
@@ -54,12 +54,16 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         if (!mounted) return;
+        setUserName(null);
+        setUserPhoto(null);
       }
     }
 
     fetchProfile();
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [webAppData]);
 
   const goProfile = (e?: React.MouseEvent) => {
@@ -82,8 +86,10 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
   return (
     <div className="main-layout">
-      <header className="main-header">
-        <div className="main-header-left">Сервисы</div>
+      <header className="main-header" role="banner">
+        <div className="main-header-left">
+          <div className="brand">Хакатон 283</div>
+        </div>
 
         <div className="main-header-right">
           <Button type="button" mode="tertiary" onClick={goProfile} aria-label="Profile">
@@ -100,10 +106,10 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
       <main className="main-content">{children}</main>
 
-      {/* Условный рендеринг нижней панели */}
+      {/* Нижняя панель */}
       {!hideTabs && (
-        <nav className="main-bottom-tabs">
-          <Panel mode="primary" className="tabs-panel">
+        <nav className="main-bottom-tabs" aria-label="Основная навигация">
+          <Panel mode="primary" className="tabs-panel" role="navigation" aria-hidden={false}>
             <Flex justify="space-between" align="center" style={{ width: "100%" }}>
               {TAB_ITEMS.map((tab) => {
                 const active = loc.pathname.startsWith(tab.path);
@@ -114,11 +120,11 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
                     onClick={onTabClick(tab.path)}
                     className={`tab-button ${active ? "active" : ""}`}
                     aria-current={active ? "page" : undefined}
-                    style={{ flex: 1, display: "inline-flex", justifyContent: "center", alignItems: "center" }}
+                    title={tab.label}
                   >
                     <div className="tab-item" aria-hidden>
                       <div className="tab-icon">
-                        <img src={ICONS[tab.key] ?? ICONS["people"]} alt={tab.label} />
+                        <img src={ICONS[tab.key] ?? ICONS["services"]} alt="" />
                       </div>
                       <div className="tab-label">{tab.label}</div>
                     </div>
