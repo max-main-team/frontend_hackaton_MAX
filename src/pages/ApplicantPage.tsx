@@ -267,8 +267,14 @@ export default function ApplicantPage(): JSX.Element {
                         {u.logo ? <Avatar.Image src={u.logo} /> : <Avatar.Text>{(u.name || "U").slice(0,2).toUpperCase()}</Avatar.Text>}
                       </Avatar.Container>
                       <div style={{ flex: 1 }}>
-                        <Typography.Title variant="small-strong" style={{ margin: 0, fontSize: '18px' }}>{u.name}</Typography.Title>
-                        <Typography.Label className="uni-short" style={{ fontSize: '14px' }}>{u.short ?? u.city}</Typography.Label>
+                        <Typography.Title variant="small-strong" style={{ margin: 0, fontSize: '18px', lineHeight: '1.3' }}>
+                          {u.name}
+                        </Typography.Title>
+                        {(u.short || u.city) && (
+                          <Typography.Label className="uni-short" style={{ fontSize: '14px', display: 'block', marginTop: '4px' }}>
+                            {[u.short, u.city].filter(Boolean).join(', ')}
+                          </Typography.Label>
+                        )}
                       </div>
                     </Flex>
                     
@@ -307,8 +313,14 @@ export default function ApplicantPage(): JSX.Element {
                         {joinUni.logo ? <Avatar.Image src={joinUni.logo} /> : <Avatar.Text>{(joinUni.name||"U").slice(0,2)}</Avatar.Text>}
                       </Avatar.Container>
                       <div>
-                        <Typography.Title variant="medium-strong" style={{ margin: 0 }}>{joinUni.name}</Typography.Title>
-                        <Typography.Label className="uni-short">{joinUni.city ?? ""}</Typography.Label>
+                        <Typography.Title variant="medium-strong" style={{ margin: 0, lineHeight: '1.3' }}>
+                          {joinUni.name}
+                        </Typography.Title>
+                        {(joinUni.short || joinUni.city) && (
+                          <Typography.Label className="uni-short" style={{ display: 'block', marginTop: '4px' }}>
+                            {[joinUni.short, joinUni.city].filter(Boolean).join(', ')}
+                          </Typography.Label>
+                        )}
                       </div>
                     </div>
 
@@ -323,10 +335,14 @@ export default function ApplicantPage(): JSX.Element {
                       className="uni-role-select"
                       value={joinRole}
                       onChange={(e) => setJoinRole(e.target.value as any)}
+                      style={{ 
+                        background: 'white',
+                        color: 'black'
+                      }}
                     >
-                      <option value="student">Студент</option>
-                      <option value="teacher">Преподаватель</option>
-                      <option value="admin">Администратор</option>
+                      <option value="student" style={{ background: 'white', color: 'black' }}>Студент</option>
+                      <option value="teacher" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
+                      <option value="admin" style={{ background: 'white', color: 'black' }}>Администратор</option>
                     </select>
                   </div>
 
