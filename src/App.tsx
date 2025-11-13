@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { HashRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
@@ -14,33 +14,32 @@ function AppInner() {
   const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  const handleRoleNavigation = useCallback((roles: string[]) => {
-    if (roles.length === 0) {
-      navigate("/abiturient", { replace: true });
-    } else if (roles.length === 1) {
-      if (roles[0] === "student") navigate("/student", { replace: true });
-      else if (roles[0] === "teacher") navigate("/teacher", { replace: true });
-      else if (roles[0] === "admin") navigate("/admin", { replace: true });
-      else navigate("/abiturient", { replace: true });
-    } else {
-      navigate("/select", { replace: true });
-    }
-  }, [navigate]);
+  const location = useLocation();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!webAppData) {
-        setLoading(false);
-        return;
-      }
+    // Если webAppData еще не загружен, ждем
+    if (!webAppData) {
+      return;
+    }
 
+    // Если пользователь уже на какой-то конкретной странице (не корневой), не делаем редирект
+    const currentPath = location.pathname;
+    if (currentPath !== "/" && currentPath !== "") {
+      setLoading(false);
+      return;
+    }
+
+    const checkAuth = async () => {
       try {
         setLoading(true);
+        console.log("Making login request...");
+        
         const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
+        console.log("Login response:", { access, roles });
+
         if (access) {
           localStorage.setItem("access_token", access);
           setAccessTokenInMemory(access);
@@ -48,7 +47,17 @@ function AppInner() {
 
         if (Array.isArray(roles)) {
           localStorage.setItem("user_roles", JSON.stringify(roles));
-          handleRoleNavigation(roles);
+          
+          if (roles.length === 0) {
+            navigate("/abiturient", { replace: true });
+          } else if (roles.length === 1) {
+            if (roles[0] === "student") navigate("/student", { replace: true });
+            else if (roles[0] === "teacher") navigate("/teacher", { replace: true });
+            else if (roles[0] === "admin") navigate("/admin", { replace: true });
+            else navigate("/abiturient", { replace: true });
+          } else {
+            navigate("/select", { replace: true });
+          }
         } else {
           navigate("/abiturient", { replace: true });
         }
@@ -61,9 +70,12 @@ function AppInner() {
     };
 
     checkAuth();
-  }, [webAppData, navigate, handleRoleNavigation]);
+  }, [webAppData, navigate, location.pathname]);
 
-  if (loading) return <LoadingPage />;
+  // Если загружаемся и на корневой странице
+  if (loading && (location.pathname === "/" || location.pathname === "")) {
+    return <LoadingPage />;
+  }
 
   return (
     <Routes>
