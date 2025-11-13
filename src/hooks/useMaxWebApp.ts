@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { WebApp } from "../types/webapp";
-import {
-  setDeviceItem,
-  getDeviceItem,
-  removeDeviceItem,
-} from "../services/webappStorage";
-import { setAccessTokenInMemory } from "../services/api";
 import { setCachedWebApp, onWebAppReady, getCachedWebApp } from "../services/webappClient";
 
 export type WebAppDataAny = any;
@@ -67,41 +61,11 @@ export function useMaxWebApp() {
     }
   }, []);
 
-    const saveAccessToken = useCallback(async (token: string) => {
-    if (!token) return;
-
-    try { setAccessTokenInMemory(token); } catch (e) { console.warn("setAccessTokenInMemory failed", e); }
-
-    setDeviceItem("access_token", token).catch(e => {
-      console.warn("saveAccessToken: persist failed", e);
-    });
-  }, []);
-
-    const loadAccessToken = useCallback(async (): Promise<string | null> => {
-      try { return await getDeviceItem("access_token"); } catch { return null; }
-    }, []);
-
-    const removeAccessToken = useCallback(async () => {
-      try {
-        await removeDeviceItem("access_token");
-      } finally {
-        try { setAccessTokenInMemory(null); } catch (e) { console.warn("setAccessTokenInMemory error", e); }
-      }
-    }, []);
-
-  const clearAuthStorage = useCallback(async () => {
-    await removeAccessToken();
-  }, [removeAccessToken]);
-
   const helpers = useMemo(() => ({
     close: () => webApp?.close?.(),
     openLink: (url: string) => webApp?.openLink?.(url),
     raw: webApp,
-    saveAccessToken,
-    loadAccessToken,
-    removeAccessToken,
-    clearAuthStorage
-  }), [webApp, saveAccessToken, loadAccessToken, removeAccessToken, clearAuthStorage]);
+  }), [webApp]);
 
   return {
     webApp,

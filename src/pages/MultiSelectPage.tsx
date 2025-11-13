@@ -82,9 +82,9 @@ export default function MultiSelectPage() {
   }, []);
 
   function onSelectRole(role: string) {
-    if (role === "student") navigate("/#/student", { replace: true });
-    else if (role === "teacher") navigate("/#/teacher", { replace: true });
-    else if (role === "admin") navigate("/#/admin", { replace: true });
+    if (role === "student") navigate("/student", { replace: true });
+    else if (role === "teacher") navigate("/teacher", { replace: true });
+    else if (role === "admin") navigate("/admin", { replace: true });
     else console.warn("Unknown role", role);
   }
 

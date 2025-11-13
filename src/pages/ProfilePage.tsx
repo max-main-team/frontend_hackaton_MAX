@@ -4,14 +4,12 @@ import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 
 export default function ProfilePage() {
-  const { webAppData, clearAuthStorage } = useMaxWebApp();
+  const { webAppData } = useMaxWebApp();
   const user = webAppData?.user ?? null;
   const navigate = useNavigate();
 
   async function onLogout() {
-    try {
-      await clearAuthStorage?.();
-    } catch (e) {
+    try { /* empty */ } catch (e) {
       console.warn("Logout error", e);
     } finally {
       navigate("/select", { replace: true });
