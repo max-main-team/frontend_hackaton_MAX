@@ -42,7 +42,7 @@ export default function ApplicantPage(): JSX.Element {
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinUni, setJoinUni] = useState<University | null>(null);
-  const [joinRole, setJoinRole] = useState<"студент" | "преподаватель" | "администатор">("студент");
+  const [joinRole, setJoinRole] = useState<"student" | "teacher" | "admin">("student");
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinResult, setJoinResult] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -157,7 +157,7 @@ export default function ApplicantPage(): JSX.Element {
     setJoinError(null);
     setJoinResult(null);
     setJoinUni(u);
-    setJoinRole("студент");
+    setJoinRole("student");
     setJoinOpen(true);
   };
   const handleClose = () => {

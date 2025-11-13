@@ -43,9 +43,14 @@
 .results-scroll-container {
   max-height: calc(100vh - 280px);
   overflow-y: auto;
-  padding: 8px 0 20px 0;
+  overflow-x: hidden;
+  padding: 8px 16px 20px 16px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.results-scroll-container > div {
+  width: 100%;
 }
 
 /* Стилизация скроллбара */
@@ -150,6 +155,10 @@
   padding: 6px 12px;
   line-height: 1.2;
   text-align: center;
+}
+
+.results-scroll-container .maxui-grid {
+  width: 100%;
 }
 
 body, html {
