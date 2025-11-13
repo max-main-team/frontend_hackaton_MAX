@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
@@ -13,9 +13,8 @@ import ApplicantPage from "./pages/ApplicantPage";
 function AppInner() {
   const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
-  const [initialAuthDone, setInitialAuthDone] = useState(false);
+  const [authCompleted, setAuthCompleted] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleRoleNavigation = useCallback((roles: string[]) => {
     if (roles.length === 0) {
@@ -31,20 +30,23 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    // Выполняем авторизацию только один раз при первом получении webAppData
-    // и только если мы на корневом пути
-    if (!webAppData || initialAuthDone || (location.pathname !== "https://msokovykh.ru/" && location.pathname !== "https://msokovykh.ru")) {
-      setLoading(false);
+    // Если авторизация уже выполнена или webAppData еще не загружен, выходим
+    if (authCompleted || !webAppData) {
+      if (!webAppData) setLoading(false);
       return;
     }
 
     const checkAuth = async () => {
       try {
         setLoading(true);
+        console.log("Starting authentication...");
+        
         const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
+        console.log("Authentication successful", { access, roles });
+
         if (access) {
           localStorage.setItem("access_token", access);
           setAccessTokenInMemory(access);
@@ -52,25 +54,35 @@ function AppInner() {
 
         if (Array.isArray(roles)) {
           localStorage.setItem("user_roles", JSON.stringify(roles));
+          localStorage.setItem("auth_completed", "true"); // Флаг что авторизация выполнена
           handleRoleNavigation(roles);
         } else {
           navigate("/abiturient", { replace: true });
         }
+        
+        setAuthCompleted(true);
       } catch (err) {
         console.error("Auth failed", err);
         navigate("/abiturient", { replace: true });
+        setAuthCompleted(true);
       } finally {
         setLoading(false);
-        setInitialAuthDone(true);
       }
     };
 
     checkAuth();
-  }, [webAppData, navigate, handleRoleNavigation, initialAuthDone, location.pathname]);
+  }, [webAppData, navigate, handleRoleNavigation, authCompleted]);
 
-  if (loading && (location.pathname === "https://msokovykh.ru/" || location.pathname === "https://msokovykh.ru")) {
-    return <LoadingPage />;
-  }
+  // Проверяем при загрузке, была ли уже выполнена авторизация
+  useEffect(() => {
+    const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
+    if (wasAuthCompleted) {
+      setAuthCompleted(true);
+      setLoading(false);
+    }
+  }, []);
+
+  if (loading) return <LoadingPage />;
 
   return (
     <Routes>
