@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
-import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 
 export default function ProfilePage() {
@@ -22,7 +21,6 @@ export default function ProfilePage() {
   }
 
   return (
-    <MainLayout>
       <Container style={{ paddingTop: 8 }}>
         <Panel
           mode="secondary"
@@ -78,6 +76,5 @@ export default function ProfilePage() {
           </Flex>
         </Panel>
       </Container>
-    </MainLayout>
   );
 }
