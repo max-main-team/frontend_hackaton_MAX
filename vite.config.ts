@@ -10,16 +10,16 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 5173,
       proxy: {
-        "/api": {
-          target: env.VITE_BACKEND_URL,
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path.replace(/^\/api/, "")
-        },
         '/auth': {
           target: env.VITE_BACKEND_URL,
           changeOrigin: true,
           secure: false,
+        },
+        '/api': {
+          target: env.VITE_BACKEND_URL,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       }
     },
