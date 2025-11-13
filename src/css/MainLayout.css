@@ -151,7 +151,7 @@ html, body, #root {
   background: rgba(14,165,233,0.06);
 }
 .tab-button.active .tab-label {
-  color: var(--maxui-primary, #007aff);
+  color: #007aff;
 }
 
 /* hover styling */
@@ -159,7 +159,7 @@ html, body, #root {
   background: rgba(14,165,233,0.03);
 }
 .tab-button:hover .tab-label {
-  color: var(--maxui-primary, #007aff);
+  color: #007aff;
 }
 
 @media (max-width: 680px) {
