@@ -28,6 +28,7 @@ function AppInner() {
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
+        console.log("SET PARAMS");
         
         if (access) {
           localStorage.setItem("access_token", access);
