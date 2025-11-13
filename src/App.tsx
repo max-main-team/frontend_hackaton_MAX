@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
@@ -21,9 +21,12 @@ function AppInner() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!webAppData) {
+      return;
+    }
     setLoading(true);
 
-    api.post("https://msokovykh.ru/auth/login", webAppData)
+    api.post("/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
@@ -78,8 +81,8 @@ function AppInner() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <AppInner />
-    </BrowserRouter>
+    </Router>
   );
 }

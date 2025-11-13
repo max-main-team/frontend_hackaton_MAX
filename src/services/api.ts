@@ -6,7 +6,10 @@ import {
   removeDeviceItem
 } from "./webappStorage";
 
+const BACKEND = (import.meta.env.VITE_BACKEND_URL as string) ?? "";
+
 export const api = axios.create({
+  baseURL: BACKEND || undefined,
   timeout: 10000,
   withCredentials: true,
 });
@@ -21,7 +24,8 @@ let refreshQueue: Array<(token: string | null) => void> = [];
 
 
 async function doRefreshToken(): Promise<string> {
-  const res = await axios.post("https://msokovykh.ru/auth/refresh", undefined);
+  const refreshUrl = (BACKEND ? `${BACKEND.replace(/\/$/, "")}/auth/refresh` : "/auth/refresh");
+  const res = await axios.post(refreshUrl, undefined, { withCredentials: true });
   const newAccess = res.data?.access_token;
 
   if (!newAccess) {
