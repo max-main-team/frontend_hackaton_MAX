@@ -33,7 +33,7 @@ html, body, #root {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  z-index: 60;
+  z-index: 40;
   background: rgba(255,255,255,0.9);
   backdrop-filter: blur(6px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.03);

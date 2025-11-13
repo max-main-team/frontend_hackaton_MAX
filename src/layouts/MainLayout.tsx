@@ -77,10 +77,7 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
   return (
     <div className="main-layout">
       <header className="main-header">
-        {/* Убрали текст "Сервисы" из левой части */}
-        <div className="main-header-left">
-          {/* Оставляем пустой для выравнивания */}
-        </div>
+        <div className="main-header-left"></div>
 
         <div className="main-header-right">
           <Button type="button" mode="tertiary" onClick={goProfile} aria-label="Profile">
