@@ -30,8 +30,17 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    if (authCompleted || !webAppData) {
-      if (!webAppData) setLoading(false);
+    const sessionAuth = sessionStorage.getItem("session_auth");
+    
+    if (!webAppData) {
+      if (sessionAuth === "completed") {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (sessionAuth === "completed") {
+      setLoading(false);
       return;
     }
 
