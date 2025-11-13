@@ -56,31 +56,27 @@ export default function ProfilePage(): JSX.Element {
   }
 
   return (
-    /* Корневой контейнер растягивает панель по ширине и высоте */
     <div style={{
       minHeight: "100vh",
       display: "flex",
-      alignItems: "stretch",      // растягиваем по высоте
-      justifyContent: "stretch",  // растягиваем по ширине
+      alignItems: "stretch",  
+      justifyContent: "stretch",
       paddingTop: "env(safe-area-inset-top)",
       paddingBottom: "env(safe-area-inset-bottom)",
       boxSizing: "border-box"
     }}>
-      {/* Panel занимает всю ширину родителя */}
       <Panel
         mode="secondary"
         style={{
           width: "100%",
-          maxWidth: "100%",       // важно: убрать ограничение из темы
+          maxWidth: "100%",
           minHeight: "100vh",
-          borderRadius: 0,        // 0 — полноэкранно; можно 12 если нужен отступ
+          borderRadius: 0,
           boxSizing: "border-box",
           padding: 28,
         }}
       >
-        {/* Container можно сделать full width, убрать внутренние paddings темы */}
         <Container style={{ width: "100%", padding: 0, boxSizing: "border-box" }}>
-          <Flex direction="column" align="center" justify="center" style={{ height: "100%" }} gap={16}>
             {loading ? (
               <Typography.Title variant="large-strong">Загрузка...</Typography.Title>
             ) : (
@@ -128,7 +124,6 @@ export default function ProfilePage(): JSX.Element {
                 </Flex>
               </>
             )}
-          </Flex>
         </Container>
       </Panel>
     </div>
