@@ -96,8 +96,7 @@ export default function MultiSelectPage() {
 
   return (
     <MainLayout hideTabs={true}>
-      <Container style={{ paddingTop: 8 }}>
-        {/* Заголовок с именем пользователя */}
+      <Container style={{ paddingTop: 4 }}>
         <div style={{ marginBottom: 16 }}>
           <Typography.Title variant="large-strong" style={{ marginBottom: 4 }}>
             Выберите профиль, {userName || "Гость"}

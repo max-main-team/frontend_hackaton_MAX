@@ -1,13 +1,48 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
+import api from "../services/api";
 
-export default function ProfilePage() {
-  const { webAppData } = useMaxWebApp();
-  const user = webAppData?.user ?? null;
+type UserLike = {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+  avatar_url?: string;
+  description?: string;
+  university?: string;
+  [k: string]: any;
+};
+
+export default function ProfilePage(): JSX.Element {
   const navigate = useNavigate();
+  const [user, setUser] = useState<UserLike | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim();
+  useEffect(() => {
+    let mounted = true;
+    async function loadProfile() {
+      setLoading(true);
+      try {
+        const res = await api.get("/user/me");
+        const data = res.data;
+        const u = data?.user ?? data; // в зависимости от формата ответа
+        if (!mounted) return;
+        setUser(u ?? null);
+      } catch (e) {
+        console.warn("Failed to load user profile", e);
+        if (!mounted) return;
+        setUser(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    loadProfile();
+    return () => { mounted = false; };
+  }, []);
+
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || user?.username || "Пользователь";
 
   function initials(name?: string | null) {
     if (!name) return "U";
@@ -17,64 +52,85 @@ export default function ProfilePage() {
   }
 
   async function onLogout() {
+    // при желании сюда можно добавить очистку storage (через useMaxWebApp)
     navigate("/select", { replace: true });
   }
 
   return (
-      <Container style={{ paddingTop: 8 }}>
-        <Panel
-          mode="secondary"
-          style={{
-            padding: 24,
-            borderRadius: 12,
-            marginTop: 12,
-            maxWidth: 720,
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        >
-          <Flex direction="column" align="center" gap={16}>
-            {/* Аватар */}
-            <Avatar.Container size={96} form="circle">
-              {user?.avatar_url || user?.photo_url ? (
-                <Avatar.Image src={user?.photo_url ?? ""} />
-              ) : (
-                <Avatar.Text>{initials(fullName ?? user?.username ?? null)}</Avatar.Text>
-              )}
-            </Avatar.Container>
+    // контейнер на всю высоту viewport
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "stretch",
+      justifyContent: "center",
+      paddingTop: "env(safe-area-inset-top)",
+      paddingBottom: "env(safe-area-inset-bottom)"
+    }}>
+      {/* Панель растягивается по высоте/ширине */}
+      <Panel
+        mode="secondary"
+        style={{
+          width: "100%",
+          maxWidth: 940,
+          minHeight: "100vh",
+          borderRadius: 0,          // если хочешь углы — поставь 12
+          boxSizing: "border-box",
+          padding: 28,
+        }}
+      >
+        <Container style={{ height: "100%" }}>
+          <Flex direction="column" align="center" justify="center" style={{ height: "100%" }} gap={16}>
+            {loading ? (
+              <Typography.Title variant="large-strong">Загрузка...</Typography.Title>
+            ) : (
+              <>
+                <Avatar.Container size={120} form="circle">
+                  {user?.avatar_url || user?.photo_url ? (
+                    <Avatar.Image src={user?.avatar_url ?? user?.photo_url ?? ""} />
+                  ) : (
+                    <Avatar.Text>{initials(fullName)}</Avatar.Text>
+                  )}
+                </Avatar.Container>
 
-            {/* Имя и фамилия */}
-            <Flex direction="column" align="center" gap={4}>
-              <Typography.Title variant="large-strong" style={{ margin: 0, textAlign: "center" }}>
-                {fullName || "Пользователь"}
-              </Typography.Title>
-            </Flex>
+                <Flex direction="column" align="center" gap={6}>
+                  <Typography.Title variant="large-strong" style={{ margin: 0, textAlign: "center" }}>
+                    {fullName}
+                  </Typography.Title>
 
-            {/* Пустое пространство (чтобы карточка выглядела как в примере) */}
-            <div style={{ height: 6 }} />
+                  {/* Можно показать дополнительную info, если нужно */}
+                  {user?.university && (
+                    <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
+                      {user.university}
+                    </Typography.Label>
+                  )}
+                </Flex>
 
-            {/* Кнопки */}
-            <Flex gap={8} style={{ width: "100%", marginTop: 8 }}>
-              <Button
-                mode="secondary"
-                appearance="neutral"
-                stretched
-                onClick={() => navigate(-1)}
-              >
-                Назад
-              </Button>
+                <div style={{ height: 10 }} />
 
-              <Button
-                mode="secondary"
-                appearance="neutral"
-                stretched
-                onClick={onLogout}
-              >
-                Выйти
-              </Button>
-            </Flex>
+                <Flex gap={12} style={{ width: "100%", maxWidth: 420 }}>
+                  <Button
+                    mode="secondary"
+                    appearance="neutral"
+                    stretched
+                    onClick={() => navigate(-1)}
+                  >
+                    Назад
+                  </Button>
+
+                  <Button
+                    mode="secondary"
+                    appearance="neutral"
+                    stretched
+                    onClick={onLogout}
+                  >
+                    Выйти
+                  </Button>
+                </Flex>
+              </>
+            )}
           </Flex>
-        </Panel>
-      </Container>
+        </Container>
+      </Panel>
+    </div>
   );
 }
