@@ -117,8 +117,8 @@ html, body, #root {
 
 /* icon container (square) */
 .tab-icon {
-  width: 28px;
-  height: 28px;
+  width: 15px;
+  height: 15px;
   border-radius: 9px;
   overflow: hidden;
   display: flex;
