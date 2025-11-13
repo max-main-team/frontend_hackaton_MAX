@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
-import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
@@ -11,7 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  const { webAppData } = useMaxWebApp();
+  //const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
   const [authCompleted, setAuthCompleted] = useState(false);
   const navigate = useNavigate();
@@ -30,8 +29,8 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    if (authCompleted || !webAppData) {
-      if (!webAppData) setLoading(false);
+    if (authCompleted || !window.WebApp?.initData) {
+      if (!window.WebApp?.initData) setLoading(false);
       return;
     }
 
@@ -40,7 +39,7 @@ function AppInner() {
         setLoading(true);
         console.log("Starting authentication...");
         
-        const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
+        const res = await api.post("https://msokovykh.ru/auth/login", window.WebApp?.initData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
@@ -70,7 +69,7 @@ function AppInner() {
     };
 
     checkAuth();
-  }, [webAppData, navigate, handleRoleNavigation, authCompleted]);
+  }, [navigate, handleRoleNavigation, authCompleted]);
 
   useEffect(() => {
     const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
