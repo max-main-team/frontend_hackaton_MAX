@@ -7,11 +7,6 @@ async function tryCallMaybePromise<T>(fnResult: any): Promise<T | undefined> {
 
 export async function setDeviceItem(key: string, value: string): Promise<void> {
   try {
-    const w = getCachedWebApp() ?? ((typeof window !== "undefined") ? (window as any).WebApp : null);
-    if (w?.DeviceStorage && typeof w.DeviceStorage.setItem === "function") {
-      await tryCallMaybePromise(w.DeviceStorage.setItem(key, value));
-      return;
-    }
     localStorage.setItem(key, value);
   } catch (e) {
     console.warn("[webappStorage] setItem failed, fallback/localStorage attempted", e);
@@ -21,11 +16,6 @@ export async function setDeviceItem(key: string, value: string): Promise<void> {
 
 export async function getDeviceItem(key: string): Promise<string | null> {
   try {
-    const w = getCachedWebApp() ?? ((typeof window !== "undefined") ? (window as any).WebApp : null);
-    if (w?.DeviceStorage && typeof w.DeviceStorage.getItem === "function") {
-      const v = await tryCallMaybePromise<string | null>(w.DeviceStorage.getItem(key));
-      return v ?? null;
-    }
     const v = localStorage.getItem(key);
     return v;
   } catch (e) {
