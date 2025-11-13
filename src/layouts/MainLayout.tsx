@@ -5,18 +5,35 @@ import "../css/MainLayout.css";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
 
+// Импортируем локальные картинки
+import grade_book_white from '../images/grade_book_white.png';
+import grade_book_blue from '../images/grade_book_blue.png';
+import schedule_white from '../images/schedule_white.png';
+import schedule_blue from '../images/schedule_blue.png';
+import events_white from '../images/events_white.png';
+import events_blue from '../images/events_blue.png';
+import settings_white from '../images/settings_white.png';
+import settings_blue from '../images/settings_blue.png';
+
 const TAB_ITEMS = [
   { key: "people", path: "/people", label: "Зачётка" },
   { key: "schedule", path: "/schedule", label: "Расписание" },
   { key: "feed", path: "/feed", label: "Актуальное" },
-  { key: "services", path: "/services", label: "Сервисы" },
+  { key: "services", path: "/services", label: "Настройки" },
 ];
 
-const ICONS: Record<string, string> = {
-  people: "https://i.postimg.cc/3xq4m7mM/tab-people.png",
-  schedule: "https://i.postimg.cc/4Np6Xhzs/tab-schedule.png",
-  feed: "https://i.postimg.cc/FK7xJ9xV/tab-feed.png",
-  services: "https://i.postimg.cc/3Rx1V6Wx/tab-services.png",
+const WHITE_ICONS: Record<string, string> = {
+  people: grade_book_white,
+  schedule: schedule_white,
+  feed: events_white,
+  services: settings_white,
+};
+
+const BLUE_ICONS: Record<string, string> = {
+  people: grade_book_blue,
+  schedule: schedule_blue,
+  feed: events_blue,
+  services: settings_blue,
 };
 
 interface MainLayoutProps {
@@ -88,7 +105,7 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
     <div className="main-layout">
       <header className="main-header" role="banner">
         <div className="main-header-left">
-          <div className="brand">Хакатон 283</div>
+          <div className="brand">Сервисы</div>
         </div>
 
         <div className="main-header-right">
@@ -113,6 +130,8 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
             <Flex justify="space-between" align="center" style={{ width: "100%" }}>
               {TAB_ITEMS.map((tab) => {
                 const active = loc.pathname.startsWith(tab.path);
+                const iconSrc = active ? BLUE_ICONS[tab.key] : WHITE_ICONS[tab.key];
+                
                 return (
                   <button
                     key={tab.key}
@@ -124,7 +143,7 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
                   >
                     <div className="tab-item" aria-hidden>
                       <div className="tab-icon">
-                        <img src={ICONS[tab.key] ?? ICONS["services"]} alt="" />
+                        <img src={iconSrc} alt={tab.label} />
                       </div>
                       <div className="tab-label">{tab.label}</div>
                     </div>
