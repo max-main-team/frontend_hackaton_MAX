@@ -5,7 +5,7 @@ import { MaxUI } from "@maxhub/max-ui";
 import App from "./App";
 
 const Root = () => (
-    <MaxUI>
+    <MaxUI colorScheme="dark">
         <App />
     </MaxUI>
 )

@@ -79,6 +79,7 @@ html, body, #root {
   border-radius: 14px;
   padding: 6px;
   box-sizing: border-box;
+  background: var(--maxui-surface-secondary, #f8fafc);
 }
 
 /* tab button base */
@@ -90,22 +91,19 @@ html, body, #root {
   cursor: pointer;
   padding: 0;
   margin: 0 6px;
-  height: 56px;                 /* высота кнопки — квадратный вид достигается icon+label */
+  height: 56px;
   min-width: 0;
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  transition: background .12s ease, transform .12s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 /* visual pressed/hover states */
 .tab-button:active { transform: translateY(1px); }
-@media (hover:hover) and (pointer:fine) {
-  .tab-button:hover { background: rgba(0,0,0,0.02); }
-}
 
 /* inner layout: icon above, label below */
 .tab-item {
@@ -128,33 +126,26 @@ html, body, #root {
   justify-content: center;
   background: transparent;
   box-shadow: none;
+  transition: all 0.2s ease;
 }
 
-
+/* image fit */
 .tab-icon img {
-  transition: opacity 0.2s ease, transform 0.2s ease;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
+  transition: all 0.2s ease;
 }
 
-.tab-button:hover .tab-icon img {
+/* Плавное изменение при наведении */
+.tab-button:hover .tab-icon {
   transform: scale(1.05);
 }
 
-.tab-button.active .tab-icon img {
+/* Активное состояние */
+.tab-button.active .tab-icon {
   transform: scale(1.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  .tab-button:not(.active) .tab-icon img {
-    opacity: 0.8;
-  }
-  
-  .tab-button.active .tab-icon img {
-    opacity: 1;
-    filter: drop-shadow(0 0 2px rgba(14, 165, 233, 0.3));
-  }
 }
 
 /* label */
@@ -163,6 +154,7 @@ html, body, #root {
   color: var(--maxui-muted, #6b7280);
   line-height: 1;
   text-transform: none;
+  transition: color 0.2s ease;
 }
 
 /* active tab styling */
@@ -170,6 +162,14 @@ html, body, #root {
   background: rgba(14,165,233,0.06);
 }
 .tab-button.active .tab-label {
+  color: var(--maxui-primary, #0ea5e9);
+}
+
+/* hover styling */
+.tab-button:hover {
+  background: rgba(14,165,233,0.03);
+}
+.tab-button:hover .tab-label {
   color: var(--maxui-primary, #0ea5e9);
 }
 
@@ -190,5 +190,7 @@ html, body, #root {
   .main-layout { background: var(--maxui-bg, #0b0b0b); color: var(--maxui-text, #e6eef8); }
   .main-header { background: rgba(10,10,10,0.75); }
   .main-bottom-tabs { background: linear-gradient(180deg, rgba(10,10,10,0.75), var(--maxui-bg, #0b0b0b)); box-shadow: 0 -6px 18px rgba(0,0,0,0.6); }
-  .tab-button:hover { background: rgba(255,255,255,0.02); }
+  .tabs-panel {
+    background: var(--maxui-surface-secondary, #111827);
+  }
 }

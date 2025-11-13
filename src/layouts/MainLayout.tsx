@@ -5,7 +5,6 @@ import "../css/MainLayout.css";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
 
-// Импортируем локальные картинки
 import grade_book_white from '../images/grade_book_white.png';
 import grade_book_blue from '../images/grade_book_blue.png';
 import schedule_white from '../images/schedule_white.png';
@@ -16,24 +15,24 @@ import settings_white from '../images/settings_white.png';
 import settings_blue from '../images/settings_blue.png';
 
 const TAB_ITEMS = [
-  { key: "people", path: "/people", label: "Зачётка" },
+  { key: "grade_book", path: "/grade_book", label: "Зачётка" },
   { key: "schedule", path: "/schedule", label: "Расписание" },
   { key: "feed", path: "/feed", label: "Актуальное" },
-  { key: "services", path: "/services", label: "Настройки" },
+  { key: "settings", path: "/settings", label: "Настройки" },
 ];
 
 const WHITE_ICONS: Record<string, string> = {
-  people: grade_book_white,
+  grade_book: grade_book_white,
   schedule: schedule_white,
   feed: events_white,
-  services: settings_white,
+  settings: settings_white,
 };
 
 const BLUE_ICONS: Record<string, string> = {
-  people: grade_book_blue,
+  grade_book: grade_book_blue,
   schedule: schedule_blue,
   feed: events_blue,
-  services: settings_blue,
+  settings: settings_blue,
 };
 
 interface MainLayoutProps {
@@ -45,6 +44,8 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
   const navigate = useNavigate();
   const loc = useLocation();
   const { webAppData } = useMaxWebApp();
+  
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const [userName, setUserName] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
@@ -94,6 +95,24 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
     navigate(path);
   };
 
+  const handleMouseEnter = (tabKey: string) => {
+    setHoveredTab(tabKey);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredTab(null);
+  };
+
+  const getIconForTab = (tabKey: string, isActive: boolean) => {
+    const isHovered = hoveredTab === tabKey;
+    
+    if (isActive || isHovered) {
+      return BLUE_ICONS[tabKey];
+    } else {
+      return WHITE_ICONS[tabKey];
+    }
+  };
+
   const initials = (name?: string | null) => {
     if (!name) return "U";
     const parts = name.trim().split(/\s+/);
@@ -123,20 +142,21 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
       <main className="main-content">{children}</main>
 
-      {/* Нижняя панель */}
       {!hideTabs && (
         <nav className="main-bottom-tabs" aria-label="Основная навигация">
           <Panel mode="primary" className="tabs-panel" role="navigation" aria-hidden={false}>
             <Flex justify="space-between" align="center" style={{ width: "100%" }}>
               {TAB_ITEMS.map((tab) => {
                 const active = loc.pathname.startsWith(tab.path);
-                const iconSrc = active ? BLUE_ICONS[tab.key] : WHITE_ICONS[tab.key];
+                const iconSrc = getIconForTab(tab.key, active);
                 
                 return (
                   <button
                     key={tab.key}
                     type="button"
                     onClick={onTabClick(tab.path)}
+                    onMouseEnter={() => handleMouseEnter(tab.key)}
+                    onMouseLeave={handleMouseLeave}
                     className={`tab-button ${active ? "active" : ""}`}
                     aria-current={active ? "page" : undefined}
                     title={tab.label}
