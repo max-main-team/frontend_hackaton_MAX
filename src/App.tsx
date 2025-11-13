@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
-import LoadingPage from "./pages/LoadingPage.tsx";
-import AdminPage from "./pages/AdminPage.tsx";
-import TeacherPage from "./pages/TeacherPage.tsx";
-import StudentPage from "./pages/StudentPage.tsx";
-import MultiSelectPage from "./pages/MultiSelectPage.tsx";
-import ProfilePage from "./pages/ProfilePage.tsx";
+import LoadingPage from "./pages/LoadingPage";
+import AdminPage from "./pages/AdminPage";
+import TeacherPage from "./pages/TeacherPage";
+import StudentPage from "./pages/StudentPage";
+import MultiSelectPage from "./pages/MultiSelectPage";
+import ProfilePage from "./pages/ProfilePage";
 import { setDeviceItem } from "./services/webappStorage";
-import ApplicantPage from "./pages/ApplicantPage.tsx";
+import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
   const {
@@ -26,7 +26,7 @@ function AppInner() {
     }
     setLoading(true);
 
-    api.post(`/auth/login`, webAppData)
+    api.post("https://msokovykh.ru/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
