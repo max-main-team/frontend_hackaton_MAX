@@ -93,7 +93,6 @@ export default function MultiSelectPage() {
   }, []);
 
   const onSelectRole = (role: string) => {
-  // Просто навигируем без сложной логики
   switch (role) {
     case "student":
       navigate("/student", { replace: true });
