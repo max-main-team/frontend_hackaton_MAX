@@ -71,14 +71,6 @@ function AppInner() {
     checkAuth();
   }, [navigate, handleRoleNavigation, authCompleted, webAppData]);
 
-  useEffect(() => {
-    const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
-    if (wasAuthCompleted) {
-      setAuthCompleted(true);
-      setLoading(false);
-    }
-  }, []);
-
   if (loading) return <LoadingPage />;
 
   return (
