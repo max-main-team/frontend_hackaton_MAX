@@ -42,7 +42,7 @@ export default function ApplicantPage(): JSX.Element {
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinUni, setJoinUni] = useState<University | null>(null);
-  const [joinRole, setJoinRole] = useState<"student" | "teacher" | "admin">("student");
+  const [joinRole, setJoinRole] = useState<"студент" | "преподаватель" | "администатор">("студент");
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinResult, setJoinResult] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -157,7 +157,7 @@ export default function ApplicantPage(): JSX.Element {
     setJoinError(null);
     setJoinResult(null);
     setJoinUni(u);
-    setJoinRole("student");
+    setJoinRole("студент");
     setJoinOpen(true);
   };
   const handleClose = () => {
@@ -208,16 +208,9 @@ export default function ApplicantPage(): JSX.Element {
     <MainLayout>
       <Container className="applicant-container" style={{ paddingTop: 12 }}>
         <div style={{ marginBottom: 24 }}>
-          <Typography.Title variant="large-strong" style={{ marginBottom: 8 }}>
-            Абитуриент
+          <Typography.Title variant="large-strong" style={{ margin: 0 }}>
+            Абитуриент {user || 'Гость'}
           </Typography.Title>
-          {user ? (
-            <Typography.Title variant="medium-strong" style={{ margin: 0, fontSize: '20px' }}>
-              {user}
-            </Typography.Title>
-          ) : (
-            <Typography.Label>Гость</Typography.Label>
-          )}
         </div>
 
         <Panel mode="secondary" className="card card--feature" style={{ padding: 20, marginBottom: 20 }}>
@@ -287,10 +280,19 @@ export default function ApplicantPage(): JSX.Element {
                     )}
                     
                     <Flex justify="end" gap={8} style={{ marginTop: 12 }}>
-                      <Button
+                     <Button
                         mode="primary"
                         size="small"
                         onClick={() => handleOpen(u)}
+                        style={{
+                          whiteSpace: 'normal',
+                          wordWrap: 'break-word',
+                          height: 'auto',
+                          minHeight: '32px',
+                          padding: '6px 12px',
+                          lineHeight: '1.2',
+                          textAlign: 'center'
+                        }}
                       >
                         Вступить в группу
                       </Button>
@@ -306,13 +308,13 @@ export default function ApplicantPage(): JSX.Element {
           <div className="fullscreen-overlay">
             <Panel className="panel-inner" mode="secondary" centeredX centeredY>
               <Container style={{ padding: 18, maxWidth: 680 }}>
-                <Flex direction="column" gap={12}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <Flex direction="column" gap={16}>
+                  <Flex justify="space-between" align="flex-start">
+                    <div style={{ display: "flex", gap: 12, alignItems: "center", flex: 1 }}>
                       <Avatar.Container size={56} form="squircle">
                         {joinUni.logo ? <Avatar.Image src={joinUni.logo} /> : <Avatar.Text>{(joinUni.name||"U").slice(0,2)}</Avatar.Text>}
                       </Avatar.Container>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <Typography.Title variant="medium-strong" style={{ margin: 0, lineHeight: '1.3' }}>
                           {joinUni.name}
                         </Typography.Title>
@@ -323,42 +325,44 @@ export default function ApplicantPage(): JSX.Element {
                         )}
                       </div>
                     </div>
-
-                    <div>
-                      <Button mode="tertiary" onClick={handleClose}>Закрыть</Button>
-                    </div>
-                  </div>
+                    <Button mode="tertiary" onClick={handleClose} style={{ alignSelf: 'flex-start' }}>
+                      Закрыть
+                    </Button>
+                  </Flex>
 
                   <div>
-                    <Typography.Label style={{ display: "block", marginBottom: 8 }}>Выберите роль, в которой хотите вступить</Typography.Label>
+                    <Typography.Label style={{ display: "block", marginBottom: 8 }}>
+                      Выберите роль, в которой хотите вступить
+                    </Typography.Label>
                     <select
                       className="uni-role-select"
                       value={joinRole}
                       onChange={(e) => setJoinRole(e.target.value as any)}
                       style={{ 
                         background: 'white',
-                        color: 'black'
+                        color: 'black',
+                        width: '100%'
                       }}
                     >
-                      <option value="студент" style={{ background: 'white', color: 'black' }}>Студент</option>
-                      <option value="преподаватель" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
-                      <option value="администратор" style={{ background: 'white', color: 'black' }}>Администратор</option>
+                      <option value="student" style={{ background: 'white', color: 'black' }}>Студент</option>
+                      <option value="teacher" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
+                      <option value="admin" style={{ background: 'white', color: 'black' }}>Администратор</option>
                     </select>
                   </div>
 
                   {joinError && (
-                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
+                    <Panel mode="secondary" className="card" style={{ padding: 12 }}>
                       <Typography.Label style={{ color: "var(--maxui-Label, #e11d48)" }}>{joinError}</Typography.Label>
                     </Panel>
                   )}
 
                   {joinResult && (
-                    <Panel mode="secondary" className="card" style={{ padding: 10 }}>
+                    <Panel mode="secondary" className="card" style={{ padding: 12 }}>
                       <Typography.Label style={{ color: "var(--maxui-primary, #0ea5e9)" }}>{joinResult}</Typography.Label>
                     </Panel>
                   )}
 
-                  <Flex justify="end" gap={8}>
+                  <Flex justify="end" gap={8} style={{ width: '100%' }}>
                     <Button mode="tertiary" onClick={handleClose}>Отмена</Button>
                     <Button mode="primary" onClick={handleJoinSubmit} disabled={joinLoading}>
                       {joinLoading ? "Отправка..." : `Вступить как ${joinRole}`}

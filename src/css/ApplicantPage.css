@@ -135,3 +135,13 @@
   background: white;
   color: black;
 }
+
+.uni-card .maxui-button {
+  white-space: normal;
+  word-wrap: break-word;
+  height: auto;
+  min-height: 32px;
+  padding: 6px 12px;
+  line-height: 1.2;
+  text-align: center;
+}
