@@ -10,7 +10,6 @@ type UserLike = {
   username?: string;
   photo_url?: string;
   avatar_url?: string;
-  description?: string;
   university?: string;
   [k: string]: any;
 };
@@ -25,9 +24,9 @@ export default function ProfilePage(): JSX.Element {
     async function loadProfile() {
       setLoading(true);
       try {
-        const res = await api.get("/user/me");
+        const res = await api.get("https://msokovykh.ru/user/me");
         const data = res.data;
-        const u = data?.user ?? data; // в зависимости от формата ответа
+        const u = data?.user ?? data;
         if (!mounted) return;
         setUser(u ?? null);
       } catch (e) {
@@ -51,34 +50,36 @@ export default function ProfilePage(): JSX.Element {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
-  async function onLogout() {
-    // при желании сюда можно добавить очистку storage (через useMaxWebApp)
+  function onLogout() {
+    // тут можно очистить storage если нужно
     navigate("/select", { replace: true });
   }
 
   return (
-    // контейнер на всю высоту viewport
+    /* Корневой контейнер растягивает панель по ширине и высоте */
     <div style={{
       minHeight: "100vh",
       display: "flex",
-      alignItems: "stretch",
-      justifyContent: "center",
+      alignItems: "stretch",      // растягиваем по высоте
+      justifyContent: "stretch",  // растягиваем по ширине
       paddingTop: "env(safe-area-inset-top)",
-      paddingBottom: "env(safe-area-inset-bottom)"
+      paddingBottom: "env(safe-area-inset-bottom)",
+      boxSizing: "border-box"
     }}>
-      {/* Панель растягивается по высоте/ширине */}
+      {/* Panel занимает всю ширину родителя */}
       <Panel
         mode="secondary"
         style={{
           width: "100%",
-          maxWidth: 940,
+          maxWidth: "100%",       // важно: убрать ограничение из темы
           minHeight: "100vh",
-          borderRadius: 0,          // если хочешь углы — поставь 12
+          borderRadius: 0,        // 0 — полноэкранно; можно 12 если нужен отступ
           boxSizing: "border-box",
           padding: 28,
         }}
       >
-        <Container style={{ height: "100%" }}>
+        {/* Container можно сделать full width, убрать внутренние paddings темы */}
+        <Container style={{ width: "100%", padding: 0, boxSizing: "border-box" }}>
           <Flex direction="column" align="center" justify="center" style={{ height: "100%" }} gap={16}>
             {loading ? (
               <Typography.Title variant="large-strong">Загрузка...</Typography.Title>
@@ -97,7 +98,6 @@ export default function ProfilePage(): JSX.Element {
                     {fullName}
                   </Typography.Title>
 
-                  {/* Можно показать дополнительную info, если нужно */}
                   {user?.university && (
                     <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
                       {user.university}
@@ -107,7 +107,7 @@ export default function ProfilePage(): JSX.Element {
 
                 <div style={{ height: 10 }} />
 
-                <Flex gap={12} style={{ width: "100%", maxWidth: 420 }}>
+                <Flex gap={12} style={{ width: "100%", maxWidth: 480 }}>
                   <Button
                     mode="secondary"
                     appearance="neutral"
