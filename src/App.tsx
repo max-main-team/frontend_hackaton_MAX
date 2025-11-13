@@ -50,16 +50,8 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
-    
-    if (wasAuthCompleted) {
-      setAuthCompleted(true);
-      setLoading(false);
-      return;
-    }
-
-    if (!webAppData) {
-      setLoading(false);
+    if (authCompleted || !webAppData) {
+      if (!webAppData) setLoading(false);
       return;
     }
 
