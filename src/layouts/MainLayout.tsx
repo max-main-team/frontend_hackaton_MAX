@@ -140,7 +140,9 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
         </div>
       </header>
 
-      <main className="main-content">{children}</main>
+      <main className={`main-content ${hideTabs ? 'main-content--no-tabs' : ''}`}>
+        {children}
+      </main>
 
       {!hideTabs && (
         <nav className="main-bottom-tabs" aria-label="Основная навигация">

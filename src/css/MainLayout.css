@@ -181,3 +181,14 @@ html, body, #root {
     padding: 8px 10px; 
   }
 }
+
+.main-content--no-tabs {
+  margin-bottom: 0 !important;
+  height: calc(100vh - var(--header-height)) !important;
+}
+
+@media (max-width: 680px) {
+  .main-content--no-tabs {
+    height: calc(100vh - var(--header-height)) !important;
+  }
+}

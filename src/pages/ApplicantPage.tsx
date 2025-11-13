@@ -186,12 +186,11 @@ export default function ApplicantPage(): JSX.Element {
 
     try {
       const body = {
-        user_id: userId,
-        university_id: joinUni.id,
-        user_role: joinRole,
+        role: joinRole,
+        university_id: joinUni.id
       };
 
-      const res = await api.post("https://msokovykh.ru/universities/", body);
+      const res = await api.post("https://msokovykh.ru/admin/personalities/access", body);
       const message = res.data?.message ?? "Заявка отправлена успешно.";
       setJoinResult(typeof message === "string" ? message : "Успешно");
     } catch (e: any) {
@@ -204,20 +203,18 @@ export default function ApplicantPage(): JSX.Element {
   }
 
   return (
-    <MainLayout>
+    <MainLayout hideTabs={true}>
       <Container className="applicant-container" style={{ 
-        padding: '12px 16px 20px 16px', // Добавляем равные отступы со всех сторон
+        padding: '8px 16px 20px 8px',
         maxWidth: '100%', 
         overflowX: 'hidden',
       }}>
-        {/* Заголовок */}
         <div style={{ marginBottom: 24 }}>
           <Typography.Title variant="large-strong" style={{ margin: 0 }}>
             Абитуриент {user || 'Гость'}
           </Typography.Title>
         </div>
 
-        {/* Карточка поиска */}
         <Panel mode="secondary" className="card card--feature" style={{ 
           padding: 20, 
           marginBottom: 20,
@@ -242,7 +239,6 @@ export default function ApplicantPage(): JSX.Element {
           </div>
         </Panel>
 
-        {/* Контейнер результатов с фиксированной высотой */}
         <div className="results-scroll-container">
           {loading && (
             <Panel mode="secondary" className="card" style={{ padding: 16, marginBottom: 16 }}>
