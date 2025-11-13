@@ -92,29 +92,22 @@ export default function MultiSelectPage() {
     return () => { mounted = false; };
   }, []);
 
-  const onSelectRole = useCallback((role: string) => {
-    if (isNavigating) return;
-    
-    setIsNavigating(true);
-    
-    localStorage.setItem("selected_role", role);
-    localStorage.setItem("role_selected", "true");
-    
-    switch (role) {
-      case "student":
-        navigate("/student", { replace: true });
-        break;
-      case "teacher":
-        navigate("/teacher", { replace: true });
-        break;
-      case "admin":
-        navigate("/admin", { replace: true });
-        break;
-      default:
-        console.warn("Unknown role", role);
-        setIsNavigating(false);
-    }
-  }, [navigate, isNavigating]);
+  const onSelectRole = (role: string) => {
+  // Просто навигируем без сложной логики
+  switch (role) {
+    case "student":
+      navigate("/student", { replace: true });
+      break;
+    case "teacher":
+      navigate("/teacher", { replace: true });
+      break;
+    case "admin":
+      navigate("/admin", { replace: true });
+      break;
+    default:
+      console.warn("Unknown role", role);
+  }
+};
 
   const goProfile = useCallback(() => {
     if (isNavigating) return;

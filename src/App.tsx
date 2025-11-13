@@ -33,7 +33,7 @@ function AppInner() {
   useEffect(() => {
     // Выполняем авторизацию только один раз при первом получении webAppData
     // и только если мы на корневом пути
-    if (!webAppData || initialAuthDone || (location.pathname !== "/" && location.pathname !== "")) {
+    if (!webAppData || initialAuthDone || (location.pathname !== "https://msokovykh.ru/" && location.pathname !== "https://msokovykh.ru")) {
       setLoading(false);
       return;
     }
@@ -68,8 +68,7 @@ function AppInner() {
     checkAuth();
   }, [webAppData, navigate, handleRoleNavigation, initialAuthDone, location.pathname]);
 
-  // Показываем загрузку только при первоначальной аутентификации
-  if (loading && (location.pathname === "/" || location.pathname === "")) {
+  if (loading && (location.pathname === "https://msokovykh.ru/" || location.pathname === "https://msokovykh.ru")) {
     return <LoadingPage />;
   }
 
