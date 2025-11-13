@@ -12,7 +12,13 @@ const TAB_ITEMS = [
   { key: "settings", path: "/settings", label: "Настройки" },
 ];
 
-// Добавляем пропс для скрытия табов
+const ICONS: Record<string,string> = {
+  people: "https://images.unsplash.com/photo-1531123414780-f8f8e9f9d3a9?w=256&q=60",     // заменить на свои
+  schedule: "https://images.unsplash.com/photo-1508780709619-79562169bc64?w=256&q=60",
+  feed: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=256&q=60",
+  settings: "https://images.unsplash.com/photo-1503602642458-232111445657?w=256&q=60",
+};
+
 interface MainLayoutProps {
   children: React.ReactNode;
   hideTabs?: boolean;
@@ -102,21 +108,21 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
               {TAB_ITEMS.map((tab) => {
                 const active = loc.pathname.startsWith(tab.path);
                 return (
-                  <Button
+                  <button
                     key={tab.key}
                     type="button"
-                    mode={active ? "primary" : "tertiary"}
-                    size="small"
                     onClick={onTabClick(tab.path)}
-                    aria-current={active ? "page" : undefined}
                     className={`tab-button ${active ? "active" : ""}`}
-                    style={{ flex: 1, display: "flex", justifyContent: "center"}}
+                    aria-current={active ? "page" : undefined}
+                    style={{ flex: 1, display: "inline-flex", justifyContent: "center", alignItems: "center" }}
                   >
-                    <div className="tab-item">
-                      <div className="tab-icon">🔹</div>
+                    <div className="tab-item" aria-hidden>
+                      <div className="tab-icon">
+                        <img src={ICONS[tab.key] ?? ICONS["people"]} alt={tab.label} />
+                      </div>
                       <div className="tab-label">{tab.label}</div>
                     </div>
-                  </Button>
+                  </button>
                 );
               })}
             </Flex>
