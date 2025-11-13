@@ -26,7 +26,7 @@ function AppInner() {
     }
     setLoading(true);
 
-    api.post("https://msokovykh.ru/auth/login", webAppData)
+    api.post("/auth/login", webAppData)
       .then(async res => {
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
@@ -74,7 +74,7 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
-      <Route path="*" element={<ApplicantPage />} />
+      <Route path="*" element={<MultiSelectPage />} />
     </Routes>
   );
 }
