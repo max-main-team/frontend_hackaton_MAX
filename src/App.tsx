@@ -39,7 +39,7 @@ function AppInner() {
         setLoading(true);
         console.log("Starting authentication...");
         
-        const res = await api.post("/api/auth/login", webAppData);
+        const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
