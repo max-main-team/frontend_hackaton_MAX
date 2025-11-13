@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { InternalAxiosRequestConfig, AxiosResponse } from "axios";
 import {
-  getDeviceItem,
   setDeviceItem,
   removeDeviceItem
 } from "./webappStorage";
@@ -12,6 +11,9 @@ export const api = axios.create({
   baseURL: BACKEND || undefined,
   timeout: 10000,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 let memoryAccessToken: string | null = null;
@@ -38,23 +40,31 @@ async function doRefreshToken(): Promise<string> {
   return newAccess;
 }
 
-api.interceptors.request.use(async (config: InternalAxiosRequestConfig) : Promise<InternalAxiosRequestConfig> => {
-  try {
-    let token = memoryAccessToken;
-    if (!token) {
-      token = await getDeviceItem("access_token");
-      memoryAccessToken = token ?? null;
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    if (config.method?.toUpperCase() === 'OPTIONS') {
+      return config;
     }
-    if (token) {
-      const safeHeaders = (config.headers ?? {}) as Record<string, string>;
-      safeHeaders["Authorization"] = `Bearer ${token}`;
-      config.headers = safeHeaders as unknown as InternalAxiosRequestConfig["headers"];
+    
+    try {
+      let token = memoryAccessToken;
+      if (!token) {
+        token = localStorage.getItem("access_token");
+        memoryAccessToken = token ?? null;
+      }
+      if (token) {
+        config.headers = {
+          ...config.headers,
+          Authorization: `Bearer ${token}`,
+        } as InternalAxiosRequestConfig["headers"];
+      }
+    } catch (e) {
+      console.warn("Failed to attach access token", e);
     }
-  } catch (e) {
-    console.warn("Failed to attach access token", e);
-  }
-  return config;
-}, (error) => Promise.reject(error));
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 
 api.interceptors.response.use(

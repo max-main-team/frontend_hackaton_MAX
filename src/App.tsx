@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
-import { api } from "./services/api";
+import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
 import TeacherPage from "./pages/TeacherPage";
@@ -11,56 +11,68 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  const {
-    webAppData
-  } = useMaxWebApp();
-
-  const [loading, setLoading] = useState(false);
+  const { webAppData } = useMaxWebApp();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!webAppData) {
-      return;
+  const handleRoleNavigation = useCallback((roles: string[]) => {
+    if (roles.length === 0) {
+      navigate("/abiturient", { replace: true });
+    } else if (roles.length === 1) {
+      if (roles[0] === "student") navigate("/student", { replace: true });
+      else if (roles[0] === "teacher") navigate("/teacher", { replace: true });
+      else if (roles[0] === "admin") navigate("/admin", { replace: true });
+      else navigate("/abiturient", { replace: true });
+    } else {
+      navigate("/select", { replace: true });
     }
-    setLoading(true);
+  }, [navigate]);
 
-    api.post("https://msokovykh.ru/auth/login", webAppData)
-      .then(async res => {
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!webAppData) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const existingToken = localStorage.getItem("access_token");
+        const existingRoles = localStorage.getItem("user_roles");
+        
+        if (existingToken && existingRoles) {
+          const roles = JSON.parse(existingRoles);
+          handleRoleNavigation(roles);
+          return;
+        }
+
+        setLoading(true);
+        const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
         if (access) {
           localStorage.setItem("access_token", access);
+          setAccessTokenInMemory(access);
         }
 
-        try {
-          if (Array.isArray(roles)) {
-            localStorage.setItem("user_roles", JSON.stringify(roles));
-          }
-        } catch (e) {
-          console.warn("Failed to persist user/roles", e);
-        }
-
-        if (Array.isArray(roles) && roles.length > 0) {
-          if (roles.length === 1) {
-            if (roles[0] === "student") navigate("/student", { replace: true });
-            if (roles[0] === "teacher") navigate("/teacher", { replace: true });
-            if (roles[0] === "admin") navigate("/admin", { replace: true });
-          } else {
-            navigate("/select", { replace: true });
-            console.log("SELECT");
-          }
+        if (Array.isArray(roles)) {
+          localStorage.setItem("user_roles", JSON.stringify(roles));
+          handleRoleNavigation(roles);
         } else {
           navigate("/abiturient", { replace: true });
         }
-      })
-      .catch(err => {
-        console.error("auth failed", err);
-      })
-      .finally(() => setLoading(false));
-  }, [webAppData, navigate]);
+      } catch (err) {
+        console.error("Auth failed", err);
+        navigate("/abiturient", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (loading || !webAppData) return <LoadingPage />;
+    checkAuth();
+  }, [webAppData, navigate, handleRoleNavigation]);
+
+  if (loading) return <LoadingPage />;
 
   return (
     <Routes>
@@ -70,6 +82,7 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
+      <Route path="*" element={<LoadingPage />} />
     </Routes>
   );
 }
