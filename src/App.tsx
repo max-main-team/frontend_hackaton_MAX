@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
@@ -13,7 +13,9 @@ import ApplicantPage from "./pages/ApplicantPage";
 function AppInner() {
   const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
+  const [initialAuthDone, setInitialAuthDone] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleRoleNavigation = useCallback((roles: string[]) => {
     if (roles.length === 0) {
@@ -29,12 +31,14 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!webAppData) {
-        setLoading(false);
-        return;
-      }
+    // Выполняем авторизацию только один раз при первом получении webAppData
+    // и только если мы на корневом пути
+    if (!webAppData || initialAuthDone || (location.pathname !== "/" && location.pathname !== "")) {
+      setLoading(false);
+      return;
+    }
 
+    const checkAuth = async () => {
       try {
         setLoading(true);
         const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
@@ -57,13 +61,17 @@ function AppInner() {
         navigate("/abiturient", { replace: true });
       } finally {
         setLoading(false);
+        setInitialAuthDone(true);
       }
     };
 
     checkAuth();
-  }, [webAppData, navigate, handleRoleNavigation]);
+  }, [webAppData, navigate, handleRoleNavigation, initialAuthDone, location.pathname]);
 
-  if (loading) return <LoadingPage />;
+  // Показываем загрузку только при первоначальной аутентификации
+  if (loading && (location.pathname === "/" || location.pathname === "")) {
+    return <LoadingPage />;
+  }
 
   return (
     <Routes>
