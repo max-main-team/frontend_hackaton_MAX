@@ -10,7 +10,7 @@ export default function StudentPage() {
 
   return (
       <div style={{ marginBottom: 12 }}>
-        <Flex align="center" gap={12}>
+        <Flex align="center" gap={12}> 
           <Avatar.Container size={56} form="circle">
             <Avatar.Image src={user?.full_avatar_url ?? user?.avatar_url ?? ""} />
           </Avatar.Container>
