@@ -206,14 +206,30 @@ export default function ApplicantPage(): JSX.Element {
 
   return (
     <MainLayout>
-      <Container className="applicant-container" style={{ paddingTop: 12 }}>
-        <div style={{ marginBottom: 24 }}>
+      <Container className="applicant-container" style={{ 
+        paddingTop: 12, 
+        maxWidth: '100%', 
+        overflowX: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}>
+        <div style={{ 
+          width: '100%', 
+          maxWidth: '800px', 
+          marginBottom: 24 
+        }}>
           <Typography.Title variant="large-strong" style={{ margin: 0 }}>
             Абитуриент {user || 'Гость'}
           </Typography.Title>
         </div>
 
-        <Panel mode="secondary" className="card card--feature" style={{ padding: 20, marginBottom: 20 }}>
+        <Panel mode="secondary" className="card card--feature" style={{ 
+          padding: 20, 
+          marginBottom: 20,
+          width: '100%',
+          maxWidth: '800px'
+        }}>
           <Container>
             <Typography.Label className="search-description">
               Найдите университет по названию — посмотрите описание и вступайте в группу выбранного университета.
@@ -235,7 +251,10 @@ export default function ApplicantPage(): JSX.Element {
           </Container>
         </Panel>
 
-        <div className="results-scroll-container">
+        <div className="results-scroll-container" style={{
+          width: '100%',
+          maxWidth: '800px'
+        }}>
           {loading && (
             <Panel mode="secondary" className="card" style={{ padding: 16 }}>
               <Typography.Label>Поиск...</Typography.Label>

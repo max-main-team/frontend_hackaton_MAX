@@ -2,6 +2,7 @@
   max-width: 100%;
   overflow-x: hidden;
   padding-bottom: 20px;
+  width: 100%;
 }
 
 .search-description {
@@ -42,8 +43,9 @@
 .results-scroll-container {
   max-height: calc(100vh - 280px);
   overflow-y: auto;
-  padding: 8px 4px 20px 4px;
-  margin: 0 -4px;
+  padding: 8px 0 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Стилизация скроллбара */
@@ -72,7 +74,11 @@
   transition: transform .12s ease, box-shadow .12s ease;
   width: 100%;
   margin-bottom: 8px;
+  box-sizing: border-box;
+  position: relative;
 }
+
+
 .uni-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(18,23,30,0.08);
@@ -144,4 +150,12 @@
   padding: 6px 12px;
   line-height: 1.2;
   text-align: center;
+}
+
+body, html {
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
 }
