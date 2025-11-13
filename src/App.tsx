@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { useMaxWebApp } from "./hooks/useMaxWebApp";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
@@ -10,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
+  const { webAppData } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -28,6 +30,10 @@ function AppInner() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (!webAppData) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const existingToken = localStorage.getItem("access_token");
@@ -40,7 +46,7 @@ function AppInner() {
         }
 
         setLoading(true);
-        const res = await api.post("https://msokovykh.ru/auth/login", window.WebApp?.initData);
+        const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
         const roles: string[] = res.data?.user_roles;
         
@@ -64,7 +70,7 @@ function AppInner() {
     };
 
     checkAuth();
-  }, [navigate, handleRoleNavigation]);
+  }, [webAppData, navigate, handleRoleNavigation]);
 
   if (loading) return <LoadingPage />;
 

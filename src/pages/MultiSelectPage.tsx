@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Flex, Typography, Button, Grid, Avatar } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -12,19 +12,30 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default function MultiSelectPage() {
   const navigate = useNavigate();
-
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
   const [userName, setUserName] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
+
+  // Блокировка навигации для предотвращения множественных переходов
+  const safeNavigate = useCallback((path: string) => {
+    if (isNavigating) return;
+    
+    setIsNavigating(true);
+    // Используем setTimeout чтобы дать React время обработать состояние
+    setTimeout(() => {
+      navigate(path, { replace: true });
+    }, 100);
+  }, [navigate, isNavigating]);
 
   useEffect(() => {
     let mounted = true;
+    
     async function loadRoles() {
       setLoading(true);
       try {
-        const cached = await localStorage.getItem("user_roles");
+        const cached = localStorage.getItem("user_roles");
         if (!mounted) return;
 
         if (cached) {
@@ -54,14 +65,15 @@ export default function MultiSelectPage() {
   }, []);
 
   useEffect(() => {
-    // fetch profile from backend
     let mounted = true;
-    (async () => {
+    
+    async function loadProfile() {
       try {
         const res = await api.get("https://msokovykh.ru/user/me");
         const data = res.data;
         const u = data?.user;
         if (!mounted) return;
+        
         if (u) {
           const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || null;
           setUserName(fullName);
@@ -76,21 +88,37 @@ export default function MultiSelectPage() {
         setUserName(null);
         setUserPhoto(null);
       }
-    })();
+    }
 
+    loadProfile();
     return () => { mounted = false; };
   }, []);
 
-  function onSelectRole(role: string) {
-    if (role === "student") navigate("/student", { replace: true });
-    else if (role === "teacher") navigate("/teacher", { replace: true });
-    else if (role === "admin") navigate("/admin", { replace: true });
-    else console.warn("Unknown role", role);
-  }
+  const onSelectRole = useCallback((role: string) => {
+    if (isNavigating) return;
+    
+    // Сохраняем выбранную роль в localStorage
+    localStorage.setItem("selected_role", role);
+    
+    switch (role) {
+      case "student":
+        safeNavigate("/student");
+        break;
+      case "teacher":
+        safeNavigate("/teacher");
+        break;
+      case "admin":
+        safeNavigate("/admin");
+        break;
+      default:
+        console.warn("Unknown role", role);
+    }
+  }, [safeNavigate, isNavigating]);
 
-  function goProfile() {
-    navigate("/profile", { replace: true });
-  }
+  const goProfile = useCallback(() => {
+    if (isNavigating) return;
+    safeNavigate("/profile");
+  }, [safeNavigate, isNavigating]);
 
   const initials = (name?: string | null) => {
     if (!name) return "U";
@@ -98,6 +126,17 @@ export default function MultiSelectPage() {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   };
+
+  // Если происходит навигация, показываем loading
+  if (isNavigating) {
+    return (
+      <MainLayout>
+        <Container style={{ paddingTop: 8 }}>
+          <Typography.Title variant="large-strong">Переход...</Typography.Title>
+        </Container>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -114,7 +153,11 @@ export default function MultiSelectPage() {
 
           <div style={{ cursor: "pointer" }} onClick={goProfile} aria-label="Профиль">
             <Avatar.Container size={40} form="circle">
-              {userPhoto ? <Avatar.Image src={userPhoto} /> : <Avatar.Text>{initials(userName)}</Avatar.Text>}
+              {userPhoto ? (
+                <Avatar.Image src={userPhoto} />
+              ) : (
+                <Avatar.Text>{initials(userName)}</Avatar.Text>
+              )}
             </Avatar.Container>
           </div>
         </Flex>
@@ -148,20 +191,30 @@ export default function MultiSelectPage() {
               const label = ROLE_LABEL[key] ?? key;
               return (
                 <div key={key}>
-                  <Button asChild>
-                  <button type="button" onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onSelectRole(key); }}
-                          style={{ width: "100%", display: "block", paddingLeft: 16 }}>
-                    <div style={{display: "flex", alignItems: "center", width: "100%"}}>
-                      <div style={{ flex: 1 }}>
-                        <Typography.Title variant="small-strong" style={{ margin: 0 }}>{label}</Typography.Title>
-                        <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-                          Войти как {label.toLowerCase()}
-                        </Typography.Label>
+                  <Button 
+                    asChild
+                    onClick={(e: React.MouseEvent) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSelectRole(key);
+                    }}
+                    style={{ width: "100%", display: "block", paddingLeft: 16 }}
+                    disabled={isNavigating}
+                  >
+                    <button type="button" style={{ width: "100%" }}>
+                      <div style={{display: "flex", alignItems: "center", width: "100%"}}>
+                        <div style={{ flex: 1 }}>
+                          <Typography.Title variant="small-strong" style={{ margin: 0 }}>
+                            {label}
+                          </Typography.Title>
+                          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
+                            Войти как {label.toLowerCase()}
+                          </Typography.Label>
+                        </div>
+                        <div><Typography.Label>→</Typography.Label></div>
                       </div>
-                      <div><Typography.Label>→</Typography.Label></div>
-                    </div>
-                  </button>
-                </Button>
+                    </button>
+                  </Button>
                 </div>
               );
             })}

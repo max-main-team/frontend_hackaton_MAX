@@ -10,12 +10,12 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 5173,
       proxy: {
-        '/auth': {
+        "/auth": {
           target: env.VITE_BACKEND_URL,
           changeOrigin: true,
           secure: false,
         },
-        '/api': {
+        "/api": {
           target: env.VITE_BACKEND_URL,
           changeOrigin: true,
           secure: false,
