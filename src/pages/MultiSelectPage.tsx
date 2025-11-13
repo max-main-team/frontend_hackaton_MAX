@@ -93,7 +93,7 @@ export default function MultiSelectPage() {
   }
 
   function goProfile() {
-    navigate("/profile");
+    navigate("/profile", { replace: true });
   }
 
   const initials = (name?: string | null) => {
