@@ -2,7 +2,7 @@
 import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
-import "./admin-page.css"; // переиспользуем стили карточек (опционально)
+import "../css/AdminPage.css"
 
 export default function StudentPage() {
   const { webAppData } = useMaxWebApp();
