@@ -153,11 +153,10 @@ export default function MultiSelectPage() {
               return (
                 <div key={key}>
                   <Button
-                    type="button" 
-                    mode="primary"
-                    size="large"
-                    onClick={() => onSelectRole(key)}
-                    style={{ width: "100%", justifyContent: "flex-start", paddingLeft: 16 }}
+                  mode="primary"
+                  size="large"
+                  onClick={(e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onSelectRole(key); }}
+                  style={{ width: "100%", justifyContent: "flex-start", paddingLeft: 16 }}
                   >
                     <Flex align="center" style={{ width: "100%" }}>
                       <div style={{ flex: 1 }}>
