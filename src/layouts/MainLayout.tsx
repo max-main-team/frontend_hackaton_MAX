@@ -72,7 +72,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     <div className="main-layout">
       <header className="main-header">
         <div className="main-header-left">
-          <Typography.Title variant="large-strong">Хакатон MAX</Typography.Title>
+          <Typography.Title variant="large-strong">Сервисы</Typography.Title>
         </div>
 
         <div className="main-header-right">
