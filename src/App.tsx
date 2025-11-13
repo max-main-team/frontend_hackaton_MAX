@@ -36,15 +36,6 @@ function AppInner() {
       }
 
       try {
-        const existingToken = localStorage.getItem("access_token");
-        const existingRoles = localStorage.getItem("user_roles");
-        
-        if (existingToken && existingRoles) {
-          const roles = JSON.parse(existingRoles);
-          handleRoleNavigation(roles);
-          return;
-        }
-
         setLoading(true);
         const res = await api.post("https://msokovykh.ru/auth/login", webAppData);
         const access = res.data?.access_token;
