@@ -77,7 +77,7 @@ api.interceptors.response.use(
 
     const url = (original.url || "").toString();
 
-    if (url.includes("/auth/refresh")) {
+    if (url.includes("https://msokovykh.ru/auth/refresh")) {
       try {
         await removeDeviceItem("access_token");
       } catch (e) { console.warn("Failed to remove access_token", e); }
