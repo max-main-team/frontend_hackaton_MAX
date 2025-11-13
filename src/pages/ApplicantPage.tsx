@@ -208,8 +208,8 @@ export default function ApplicantPage(): JSX.Element {
     <MainLayout>
       <Container className="applicant-container" style={{ paddingTop: 12 }}>
         <div style={{ marginBottom: 24 }}>
-          <Typography.Title variant="large-strong" style={{ marginBottom: 4 }}>
-            Абитуриент 
+          <Typography.Title variant="large-strong" style={{ marginBottom: 8 }}>
+            Абитуриент
           </Typography.Title>
           {user ? (
             <Typography.Title variant="medium-strong" style={{ margin: 0, fontSize: '20px' }}>
@@ -340,9 +340,9 @@ export default function ApplicantPage(): JSX.Element {
                         color: 'black'
                       }}
                     >
-                      <option value="student" style={{ background: 'white', color: 'black' }}>Студент</option>
-                      <option value="teacher" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
-                      <option value="admin" style={{ background: 'white', color: 'black' }}>Администратор</option>
+                      <option value="студент" style={{ background: 'white', color: 'black' }}>Студент</option>
+                      <option value="преподаватель" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
+                      <option value="администратор" style={{ background: 'white', color: 'black' }}>Администратор</option>
                     </select>
                   </div>
 
