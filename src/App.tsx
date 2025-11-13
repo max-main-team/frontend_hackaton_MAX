@@ -11,22 +11,26 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 
 function AppInner() {
-  const { webAppData } = useMaxWebApp();
+  const { webAppData, webApp } = useMaxWebApp();
   const [loading, setLoading] = useState(true);
   const [authCompleted, setAuthCompleted] = useState(false);
   const navigate = useNavigate();
 
+  // Очистка при выходе из приложения
   useEffect(() => {
-    if (!webAppData) return;
+    if (!webApp) return;
 
     const handleBeforeUnload = () => {
+      // Очищаем только сессионные флаги, но оставляем токен для повторного использования
       localStorage.removeItem("auth_completed");
     };
 
+    // Для браузера
     window.addEventListener('beforeunload', handleBeforeUnload);
     
-    if (webAppData.onClose) {
-      webAppData.onClose(() => {
+    // Для MAX мини-аппки - если есть события жизненного цикла
+    if (webApp.onClose) {
+      webApp.onClose(() => {
         localStorage.removeItem("auth_completed");
       });
     }
@@ -34,7 +38,7 @@ function AppInner() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [webAppData]);
+  }, [webApp]);
 
   const handleRoleNavigation = useCallback((roles: string[]) => {
     if (roles.length === 0) {
@@ -50,8 +54,19 @@ function AppInner() {
   }, [navigate]);
 
   useEffect(() => {
-    if (authCompleted || !webAppData) {
-      if (!webAppData) setLoading(false);
+    // Проверяем, была ли уже выполнена авторизация в этой сессии
+    const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
+    
+    // Если авторизация уже выполнена, просто выходим
+    if (wasAuthCompleted) {
+      setAuthCompleted(true);
+      setLoading(false);
+      return;
+    }
+
+    // Если webAppData еще не загружен, ждем
+    if (!webAppData) {
+      setLoading(false);
       return;
     }
 
@@ -73,7 +88,7 @@ function AppInner() {
 
         if (Array.isArray(roles)) {
           localStorage.setItem("user_roles", JSON.stringify(roles));
-          localStorage.setItem("auth_completed", "true");
+          localStorage.setItem("auth_completed", "true"); // Флаг что авторизация выполнена
           handleRoleNavigation(roles);
         } else {
           navigate("/abiturient", { replace: true });
@@ -91,14 +106,6 @@ function AppInner() {
 
     checkAuth();
   }, [webAppData, navigate, handleRoleNavigation, authCompleted]);
-
-  useEffect(() => {
-    const wasAuthCompleted = localStorage.getItem("auth_completed") === "true";
-    if (wasAuthCompleted) {
-      setAuthCompleted(true);
-      setLoading(false);
-    }
-  }, []);
 
   if (loading) return <LoadingPage />;
 
