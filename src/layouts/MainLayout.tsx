@@ -104,7 +104,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   onClick={onTabClick(tab.path)}
                   aria-current={active ? "page" : undefined}
                   className={`tab-button ${active ? "active" : ""}`}
-                  style={{ flex: 1, display: "flex", justifyContent: "center", gap: 8 }}
+                  style={{ flex: 1, display: "flex", justifyContent: "center"}}
                 >
                   <div className="tab-item">
                     <div className="tab-icon">🔹</div>
