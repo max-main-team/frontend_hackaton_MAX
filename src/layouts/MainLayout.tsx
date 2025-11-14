@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Panel, Flex, Avatar, Button } from "@maxhub/max-ui";
@@ -40,6 +41,58 @@ interface MainLayoutProps {
   hideTabs?: boolean;
 }
 
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function cacheKeyFor(userId?: string | number | null, url?: string | null) {
+  if (userId != null) return `avatarCache:${String(userId)}`;
+  if (url) return `avatarCache:url:${encodeURIComponent(url)}`;
+  return null;
+}
+
+async function fetchImageAsDataUrl(url: string): Promise<string> {
+  // fetch as blob then convert to dataURL
+  const res = await fetch(url, { mode: "cors" }); // may fail on CORS — caller should handle
+  if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
+  const blob = await res.blob();
+
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = (e) => reject(e);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function readCache(key: string | null): { dataUrl: string; ts: number } | null {
+  if (!key) return null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.dataUrl || !parsed.ts) return null;
+    // check TTL
+    if (Date.now() - parsed.ts > CACHE_TTL) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return parsed;
+  } catch (e) {
+    try { localStorage.removeItem(key); } catch { /* empty */ }
+    return null;
+  }
+}
+
+function writeCache(key: string | null, dataUrl: string) {
+  if (!key) return;
+  try {
+    const payload = { dataUrl, ts: Date.now() };
+    localStorage.setItem(key, JSON.stringify(payload));
+  } catch (e) {
+    console.warn("Could not write avatar cache:", e);
+  }
+}
+
+
 export default function MainLayout({ children, hideTabs = false }: MainLayoutProps) {
   const navigate = useNavigate();
   const loc = useLocation();
@@ -48,11 +101,13 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | number | null>(null);
+
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
-  // preload state
-  const [photoLoaded, setPhotoLoaded] = useState<boolean>(false);
-  const [photoError, setPhotoError] = useState<boolean>(false);
+  const [cachedDataUrl, setCachedDataUrl] = useState<string | null>(null);
+  const [, setLoadingAvatar] = useState<boolean>(false);
+  const [avatarError, setAvatarError] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -68,57 +123,64 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
         if (u) {
           const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || null;
           setUserName(fullName);
+          setUserId(u.id ?? null);
           setUserPhoto(u.avatar_url ?? u.photo_url ?? u.photo ?? null);
         } else {
           setUserName(null);
+          setUserId(null);
           setUserPhoto(null);
         }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         if (!mounted) return;
         setUserName(null);
+        setUserId(null);
         setUserPhoto(null);
       }
     }
 
     fetchProfile();
 
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [webAppData]);
 
-
-  // prefetch image and set loaded/error flags
   useEffect(() => {
-    setPhotoLoaded(false);
-    setPhotoError(false);
+    let canceled = false;
+    setAvatarError(false);
+    setCachedDataUrl(null);
+
+    const key = cacheKeyFor(userId, userPhoto);
+
+    const cached = readCache(key);
+    if (cached && cached.dataUrl) {
+      setCachedDataUrl(cached.dataUrl);
+      return; // we have cached image, done
+    }
 
     if (!userPhoto) {
+      // nothing to load, keep empty (no initials) until maybe later
       return;
     }
 
-    let canceled = false;
-    const img = new Image();
-    img.src = userPhoto;
-
-    img.onload = () => {
-      if (!canceled) setPhotoLoaded(true);
-    };
-    img.onerror = () => {
-      if (!canceled) {
-        console.warn("Avatar image failed to load:", userPhoto);
-        setPhotoError(true);
-        setPhotoLoaded(false);
+    // otherwise fetch remote image and cache
+    setLoadingAvatar(true);
+    (async () => {
+      try {
+        const dataUrl = await fetchImageAsDataUrl(userPhoto);
+        if (canceled) return;
+        setCachedDataUrl(dataUrl);
+        // try to save to localStorage (best-effort)
+        try { writeCache(key, dataUrl); } catch (e) { /* ignore */ }
+      } catch (e) {
+        console.warn("Avatar fetch/convert failed", e);
+        if (!canceled) setAvatarError(true);
+      } finally {
+        if (!canceled) setLoadingAvatar(false);
       }
-    };
+    })();
 
-    return () => {
-      canceled = true;
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [userPhoto]);
+    return () => { canceled = true; };
+  }, [userPhoto, userId]);
+
 
   const goProfile = (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -165,24 +227,19 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
         <div className="main-header-right">
           <Button type="button" mode="tertiary" onClick={goProfile} aria-label="Profile">
-            {/* main-avatar класс нужен для позиционирования картинки поверх текста */}
             <Avatar.Container size={40} form="circle" className="main-avatar">
-              {/* всегда рендерим инициалы (чтобы размер был стабильным) */}
-              <Avatar.Text className="main-avatar__text">{initials(userName)}</Avatar.Text>
+              <div className="main-avatar__empty" aria-hidden />
 
-              {/* картинка накладывается поверх; видна только когда photoLoaded === true */}
-              {userPhoto && !photoError && (
+              {cachedDataUrl && !avatarError && (
                 <img
-                  className={`main-avatar__img ${photoLoaded ? "loaded" : ""}`}
-                  src={userPhoto}
+                  className="main-avatar__img loaded"
+                  src={cachedDataUrl}
                   alt={userName ?? "avatar"}
-                  // onError на случай, если что-то пойдёт не так при вставке в DOM
-                  onError={() => {
-                    console.warn("Avatar img tag error for:", userPhoto);
-                    setPhotoError(true);
-                    setPhotoLoaded(false);
-                  }}
                 />
+              )}
+
+              {(!cachedDataUrl && avatarError) && (
+                <Avatar.Text className="main-avatar__fallback-text">{initials(userName)}</Avatar.Text>
               )}
             </Avatar.Container>
           </Button>
