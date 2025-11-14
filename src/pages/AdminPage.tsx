@@ -1,5 +1,5 @@
 import "../css/AdminPage.css";
-import { Panel, Container, Typography } from "@maxhub/max-ui";
+import { Panel, Grid, Container, Typography } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { useNavigate } from "react-router-dom";
 
@@ -17,59 +17,39 @@ export default function AdminPage() {
   return (
     <MainLayout>
       <div className="admin-section" style={{ marginTop: 24 }}>
-        <Typography.Title variant="medium-strong" className="admin-section__title">
-          Административное
-        </Typography.Title>
+        <Typography.Title variant="medium-strong" style={{ marginBottom: 16 }}>Административное</Typography.Title>
 
-        <div className="admin-grid">
-          <Panel 
-            className="admin-card admin-card--interactive" 
-            onClick={handleRequestsClick}
-          >
-            <Container className="admin-card__content">
-              <div className="admin-card__status"></div>
-              <Typography.Title variant="small-strong" className="admin-card__title">
-                Заявки на вступление в группы
-              </Typography.Title>
+        <Grid cols={2} gap={12}>
+          <Panel className="admin-card" mode="primary" onClick={handleRequestsClick} style={{ cursor: "pointer" }}>
+            <Container style={{ padding: 12 }}>
+              <Typography.Title variant="small-strong">Заявки на вступление в группы</Typography.Title>
             </Container>
           </Panel>
           
-          <Panel 
-            className="admin-card admin-card--interactive" 
-            onClick={handleEntitiesClick}
-          >
-            <Container className="admin-card__content">
-              <div className="admin-card__status"></div>
-              <Typography.Title variant="small-strong" className="admin-card__title">
-                Управление данными
-              </Typography.Title>
+          <Panel className="admin-card" mode="primary" onClick={handleEntitiesClick} style={{ cursor: "pointer" }}>
+            <Container style={{ padding: 12 }}>
+              <Typography.Title variant="small-strong">Управление данными</Typography.Title>
             </Container>
           </Panel>
-        </div>
+        </Grid>
       </div>
 
       <div className="admin-section" style={{ marginTop: 32 }}>
-        <Typography.Title variant="medium-strong" className="admin-section__title">
-          Кампус
-        </Typography.Title>
+        <Typography.Title variant="medium-strong" style={{ marginBottom: 16 }}>Кампус</Typography.Title>
 
-        <div className="admin-grid">
-          <Panel className="admin-card admin-card--tall admin-card--accent-left">
+        <Grid cols={2} gap={12}>
+          <Panel className="admin-card admin-card--tall admin-card--accent-left" mode="secondary">
             <Container className="admin-card__content">
-              <Typography.Title variant="small-strong" className="admin-card__title">
-                Загруженность
-              </Typography.Title>
+              <Typography.Title variant="small-strong">Загруженность</Typography.Title>
             </Container>
           </Panel>
 
-          <Panel className="admin-card admin-card--tall admin-card--right">
+          <Panel className="admin-card admin-card--tall admin-card--right" mode="secondary">
             <Container className="admin-card__content">
-              <Typography.Title variant="small-strong" className="admin-card__title">
-                Пропуск
-              </Typography.Title>
+              <Typography.Title variant="small-strong">Пропуск</Typography.Title>
             </Container>
           </Panel>
-        </div>
+        </Grid>
       </div>
     </MainLayout>
   );
