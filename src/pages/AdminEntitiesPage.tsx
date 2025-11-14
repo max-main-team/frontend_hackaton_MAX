@@ -10,13 +10,10 @@ import {
 } from "@maxhub/max-ui";
 import api from "../services/api";
 import "../css/AdminEntitiesPage.css";
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
-
 const BACKEND_PREFIX = "https://msokovykh.ru";
 
 export default function AdminEntitiesPage(): JSX.Element {
   const navigate = useNavigate();
-  const { webApp } = useMaxWebApp();
 
   // Faculty
   const [facultyName, setFacultyName] = useState("");
@@ -38,26 +35,13 @@ export default function AdminEntitiesPage(): JSX.Element {
   const [semMsg, setSemMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const w = (window as any).WebApp ?? webApp ?? null;
-      if (w && w.BackButton) {
-        // show and attach handler
-        w.BackButton.isVisible?.();
-        w.BackButton.onClick?.(() => {
-          navigate(-1);
+    const isVis = window.WebApp?.BackButton?.setVisible;
+    if (isVis) {
+        window.WebApp?.BackButton?.setHandler?.(() => {
+            navigate(-1);
         });
-      }
-      return () => {
-        // cleanup: hide and remove handler
-        if (w && w.BackButton) {
-          w.BackButton.offClick?.();
-          w.BackButton.hide?.();
-        }
-      };
-    } catch (e) {
-        console.log("", e)
     }
-  }, [navigate, webApp]);
+  }, [navigate]);
 
   /* ---------- helpers ---------- */
 
