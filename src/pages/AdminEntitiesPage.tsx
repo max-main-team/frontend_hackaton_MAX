@@ -479,7 +479,7 @@ export default function AdminEntitiesPage(): JSX.Element {
                   <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
                 </div>
 
-                <div style={{ flex: 1, marginLeft: 12 }}>
+                <div style={{ flex: 1 }}>
                   <label className="period-label">End</label>
                   <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
                 </div>
