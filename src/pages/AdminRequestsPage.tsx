@@ -27,8 +27,7 @@ type Application = {
 const ENDPOINTS = {
   LIST: "https://msokovykh.ru/admin/personalities/access",
   APPROVE: "https://msokovykh.ru/admin/personalities/access/accept",
-  REJECT: "https://msokovykh.ru/admin/personalities/access/reject", // kept for compatibility if needed
-  DELETE_ACCESS: "https://msokovykh.ru/admin/personalities/access", // DELETE endpoint
+  DELETE_ACCESS: "https://msokovykh.ru/admin/personalities/access", // DELETE endpoint (query param)
   UNIVERSITIES: "https://msokovykh.ru/personalities/universities",
   FACULTIES: "https://msokovykh.ru/personalities/faculty",
   DEPARTMENTS: "https://msokovykh.ru/personalities/departments",
@@ -109,23 +108,31 @@ export default function ApplicationsPage(): JSX.Element {
     return [it.first_name, it.second_name].filter(Boolean).join(" ") || it.username || `user#${it.user_id}`;
   }
 
-  // Отклонить заявку — оптимистично удаляем на фронте, затем вызываем DELETE /admin/personalities/access { request_id }
-  async function handleReject(it: Application) {
-    if (!confirm(`Отклонить заявку от ${displayName(it)} (${it.role})?`)) return;
-    const prev = items;
-    // optimistic remove
-    setItems(prevItems => prevItems.filter(x => x.request_id !== it.request_id && x.user_id !== it.user_id));
+  // helper: call DELETE with query param ?request_id=...
+  async function deleteRequestById(requestId: number) {
+    return api.delete(ENDPOINTS.DELETE_ACCESS, { params: { request_id: requestId } });
+  }
 
-    // prefer request_id, fallback to user_id if absent (log warning)
-    const requestId = it.request_id ?? it.user_id;
-    if (it.request_id == null) console.warn("request_id missing for application, using user_id as fallback for DELETE", it);
+  // Отклонить заявку — убрал confirm, удаляем только эту заявку (по request_id)
+  async function handleReject(it: Application) {
+    setError(null);
+
+    if (typeof it.request_id !== "number") {
+      console.warn("Cannot DELETE: request_id missing for", it);
+      setError("Невозможно отклонить заявку: отсутствует request_id.");
+      return;
+    }
+
+    const prev = items;
+    // optimistic remove by request_id only
+    setItems(prevItems => prevItems.filter(x => x.request_id !== it.request_id));
 
     try {
-      // axios.delete accepts body via `data` option
-      await api.delete(ENDPOINTS.DELETE_ACCESS, { data: { request_id: requestId } });
+      await deleteRequestById(it.request_id);
+      // успешно — ничего дополнительно не делаем
     } catch (e) {
       console.warn("Reject (DELETE) failed", e);
-      alert("Не удалось отклонить заявку на сервере. Попробуйте ещё раз.");
+      setError("Не удалось отклонить заявку на сервере. Попробуйте ещё раз.");
       setItems(prev); // rollback
     }
   }
@@ -235,9 +242,10 @@ export default function ApplicationsPage(): JSX.Element {
     }
   }
 
-  // Принять заявку: оптимистично удаляем из UI, затем вызываем approve POST и DELETE request_id; откатываем на ошибке.
+  // Принять заявку: удаляем только эту заявку по request_id (без confirm), сначала POST approve, затем DELETE ?request_id=...
   async function submitApprove() {
     if (!approving) return;
+    setError(null);
 
     const toNum = (v: string) => {
       const n = Number(v);
@@ -250,7 +258,13 @@ export default function ApplicationsPage(): JSX.Element {
     const role = form.role;
 
     if (!course_group_id || !faculty_id || !university_department_id) {
-      alert("Заполните все поля ID валидными числами (факультет/направление/группа).");
+      setError("Заполните все поля ID валидными числами (факультет/направление/группа).");
+      return;
+    }
+
+    if (typeof approving.request_id !== "number") {
+      console.warn("Cannot DELETE after approve: request_id missing for", approving);
+      setError("Невозможно завершить подтверждение: отсутствует request_id у заявки.");
       return;
     }
 
@@ -263,23 +277,19 @@ export default function ApplicationsPage(): JSX.Element {
     };
 
     const prev = items;
-    // optimistic remove from UI
-    setItems(prevItems => prevItems.filter(x => x.request_id !== approving.request_id && x.user_id !== approving.user_id));
+    // optimistic remove only by request_id
+    setItems(prevItems => prevItems.filter(x => x.request_id !== approving.request_id));
     setSubmitting(true);
 
     try {
       // call approve endpoint
       await api.post(ENDPOINTS.APPROVE, payload);
-
-      // then ensure request is removed from access table by DELETE request
-      const requestId = approving.request_id ?? approving.user_id;
-      if (approving.request_id == null) console.warn("request_id missing for application during approve, using user_id as fallback for DELETE", approving);
-      await api.delete(ENDPOINTS.DELETE_ACCESS, { data: { request_id: requestId } });
-
+      // then delete request by request_id query param
+      await deleteRequestById(approving.request_id);
       closeApprove();
     } catch (e) {
       console.warn("Approve or DELETE failed", e);
-      alert("Не удалось принять заявку. Попробуйте позже.");
+      setError("Не удалось принять заявку. Попробуйте позже.");
       setSubmitting(false);
       setItems(prev); // rollback UI
     }
@@ -312,7 +322,7 @@ export default function ApplicationsPage(): JSX.Element {
         <Panel mode="secondary" style={{ padding: 12, marginBottom: 12 }}>
           <Typography.Label style={{ color: "var(--maxui-negative, #e11d48)" }}>{error}</Typography.Label>
           <div style={{ marginTop: 10 }}>
-            <Button mode="primary" onClick={() => loadList(true)}>Повторить</Button>
+            <Button mode="primary" onClick={() => { setError(null); loadList(true); }}>Повторить</Button>
           </div>
         </Panel>
       )}
