@@ -9,7 +9,7 @@ const BACKEND_PREFIX = "https://msokovykh.ru";
 const ENDPOINTS = {
   UNIVERSITIES: `${BACKEND_PREFIX}/personalities/universities`,
   FACULTIES_LIST: `${BACKEND_PREFIX}/personalities/faculty`,
-  DEPARTMENTS_LIST: `${BACKEND_PREFIX}/personalities/departments`,
+  DEPARTMENTS_LIST: `${BACKEND_PREFIX}/personalities/department`,
   GROUPS_LIST: `${BACKEND_PREFIX}/personalities/groups`,
 
   CREATE_FACULTY: `${BACKEND_PREFIX}/admin/faculties`,
@@ -474,12 +474,12 @@ export default function AdminEntitiesPage(): JSX.Element {
 
             {periods.map((p, idx) => (
               <div key={idx} className="period-row">
-                <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
                   <label className="period-label">Start</label>
                   <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
                 </div>
 
-                <div style={{ flex: 1, marginLeft: 12 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
                   <label className="period-label">End</label>
                   <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
                 </div>
