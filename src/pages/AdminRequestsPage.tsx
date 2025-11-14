@@ -24,7 +24,7 @@ type Application = {
 
 const ENDPOINTS = {
   LIST: "https://msokovykh.ru/admin/personalities/access",
-  REJECT: "/applications/reject",
+  //REJECT: "/applications/reject",
   APPROVE: "https://msokovykh.ru/admin/personalities/access/accept",
 };
 
@@ -95,7 +95,7 @@ export default function ApplicationsPage(): JSX.Element {
     const prev = items;
     setItems(prevItems => prevItems.filter(x => x.user_id !== it.user_id));
     try {
-      await api.post(ENDPOINTS.REJECT, { user_id: it.user_id });
+      //await api.post(ENDPOINTS.REJECT, { user_id: it.user_id });
     } catch (e) {
       console.warn("Reject failed", e);
       alert("Не удалось отклонить заявку. Попробуйте позже.");
@@ -165,7 +165,12 @@ export default function ApplicationsPage(): JSX.Element {
   }
 
   return (
-    <Container style={{ paddingTop: 12 }}>
+    <Container style={{ 
+      padding: '12px 16px 20px 16px',
+      maxWidth: '100%',
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
       <Typography.Title variant="large-strong" style={{ marginBottom: 8 }}>
         Заявки на вступление
       </Typography.Title>
@@ -196,9 +201,13 @@ export default function ApplicationsPage(): JSX.Element {
         </Panel>
       )}
 
-      <Grid cols={1} gap={12}>
+      <Grid cols={1} gap={12} style={{ width: '100%' }}>
         {items.map(it => (
-          <Panel key={it.user_id} mode="secondary" className="apps-item" style={{ padding: 12 }}>
+          <Panel key={it.user_id} mode="secondary" className="apps-item" style={{ 
+            padding: 16, 
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
             <Flex align="center" gap={12}>
               <Avatar.Container size={56} form="squircle">
                 {it.avatar_url ? <Avatar.Image src={it.avatar_url} /> : <Avatar.Text>{(displayName(it) || "U").slice(0,2).toUpperCase()}</Avatar.Text>}

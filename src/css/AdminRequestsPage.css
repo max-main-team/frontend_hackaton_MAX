@@ -3,12 +3,15 @@
 .apps-item {
   border-radius: 12px;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .apps-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 /* роль — мягкий бейдж */
@@ -41,11 +44,20 @@
   max-width: 760px;
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(2,6,23,0.6);
+  margin: 0 16px;
 }
 
 /* поля формы */
-.apps-field { display:block; margin-top: 12px; }
-.apps-field-label { font-size: 13px; color: var(--maxui-muted, #6b7280); margin-bottom: 6px; }
+.apps-field { 
+  display:block; 
+  margin-top: 12px; 
+  width: 100%;
+}
+.apps-field-label { 
+  font-size: 13px; 
+  color: var(--maxui-muted, #6b7280); 
+  margin-bottom: 6px; 
+}
 
 /* упрощённые инпуты — выглядят аккуратно с MAX UI */
 .apps-field input, .apps-field select {
@@ -67,4 +79,32 @@
 }
 
 /* placeholder panel when loading */
-.apps-placeholder { border-radius: 12px; }
+.apps-placeholder { 
+  border-radius: 12px; 
+  width: 100%;
+}
+
+/* Ensure full width for all containers */
+.apps-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .apps-actions {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  .apps-actions .mx-button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  .apps-modal {
+    margin: 0 12px;
+  }
+}
