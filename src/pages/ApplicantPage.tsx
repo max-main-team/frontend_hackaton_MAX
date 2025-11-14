@@ -41,7 +41,7 @@ export default function ApplicantPage(): JSX.Element {
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinUni, setJoinUni] = useState<University | null>(null);
-  const [joinRole, setJoinRole] = useState<"student" | "teacher" | "admin">("student");
+  const [joinRole, setJoinRole] = useState<"student" | "teacher">("student");
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinResult, setJoinResult] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -346,7 +346,6 @@ export default function ApplicantPage(): JSX.Element {
                     >
                       <option value="student" style={{ background: 'white', color: 'black' }}>Студент</option>
                       <option value="teacher" style={{ background: 'white', color: 'black' }}>Преподаватель</option>
-                      <option value="admin" style={{ background: 'white', color: 'black' }}>Администратор</option>
                     </select>
                   </div>
 
