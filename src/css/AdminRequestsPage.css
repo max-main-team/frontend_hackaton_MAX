@@ -1,56 +1,29 @@
-.admin-requests-container {
-  padding: 24px 16px 20px 16px;
-  max-width: 100%;
+.apps-root {
+  padding: 12px 16px 20px 16px;
+  max-width: 1100px;
   width: 100%;
   box-sizing: border-box;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  min-height: calc(100vh - 120px); /* статично занимает экран (учитывая хедер/табы) */
 }
 
-/* Контейнер со статичной высотой и прокруткой */
-.requests-scroll-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-  margin: 0 -4px;
-}
-
-/* Стилизация скроллбара */
-.requests-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.requests-scroll-container::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.05);
-  border-radius: 3px;
-}
-
-.requests-scroll-container::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.2);
-  border-radius: 3px;
-}
-
-.requests-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(0,0,0,0.3);
-}
-
-.request-card {
+/* card item */
+.apps-item {
   border-radius: 12px;
-  padding: 16px;
+  overflow: hidden;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 8px;
 }
 
-.action-buttons {
+/* actions to the right */
+.apps-actions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.role-badge {
+/* роль — мягкий бейдж */
+.apps-role-badge {
   display: inline-block;
   padding: 6px 10px;
   font-weight: 600;
@@ -61,123 +34,88 @@
   text-transform: capitalize;
 }
 
-.user-id {
-  color: var(--maxui-muted, #6b7280);
-  font-size: 13px;
-  margin-top: 4px;
-  display: block;
-}
-
-.modal-overlay {
+/* модальное оверлей */
+.apps-modal-overlay {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   z-index: 9999;
   background: rgba(2,6,23,0.45);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-.modal-panel {
+/* сам модал */
+.apps-modal {
   width: 100%;
-  max-width: 500px;
+  max-width: 760px;
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(2,6,23,0.6);
   margin: 0 16px;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
-.modal-header {
-  margin-bottom: 24px;
-}
-
-.form-container {
+/* поля формы */
+.apps-field {
+  display:block;
+  margin-top: 12px;
   width: 100%;
 }
-
-.form-field {
+.apps-field-label {
+  font-size: 13px;
+  color: var(--maxui-muted, #6b7280);
+  margin-bottom: 6px;
   display: block;
-  margin-bottom: 20px;
-  width: 100%;
 }
 
-.form-select, .form-input {
-  width: 100%;
-  padding: 12px 16px;
+/* упрощённые инпуты и селекты — выглядят аккуратно с MAX UI */
+.apps-field input,
+.apps-field select {
+  width:100%;
+  padding: 10px 12px;
   border-radius: 8px;
   box-sizing: border-box;
-  border: 1px solid var(--maxui-border-secondary);
-  background: var(--maxui-bg-secondary);
-  color: var(--maxui-text-primary);
-  font-family: inherit;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: var(--maxui-card-bg, #fff);
   font-size: 14px;
 }
 
-.form-select:focus, .form-input:focus {
-  outline: none;
-  border-color: var(--maxui-color-primary-500);
-  box-shadow: 0 0 0 3px var(--maxui-color-primary-100);
-}
-
-.load-more-container {
-  text-align: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--maxui-border-secondary);
-}
-
-.apps-placeholder,
-.empty-state,
-.error-panel {
-  padding: 24px;
-  text-align: center;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
-
-.error-panel {
-  background: var(--maxui-color-error-50);
-  border: 1px solid var(--maxui-color-error-200);
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-  .admin-requests-container {
-    padding: 16px 12px 20px 12px;
+/* dark mode for inputs */
+@media (prefers-color-scheme: dark) {
+  .apps-field input, .apps-field select {
+    background: var(--maxui-surface, #0f1112);
+    color: var(--maxui-text, #e6eef8);
+    border: 1px solid rgba(255,255,255,0.04);
   }
-  
-  .action-buttons {
+}
+
+/* placeholder panel when loading */
+.apps-placeholder {
+  border-radius: 12px;
+  width: 100%;
+}
+
+/* Ensure full width for all containers */
+.apps-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .apps-actions {
     flex-direction: column;
     width: 100%;
     margin-top: 12px;
   }
-  
-  .action-buttons .mx-button {
+
+  .apps-actions .mx-button {
     width: 100%;
     margin-bottom: 8px;
   }
-  
-  .modal-panel {
-    margin: 0 12px;
-  }
-  
-  .request-card {
-    padding: 12px;
-  }
-}
 
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-  .form-select, .form-input {
-    background: var(--maxui-bg-primary);
-    border-color: var(--maxui-border-primary);
-    color: var(--maxui-text-primary);
-  }
-  
-  .form-select:focus, .form-input:focus {
-    border-color: var(--maxui-color-primary-400);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  .apps-modal {
+    margin: 0 12px;
   }
 }
