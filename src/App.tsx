@@ -8,7 +8,7 @@ import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
-import AdminRequestsPage from "./pages/AdminEntitiesPage.tsx";
+import AdminRequestsPage from "./pages/AdminRequestsPage.tsx";
 import AdminEntitiesPage from "./pages/AdminEntitiesPage.tsx";
 
 function AppInner() {
