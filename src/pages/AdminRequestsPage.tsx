@@ -330,9 +330,9 @@ export default function ApplicationsPage(): JSX.Element {
                     {it.username ? `@${it.username}` : null}
                   </Typography.Label>
                 </div>
-                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 7 }}>
                   <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-                    ID:
+                    ID
                   </Typography.Label>
                   <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)", fontWeight: 600 }}>
                     {it.user_id}
@@ -374,14 +374,18 @@ export default function ApplicationsPage(): JSX.Element {
                 </Typography.Label>
               </Flex>
               <div style={{ marginTop: 12 }}>
-                {/* Роль */}
                 <div className="apps-field">
                   <Typography.Label className="apps-field-label">Роль</Typography.Label>
-                  <select value={form.role} onChange={e => onFormChange("role", e.target.value)}>
-                    <option value="student">Студент</option>
-                    <option value="teacher">Преподаватель</option>
-                    <option value="admin">Администратор</option>
-                  </select>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <select
+                      value={form.role}
+                      onChange={e => onFormChange("role", e.target.value)}
+                      style={{ flex: 1, minWidth: 0 }}
+                    >
+                      <option value="student">Студент</option>
+                      <option value="teacher">Преподаватель</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div style={{ marginTop: 10 }}>
@@ -473,12 +477,23 @@ export default function ApplicationsPage(): JSX.Element {
                   </div>
                 </div>
 
-                <Flex justify="end" style={{ marginTop: 16 }}>
-                  <Button mode="tertiary" onClick={closeApprove} style={{ marginRight: 8 }}>Отмена</Button>
-                  <Button mode="primary" onClick={submitApprove} disabled={submitting}>
-                    {submitting ? "Сохраняем..." : "Принять и сохранить"}
-                  </Button>
-                </Flex>
+                <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <Button mode="tertiary" onClick={closeApprove}>Отмена</Button>
+                  </div>
+
+                  <div>
+                    <Button
+                      mode="primary"
+                      onClick={submitApprove}
+                      disabled={submitting}
+                      style={{ minWidth: 160 }}
+                    >
+                      {submitting ? "Сохраняем..." : "Принять и сохранить"}
+                    </Button>
+                  </div>
+                </div>
+
               </div>
             </Container>
           </Panel>
