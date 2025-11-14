@@ -11,7 +11,7 @@ import {
 } from "@maxhub/max-ui";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import "../css/ApplicationsPage.css";
+import "../css/AdminRequestsPage.css";
 
 type Application = {
   role: string;
