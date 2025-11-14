@@ -15,7 +15,7 @@ export default function AdminPage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout hideTabs={true}>
       <div className="admin-section" style={{ marginTop: 24 }}>
         <Typography.Title variant="medium-strong" style={{ marginBottom: 16 }}>Административное</Typography.Title>
 
