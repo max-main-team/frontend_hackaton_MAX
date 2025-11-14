@@ -36,18 +36,6 @@ html, body, #root {
   backdrop-filter: blur(6px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.04);
 }
-
-.main-header-right .mx-button,
-.main-header-right button {
-  padding: 0;
-  height: 40px;
-  min-width: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
 .brand {
   font-weight: 600;
   font-size: 16px;
@@ -204,85 +192,3 @@ html, body, #root {
     height: calc(100vh - var(--header-height)) !important;
   }
 }
-
-/* Avatar overlay: initials always present, image overlays and fades in */
-.main-avatar {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-}
-
-/* ensure Avatar.Text sits beneath the image but is visible until image fades in */
-.main-avatar__text {
-  position: relative;
-  z-index: 1;
-  /* keep text visible and centered as Avatar.Text normally does */
-}
-
-/* overlayed img covers whole container */
-.main-avatar__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 999px; /* circle */
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 220ms ease;
-  display: block;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-/* when loaded -> fade in */
-.main-avatar__img.loaded {
-  opacity: 1;
-}
-
-/* EMPTY placeholder (keeps space, no initials) */
-.main-avatar {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-}
-
-/* keep an empty stable box so layout won't shift */
-.main-avatar__empty {
-  width: 100%;
-  height: 100%;
-  background: transparent; /* or subtle background if you want a gentle placeholder */
-}
-
-/* image overlay (dataURL or remote) */
-.main-avatar__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 999px;
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 240ms ease;
-}
-
-/* when image is ready, make visible (class loaded set inline in component) */
-.main-avatar__img.loaded {
-  opacity: 1;
-}
-
-/* optional fallback initials if you choose to show them when avatar failed */
-.main-avatar__fallback-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  color: white;
-}
-
