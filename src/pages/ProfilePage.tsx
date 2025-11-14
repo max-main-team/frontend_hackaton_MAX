@@ -1,3 +1,4 @@
+// ProfilePage.tsx — замените текущий файл этим кодом
 import { useEffect, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
@@ -5,8 +6,8 @@ import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
 import "../css/ProfilePage.css";
 
-/* ---------- cache / fetch helpers ---------- */
-const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+/* ---------- cache / fetch helpers (как раньше) ---------- */
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 дней
 
 function cacheKeyFor(userId?: string | number | null, url?: string | null) {
   if (userId != null) return `avatarCache:${String(userId)}`;
@@ -50,7 +51,7 @@ function writeCache(key: string | null, dataUrl: string) {
     const payload = { dataUrl, ts: Date.now() };
     localStorage.setItem(key, JSON.stringify(payload));
   } catch {
-    // best-effort: ignore storage errors
+    // best-effort
   }
 }
 
@@ -65,10 +66,14 @@ export default function ProfilePage(): JSX.Element {
   const [userId, setUserId] = useState<string | number | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // cached dataURL (immediate when present)
+  // synced cache/dataurl
   const [cachedDataUrl, setCachedDataUrl] = useState<string | null>(null);
   const [, setLoadingAvatar] = useState<boolean>(false);
   const [, setAvatarError] = useState<boolean>(false);
+
+  // NEW: флаг — мы уже "проверили" профиль (получили ответ / применили fallback)
+  // Пока false — НИКАКИХ инициалов не показываем, только пустоту.
+  const [hasCheckedProfile, setHasCheckedProfile] = useState<boolean>(false);
 
   function initials(name?: string | null) {
     if (!name) return "U";
@@ -93,25 +98,28 @@ export default function ProfilePage(): JSX.Element {
           setFullName(name);
           setUserId(u.id ?? null);
           setAvatarUrl(u.avatar_url ?? u.photo_url ?? null);
+          setHasCheckedProfile(true);
           return;
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
-        // ignore, fallback to webAppData below
+        // игнорируем — применим fallback ниже
       }
 
       if (!mounted) return;
+      // fallback from webAppData
       const fallbackName = [webUser?.first_name, webUser?.last_name].filter(Boolean).join(" ").trim() || webUser?.username || null;
       setFullName(fallbackName);
       setUserId(webUser?.id ?? null);
       setAvatarUrl(webUser?.avatar_url ?? webUser?.photo_url ?? null);
+      setHasCheckedProfile(true);
     }
 
     loadProfileFromApi();
     return () => { mounted = false; };
   }, [webUser]);
 
-  // Try to read cached dataURL synchronously; otherwise fetch+cache it.
+  // read cache / fetch dataUrl — выполняем, но НЕ отображаем инициалы пока hasCheckedProfile === false
   useEffect(() => {
     let canceled = false;
     setCachedDataUrl(null);
@@ -125,7 +133,7 @@ export default function ProfilePage(): JSX.Element {
     }
 
     if (!avatarUrl) {
-      // no remote avatar — nothing to load
+      // ничего загружать не надо; но мы не показываем инициалы до флага hasCheckedProfile
       return;
     }
 
@@ -180,21 +188,18 @@ export default function ProfilePage(): JSX.Element {
           <div style={{ height: 18 }} />
 
           <Avatar.Container size={112} form="circle" className="profile-avatar">
-            {/* Behavior:
-                - if cachedDataUrl present -> show image immediately (no initials/placeholder)
-                - else if avatarUrl exists but not yet ready -> show placeholder (no initials)
-                - else (no avatarUrl) -> show initials as fallback
-            */}
-            {cachedDataUrl ? (
-              // show from cache (data URL)
-              <img className="profile-avatar__img loaded" src={cachedDataUrl} alt={fullName ?? "avatar"} />
-            ) : avatarUrl ? (
-              // avatar exists but not ready yet -> show empty placeholder (no letters)
-              <div className="profile-avatar__placeholder" aria-hidden />
-            ) : (
-              // no avatar URL at all -> fallback to initials
-              <Avatar.Text>{initials(fullName ?? webUser?.username ?? null)}</Avatar.Text>
-            )}
+            {/* Если профиль ещё не проверен — всегда пустой placeholder (никаких букв) */}
+            {!hasCheckedProfile ? (
+              <div className="profile-avatar__placeholder" />
+            ) : 
+              (cachedDataUrl ? (
+                <img className="profile-avatar__img loaded" src={cachedDataUrl} alt={fullName ?? "avatar"} />
+              ) : avatarUrl ? (
+                <div className="profile-avatar__placeholder" />
+              ) : (
+                <Avatar.Text>{initials(fullName ?? webUser?.username ?? null)}</Avatar.Text>
+              ))
+            }
           </Avatar.Container>
 
           <Typography.Title variant="large-strong" style={{ margin: "6px 0 0 0", textAlign: "center" }}>
