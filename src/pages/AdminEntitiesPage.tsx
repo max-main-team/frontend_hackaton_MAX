@@ -9,11 +9,11 @@ const BACKEND_PREFIX = "https://msokovykh.ru";
 const ENDPOINTS = {
   UNIVERSITIES: `${BACKEND_PREFIX}/personalities/universities`,
   FACULTIES_LIST: `${BACKEND_PREFIX}/personalities/faculty`,
-  DEPARTMENTS_LIST: `${BACKEND_PREFIX}/personalities/department`,
+  DEPARTMENTS_LIST: `${BACKEND_PREFIX}/personalities/departments`,
   GROUPS_LIST: `${BACKEND_PREFIX}/personalities/groups`,
 
   CREATE_FACULTY: `${BACKEND_PREFIX}/admin/faculties`,
-  CREATE_DEPARTMENT: `${BACKEND_PREFIX}/admin/departments`,
+  CREATE_DEPARTMENT: `${BACKEND_PREFIX}/admin/department`,
   CREATE_GROUP: `${BACKEND_PREFIX}/admin/groups`,
   CREATE_SUBJECT: `${BACKEND_PREFIX}/subjects`,
   CREATE_SEMESTERS: `${BACKEND_PREFIX}/universities/semesters`,
