@@ -1,8 +1,18 @@
+/* ProfilePage avatar: placeholder + dataURL fade-in */
 .profile-avatar {
   position: relative;
   overflow: hidden;
+  width: 112px;   /* same as Avatar.Container size */
+  height: 112px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* keep transparent to avoid letters showing */
 }
 
+/* empty placeholder occupies space but is invisible */
 .profile-avatar__placeholder {
   width: 100%;
   height: 100%;
@@ -12,16 +22,25 @@
 
 
 .profile-avatar__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 999px;
-  display: block;
-  opacity: 1;
+  z-index: 2;
+  opacity: 0;
   transition: opacity 220ms ease;
+  display: block;
 }
 
-.profile-avatar .mx-avatar__text {
+/* when loaded (class 'loaded' set) -> fade in */
+.profile-avatar__img.loaded {
+  opacity: 1;
+}
+
+.profile-avatar .mx-avatar__text,
+.profile-avatar .mx-avatar__text * {
   position: relative;
   z-index: 1;
 }
