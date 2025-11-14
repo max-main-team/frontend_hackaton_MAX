@@ -2,7 +2,6 @@
   --header-height: 56px;
   --bottom-height: 72px;
   --content-padding: 16px;
-  --header-gap: 30px;
 }
 
 html, body, #root {
@@ -23,7 +22,7 @@ html, body, #root {
 
 .main-header {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + var(--header-gap));
+  top: 0;
   left: 0;
   right: 0;
   height: var(--header-height);
@@ -37,6 +36,18 @@ html, body, #root {
   backdrop-filter: blur(6px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.04);
 }
+
+.main-header-right .mx-button,
+.main-header-right button {
+  padding: 0;
+  height: 40px;
+  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
 .brand {
   font-weight: 600;
   font-size: 16px;
@@ -44,7 +55,6 @@ html, body, #root {
 }
 
 .main-content {
-  margin-top: calc(var(--header-height) + var(--header-gap) + env(safe-area-inset-top, 0px));
   box-sizing: border-box;
   width: 100%;
   max-width: 1100px;

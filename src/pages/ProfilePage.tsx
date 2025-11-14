@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Panel, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import api from "../services/api";
+import "../css/ProfilePage.css"
 
 export default function ProfilePage(): JSX.Element {
   const navigate = useNavigate();
@@ -12,7 +13,6 @@ export default function ProfilePage(): JSX.Element {
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // NEW: preload status
   const [photoLoaded, setPhotoLoaded] = useState<boolean>(false);
   const [photoError, setPhotoError] = useState<boolean>(false);
 

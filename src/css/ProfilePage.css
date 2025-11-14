@@ -1,0 +1,27 @@
+.profile-avatar {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-avatar__placeholder {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
+
+
+.profile-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  display: block;
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.profile-avatar .mx-avatar__text {
+  position: relative;
+  z-index: 1;
+}
