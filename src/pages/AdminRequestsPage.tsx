@@ -269,10 +269,12 @@ export default function ApplicationsPage(): JSX.Element {
   return (
     <Container className="apps-root">
       <Flex align="center" justify="space-between" style={{ marginBottom: 8 }}>
-        <div style={{ marginTop: 6 }}>
-          <Typography.Title variant="large-strong" style={{ margin: 0 }}>Заявки на вступление</Typography.Title>
-          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-             Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
+        <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 6 }}>
+          <Typography.Title variant="large-strong" style={{ margin: 0, display: "block" }}>
+            Заявки на вступление
+          </Typography.Title>
+          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)", display: "block" }}>
+            Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
           </Typography.Label>
         </div>
 
@@ -312,7 +314,7 @@ export default function ApplicationsPage(): JSX.Element {
       <Grid cols={1} gap={12} style={{ width: '100%' }}>
         {items.map(it => (
           <Panel key={it.user_id} mode="secondary" className="apps-item" style={{ padding: 16 }}>
-            <Flex align="center" gap={12}>
+            <Flex align="center" gap={8}>
               <Avatar.Container size={56} form="squircle">
                 {(it.avatar_url || it.photo_url) ? (
                   <Avatar.Image src={it.avatar_url ?? it.photo_url} />
@@ -321,7 +323,7 @@ export default function ApplicationsPage(): JSX.Element {
                 )}
               </Avatar.Container>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: "0 1 60%", minWidth: 0 }}>
                 <Typography.Title variant="small-strong" style={{ margin: 0 }}>{displayName(it)}</Typography.Title>
                 <div style={{ marginTop: 6 }}>
                   <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
