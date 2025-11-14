@@ -2,6 +2,7 @@
   --header-height: 56px;
   --bottom-height: 72px;
   --content-padding: 16px;
+  --header-gap: 10px;
 }
 
 html, body, #root {
@@ -22,7 +23,7 @@ html, body, #root {
 
 .main-header {
   position: fixed;
-  top: 0;
+  top: calc(env(safe-area-inset-top, 0px) + var(--header-gap));
   left: 0;
   right: 0;
   height: var(--header-height);
@@ -43,6 +44,7 @@ html, body, #root {
 }
 
 .main-content {
+  margin-top: calc(var(--header-height) + var(--header-gap) + env(safe-area-inset-top, 0px));
   box-sizing: border-box;
   width: 100%;
   max-width: 1100px;
