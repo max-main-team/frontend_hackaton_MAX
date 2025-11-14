@@ -330,7 +330,7 @@ export default function ApplicationsPage(): JSX.Element {
                     {it.username ? `@${it.username}` : null}
                   </Typography.Label>
                 </div>
-                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 3 }}>
                   <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
                     ID
                   </Typography.Label>

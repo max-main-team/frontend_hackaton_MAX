@@ -1,114 +1,222 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Panel,
-  Container,
-  Flex,
-  Typography,
-  Button,
-} from "@maxhub/max-ui";
+import { Panel, Container, Flex, Typography, Button } from "@maxhub/max-ui";
 import api from "../services/api";
 import "../css/AdminEntitiesPage.css";
+
 const BACKEND_PREFIX = "https://msokovykh.ru";
+const ENDPOINTS = {
+  UNIVERSITIES: `${BACKEND_PREFIX}/personalities/universities`,
+  FACULTIES_LIST: `${BACKEND_PREFIX}/personalities/faculty`,
+  DEPARTMENTS_LIST: `${BACKEND_PREFIX}/personalities/departments`,
+  GROUPS_LIST: `${BACKEND_PREFIX}/personalities/groups`,
+
+  CREATE_FACULTY: `${BACKEND_PREFIX}/admin/faculties`,
+  CREATE_DEPARTMENT: `${BACKEND_PREFIX}/admin/departments`,
+  CREATE_GROUP: `${BACKEND_PREFIX}/admin/groups`,
+  CREATE_SUBJECT: `${BACKEND_PREFIX}/admin/subjects`,
+  CREATE_SEMESTERS: `${BACKEND_PREFIX}/universities/semesters`,
+};
 
 export default function AdminEntitiesPage(): JSX.Element {
   const navigate = useNavigate();
 
-  // Faculty
+  // common lists
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [loadingUniversities, setLoadingUniversities] = useState(false);
+
+  // cascading lists
+  const [faculties, setFaculties] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [, setGroupsList] = useState<any[]>([]);
+
+  /* ---------- FACULTY ---------- */
+  const [facultyUni, setFacultyUni] = useState<number | null>(null);
   const [facultyName, setFacultyName] = useState("");
   const [facultyLoading, setFacultyLoading] = useState(false);
   const [facultyMsg, setFacultyMsg] = useState<string | null>(null);
 
-  // Subject
+  /* ---------- DEPARTMENT (направление) ---------- */
+  const [departmentUni, setDepartmentUni] = useState<number | null>(null);
+  const [departmentFacultyId, setDepartmentFacultyId] = useState<number | null>(null);
+  const [departmentName, setDepartmentName] = useState("");
+  const [departmentLoading, setDepartmentLoading] = useState(false);
+  const [departmentMsg, setDepartmentMsg] = useState<string | null>(null);
+
+  /* ---------- GROUP ---------- */
+  const [groupUni, setGroupUni] = useState<number | null>(null);
+  const [groupFacultyId, setGroupFacultyId] = useState<number | null>(null);
+  const [groupDepartmentId, setGroupDepartmentId] = useState<number | null>(null);
+  const [groupName, setGroupName] = useState("");
+  const [groupLoading, setGroupLoading] = useState(false);
+  const [groupMsg, setGroupMsg] = useState<string | null>(null);
+
+  /* ---------- SUBJECT ---------- */
+  const [subjectUniId, setSubjectUniId] = useState<number | null>(null);
   const [subjectName, setSubjectName] = useState("");
-  const [subjectUniId, setSubjectUniId] = useState<string>("");
   const [subjectLoading, setSubjectLoading] = useState(false);
   const [subjectMsg, setSubjectMsg] = useState<string | null>(null);
 
-  // Semesters (periods)
-  const [periods, setPeriods] = useState<{ start: string; end: string }[]>([
-    { start: "", end: "" },
-  ]);
-  const [uniId, setUniId] = useState<string>("");
+  /* ---------- SEMESTERS ---------- */
+  const [semUniId, setSemUniId] = useState<number | null>(null);
+  const [periods, setPeriods] = useState<{ start: string; end: string }[]>([{ start: "", end: "" }]);
   const [semLoading, setSemLoading] = useState(false);
   const [semMsg, setSemMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    const isVis = window.WebApp?.BackButton?.setVisible;
-    if (isVis) {
-        window.WebApp?.BackButton?.setHandler?.(() => {
-            navigate(-1);
-        });
+    fetchUniversities();
+  }, []);
+
+  async function fetchUniversities() {
+    setLoadingUniversities(true);
+    try {
+      const res = await api.get(ENDPOINTS.UNIVERSITIES);
+      const data = res.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setUniversities(arr || []);
+    } catch (e) {
+      console.warn("failed to load universities", e);
+      setUniversities([]);
+    } finally {
+      setLoadingUniversities(false);
     }
-  }, [navigate]);
-
-  /* ---------- helpers ---------- */
-
-  function clearFacultyForm(msg?: string) {
-    setFacultyName("");
-    setFacultyMsg(msg ?? "Факультет создан");
   }
 
-  function clearSubjectForm(msg?: string) {
-    setSubjectName("");
-    setSubjectUniId("");
-    setSubjectMsg(msg ?? "Предмет создан");
+  async function fetchFacultiesFor(universityId: number | null) {
+    if (!universityId) {
+      setFaculties([]);
+      return;
+    }
+    try {
+      const res = await api.get(ENDPOINTS.FACULTIES_LIST, { params: { university_id: universityId } });
+      const data = res.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setFaculties(arr || []);
+    } catch (e) {
+      console.warn("failed to load faculties", e);
+      setFaculties([]);
+    }
   }
 
-  function clearSemForm(msg?: string) {
-    setPeriods([{ start: "", end: "" }]);
-    setUniId("");
-    setSemMsg(msg ?? "Семестры созданы");
+  async function fetchDepartmentsFor(facultyId: number | null) {
+    if (!facultyId) {
+      setDepartments([]);
+      return;
+    }
+    try {
+      const res = await api.get(ENDPOINTS.DEPARTMENTS_LIST, { params: { faculty_id: facultyId } });
+      const data = res.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setDepartments(arr || []);
+    } catch (e) {
+      console.warn("failed to load departments", e);
+      setDepartments([]);
+    }
   }
 
-  /* ---------- submit handlers ---------- */
+  async function fetchGroupsFor(departmentId: number | null) {
+    if (!departmentId) {
+      setGroupsList([]);
+      return;
+    }
+    try {
+      const res = await api.get(ENDPOINTS.GROUPS_LIST, { params: { department_id: departmentId } });
+      const data = res.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setGroupsList(arr || []);
+    } catch (e) {
+      console.warn("failed to load groups", e);
+      setGroupsList([]);
+    }
+  }
+
 
   async function onCreateFaculty() {
     setFacultyMsg(null);
-    if (!facultyName.trim()) {
-      setFacultyMsg("Введите название факультета");
-      return;
-    }
+    if (!facultyUni) return setFacultyMsg("Выберите университет");
+    if (!facultyName.trim()) return setFacultyMsg("Введите название факультета");
     setFacultyLoading(true);
     try {
-      const url = `${BACKEND_PREFIX}/admin/faculties`;
-      const res = await api.post(url, { faculty_name: facultyName.trim() });
+      const res = await api.post(ENDPOINTS.CREATE_FACULTY, { faculty_name: facultyName.trim(), university_id: facultyUni });
       if (res?.status === 200) {
-        clearFacultyForm("Факультет успешно создан");
-      } else {
-        setFacultyMsg(`Сервер вернул ${res?.status}`);
-      }
+        setFacultyName("");
+        setFacultyMsg("Факультет успешно создан");
+        await fetchFacultiesFor(facultyUni);
+      } else setFacultyMsg(`Сервер вернул ${res?.status}`);
     } catch (e: any) {
-      console.error("create faculty error", e);
+      console.error(e);
       setFacultyMsg(e?.response?.data?.message ?? "Ошибка при создании факультета");
     } finally {
       setFacultyLoading(false);
     }
   }
 
+  async function onCreateDepartment() {
+    setDepartmentMsg(null);
+    if (!departmentUni) return setDepartmentMsg("Выберите университет");
+    if (!departmentFacultyId) return setDepartmentMsg("Выберите факультет");
+    if (!departmentName.trim()) return setDepartmentMsg("Введите название направления");
+    setDepartmentLoading(true);
+    try {
+      const res = await api.post(ENDPOINTS.CREATE_DEPARTMENT, {
+        department_name: departmentName.trim(),
+        university_id: departmentUni,
+        faculty_id: departmentFacultyId,
+      });
+      if (res?.status === 200) {
+        setDepartmentName("");
+        setDepartmentMsg("Направление успешно создано");
+        await fetchDepartmentsFor(departmentFacultyId);
+      } else setDepartmentMsg(`Сервер вернул ${res?.status}`);
+    } catch (e: any) {
+      console.error(e);
+      setDepartmentMsg(e?.response?.data?.message ?? "Ошибка при создании направления");
+    } finally {
+      setDepartmentLoading(false);
+    }
+  }
+
+  async function onCreateGroup() {
+    setGroupMsg(null);
+    if (!groupUni) return setGroupMsg("Выберите университет");
+    if (!groupFacultyId) return setGroupMsg("Выберите факультет");
+    if (!groupDepartmentId) return setGroupMsg("Выберите направление");
+    if (!groupName.trim()) return setGroupMsg("Введите название группы");
+    setGroupLoading(true);
+    try {
+      const res = await api.post(ENDPOINTS.CREATE_GROUP, {
+        name: groupName.trim(),
+        university_id: groupUni,
+        faculty_id: groupFacultyId,
+        department_id: groupDepartmentId,
+      });
+      if (res?.status === 200) {
+        setGroupName("");
+        setGroupMsg("Группа успешно создана");
+        await fetchGroupsFor(groupDepartmentId);
+      } else setGroupMsg(`Сервер вернул ${res?.status}`);
+    } catch (e: any) {
+      console.error(e);
+      setGroupMsg(e?.response?.data?.message ?? "Ошибка при создании группы");
+    } finally {
+      setGroupLoading(false);
+    }
+  }
+
   async function onCreateSubject() {
     setSubjectMsg(null);
-    if (!subjectName.trim() || !subjectUniId.trim()) {
-      setSubjectMsg("Заполните название предмета и ID университета");
-      return;
-    }
-    const uni = Number(subjectUniId);
-    if (!Number.isFinite(uni)) {
-      setSubjectMsg("University ID должен быть числом");
-      return;
-    }
+    if (!subjectUniId) return setSubjectMsg("Выберите университет");
+    if (!subjectName.trim()) return setSubjectMsg("Введите название предмета");
     setSubjectLoading(true);
     try {
-      const url = `${BACKEND_PREFIX}/admin/subjects`;
-      const res = await api.post(url, { name: subjectName.trim(), university_id: uni });
+      const res = await api.post(ENDPOINTS.CREATE_SUBJECT, { name: subjectName.trim(), university_id: subjectUniId });
       if (res?.status === 200) {
-        clearSubjectForm("Предмет успешно создан");
-      } else {
-        setSubjectMsg(`Сервер вернул ${res?.status}`);
-      }
+        setSubjectName("");
+        setSubjectMsg("Предмет успешно создан");
+      } else setSubjectMsg(`Сервер вернул ${res?.status}`);
     } catch (e: any) {
-      console.error("create subject error", e);
+      console.error(e);
       setSubjectMsg(e?.response?.data?.message ?? "Ошибка при создании предмета");
     } finally {
       setSubjectLoading(false);
@@ -117,48 +225,28 @@ export default function AdminEntitiesPage(): JSX.Element {
 
   async function onCreateSemesters() {
     setSemMsg(null);
-    if (!uniId.trim()) {
-      setSemMsg("Введите ID университета");
-      return;
-    }
-    const uni = Number(uniId);
-    if (!Number.isFinite(uni)) {
-      setSemMsg("University ID должен быть числом");
-      return;
-    }
-
-    // validate periods
-    const periodsPayload = [];
+    if (!semUniId) return setSemMsg("Выберите университет");
+    const periodsPayload: any[] = [];
     for (const p of periods) {
-      if (!p.start || !p.end) {
-        setSemMsg("Укажите даты для всех периодов (start/end)");
-        return;
-      }
-      const startIso = new Date(p.start).toISOString();
-      const endIso = new Date(p.end).toISOString();
-      periodsPayload.push({ start_date: startIso, end_date: endIso });
+      if (!p.start || !p.end) return setSemMsg("Укажите даты для всех периодов (start/end)");
+      periodsPayload.push({ start_date: new Date(p.start).toISOString(), end_date: new Date(p.end).toISOString() });
     }
-
     setSemLoading(true);
     try {
-      const url = `${BACKEND_PREFIX}/universities/semesters`;
-      const res = await api.post(url, {
-        periods: periodsPayload,
-        uni_id: uni,
-      });
+      const res = await api.post(ENDPOINTS.CREATE_SEMESTERS, { uni_id: semUniId, periods: periodsPayload });
       if (res?.status === 200) {
-        clearSemForm("Семестры успешно созданы");
-      } else {
-        setSemMsg(`Сервер вернул ${res?.status}`);
-      }
+        setPeriods([{ start: "", end: "" }]);
+        setSemMsg("Семестры успешно созданы");
+      } else setSemMsg(`Сервер вернул ${res?.status}`);
     } catch (e: any) {
-      console.error("create semesters error", e);
+      console.error(e);
       setSemMsg(e?.response?.data?.message ?? "Ошибка при создании семестров");
     } finally {
       setSemLoading(false);
     }
   }
 
+  /* periods helpers */
   function setPeriodAt(idx: number, key: "start" | "end", value: string) {
     setPeriods(prev => {
       const cp = prev.slice();
@@ -166,157 +254,270 @@ export default function AdminEntitiesPage(): JSX.Element {
       return cp;
     });
   }
-
   function addPeriod() {
     setPeriods(prev => [...prev, { start: "", end: "" }]);
   }
-
   function removePeriod(idx: number) {
     setPeriods(prev => prev.filter((_, i) => i !== idx));
   }
 
   return (
     <Container style={{ paddingTop: 12, paddingBottom: 28 }}>
-      <Typography.Title variant="large-strong" style={{ marginBottom: 8 }}>
-        Админ: создание сущностей
-      </Typography.Title>
+      <Flex align="center" justify="space-between" style={{ marginBottom: 8 }}>
+        <div>
+          <Typography.Title variant="large-strong" style={{ marginBottom: 2 }}>
+            Админ: создание сущностей
+          </Typography.Title>
+          <Typography.Label style={{ display: "block", color: "var(--maxui-muted, #9aa)" }}>
+            Создавайте факультеты, направления, группы, предметы и семестры.
+          </Typography.Label>
+        </div>
 
-      <Typography.Label style={{ display: "block", marginBottom: 12 }}>
-        Создавайте факультеты, предметы и семестры. Ответы с кодом 200 считаются успешными.
-      </Typography.Label>
+        {/* Back button in the right top corner */}
+        <div>
+          <Button mode="tertiary" onClick={() => navigate(-1)}>
+            Назад
+          </Button>
+        </div>
+      </Flex>
 
-      {/* FACULTY */}
-      <Panel mode="secondary" className="admin-entity-panel">
-        <Flex direction="column" gap={8}>
-          <Typography.Title variant="small-strong">Создать факультет</Typography.Title>
-
-          <div className="field-row">
-            <input
-              value={facultyName}
-              onChange={(e) => setFacultyName(e.target.value)}
-              placeholder="Название факультета (например: FITIP)"
-              className="admin-input"
-            />
+      <div className="admin-cards">
+        {/* FACULTY CARD */}
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать факультет</Typography.Title>
           </div>
 
-          <Flex justify="space-between" align="center">
-            <div className="msg">{facultyMsg}</div>
-            <div>
-              <Button mode="tertiary" onClick={() => { setFacultyName(""); setFacultyMsg(null); }} style={{ marginRight: 8 }}>
-                Очистить
-              </Button>
+          <div className="card-body">
+            <label className="field-label">Университет</label>
+            <select
+              className="admin-input"
+              value={facultyUni ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setFacultyUni(id);
+                fetchFacultiesFor(id);
+              }}
+              disabled={loadingUniversities}
+            >
+              {loadingUniversities ? <option value="">Загрузка...</option> : <option value="">Выберите университет</option>}
+              {universities.map(u => (
+                <option key={u.id ?? u.uni_id} value={u.id ?? u.uni_id}>
+                  {u.uni_name ?? u.uni_short_name ?? u.name}
+                </option>
+              ))}
+            </select>
+
+            <label className="field-label">Название факультета</label>
+            <input value={facultyName} onChange={e => setFacultyName(e.target.value)} placeholder="Например: Институт компьютерных наук" className="admin-input" />
+
+            <div className="card-footer">
+              <div className="msg">{facultyMsg}</div>
               <Button mode="primary" onClick={onCreateFaculty} disabled={facultyLoading}>
                 {facultyLoading ? "Создаём..." : "Создать факультет"}
               </Button>
             </div>
-          </Flex>
-        </Flex>
-      </Panel>
+          </div>
+        </Panel>
 
-      {/* SUBJECT */}
-      <Panel mode="secondary" className="admin-entity-panel">
-        <Flex direction="column" gap={8}>
-          <Typography.Title variant="small-strong">Создать предмет</Typography.Title>
-
-          <div className="field-row">
-            <input
-              value={subjectName}
-              onChange={(e) => setSubjectName(e.target.value)}
-              placeholder="Название предмета"
-              className="admin-input"
-            />
+        {/* DEPARTMENT CARD */}
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать направление / кафедру</Typography.Title>
           </div>
 
-          <div className="field-row">
-            <input
-              value={subjectUniId}
-              onChange={(e) => setSubjectUniId(e.target.value)}
-              placeholder="ID университета (число)"
+          <div className="card-body">
+            <label className="field-label">Университет</label>
+            <select
               className="admin-input"
-            />
-          </div>
+              value={departmentUni ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setDepartmentUni(id);
+                setDepartmentFacultyId(null);
+                setDepartments([]);
+                if (id) fetchFacultiesFor(id);
+              }}
+              disabled={loadingUniversities}
+            >
+              {loadingUniversities ? <option value="">Загрузка...</option> : <option value="">Выберите университет</option>}
+              {universities.map(u => <option key={u.id ?? u.uni_id} value={u.id ?? u.uni_id}>{u.uni_name ?? u.uni_short_name ?? u.name}</option>)}
+            </select>
 
-          <Flex justify="space-between" align="center">
-            <div className="msg">{subjectMsg}</div>
-            <div>
-              <Button mode="tertiary" onClick={() => { setSubjectName(""); setSubjectUniId(""); setSubjectMsg(null); }} style={{ marginRight: 8 }}>
-                Очистить
+            <label className="field-label">Факультет</label>
+            <select
+              className="admin-input"
+              value={departmentFacultyId ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setDepartmentFacultyId(id);
+                setDepartments([]);
+                if (id) fetchDepartmentsFor(id);
+              }}
+            >
+              <option value="">Выберите факультет</option>
+              {faculties.map(f => <option key={f.id ?? f.faculty_id} value={f.id ?? f.faculty_id}>{f.name ?? f.faculty_name}</option>)}
+            </select>
+
+            <label className="field-label">Название направления</label>
+            <input value={departmentName} onChange={e => setDepartmentName(e.target.value)} placeholder="Например: Прикладная математика" className="admin-input" />
+
+            <div className="card-footer">
+              <div className="msg">{departmentMsg}</div>
+              <Button mode="primary" onClick={onCreateDepartment} disabled={departmentLoading}>
+                {departmentLoading ? "Создаём..." : "Создать направление"}
               </Button>
+            </div>
+          </div>
+        </Panel>
+
+        {/* GROUP CARD */}
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать группу</Typography.Title>
+          </div>
+
+          <div className="card-body">
+            <label className="field-label">Университет</label>
+            <select
+              className="admin-input"
+              value={groupUni ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setGroupUni(id);
+                setGroupFacultyId(null);
+                setGroupDepartmentId(null);
+                setFaculties([]);
+                setDepartments([]);
+                setGroupsList([]);
+                if (id) fetchFacultiesFor(id);
+              }}
+              disabled={loadingUniversities}
+            >
+              {loadingUniversities ? <option value="">Загрузка...</option> : <option value="">Выберите университет</option>}
+              {universities.map(u => <option key={u.id ?? u.uni_id} value={u.id ?? u.uni_id}>{u.uni_name ?? u.uni_short_name ?? u.name}</option>)}
+            </select>
+
+            <label className="field-label">Факультет</label>
+            <select
+              className="admin-input"
+              value={groupFacultyId ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setGroupFacultyId(id);
+                setGroupDepartmentId(null);
+                setDepartments([]);
+                setGroupsList([]);
+                if (id) fetchDepartmentsFor(id);
+              }}
+            >
+              <option value="">Выберите факультет</option>
+              {faculties.map(f => <option key={f.id ?? f.faculty_id} value={f.id ?? f.faculty_id}>{f.name ?? f.faculty_name}</option>)}
+            </select>
+
+            <label className="field-label">Направление</label>
+            <select
+              className="admin-input"
+              value={groupDepartmentId ?? ""}
+              onChange={e => {
+                const id = e.target.value ? Number(e.target.value) : null;
+                setGroupDepartmentId(id);
+                setGroupsList([]);
+                if (id) fetchGroupsFor(id);
+              }}
+            >
+              <option value="">Выберите направление</option>
+              {departments.map(d => <option key={d.id ?? JSON.stringify(d)} value={d.id}>{d.department_name ?? d.name ?? d.title}</option>)}
+            </select>
+
+            <label className="field-label">Название группы</label>
+            <input value={groupName} onChange={e => setGroupName(e.target.value)} placeholder="Например: 20ИИ-1" className="admin-input" />
+
+            <div className="card-footer">
+              <div className="msg">{groupMsg}</div>
+              <Button mode="primary" onClick={onCreateGroup} disabled={groupLoading}>
+                {groupLoading ? "Создаём..." : "Создать группу"}
+              </Button>
+            </div>
+          </div>
+        </Panel>
+
+        {/* SUBJECT CARD */}
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать предмет</Typography.Title>
+          </div>
+
+          <div className="card-body">
+            <label className="field-label">Университет</label>
+            <select
+              className="admin-input"
+              value={subjectUniId ?? ""}
+              onChange={e => setSubjectUniId(e.target.value ? Number(e.target.value) : null)}
+              disabled={loadingUniversities}
+            >
+              {loadingUniversities ? <option value="">Загрузка...</option> : <option value="">Выберите университет</option>}
+              {universities.map(u => <option key={u.id ?? u.uni_id} value={u.id ?? u.uni_id}>{u.uni_name ?? u.uni_short_name ?? u.name}</option>)}
+            </select>
+
+            <label className="field-label">Название предмета</label>
+            <input value={subjectName} onChange={e => setSubjectName(e.target.value)} placeholder="Например: Алгоритмы и структуры данных" className="admin-input" />
+
+            <div className="card-footer">
+              <div className="msg">{subjectMsg}</div>
               <Button mode="primary" onClick={onCreateSubject} disabled={subjectLoading}>
                 {subjectLoading ? "Создаём..." : "Создать предмет"}
               </Button>
             </div>
-          </Flex>
-        </Flex>
-      </Panel>
+          </div>
+        </Panel>
 
-      {/* SEMESTERS */}
-      <Panel mode="secondary" className="admin-entity-panel">
-        <Flex direction="column" gap={8}>
-          <Typography.Title variant="small-strong">Создать семестры (periods)</Typography.Title>
-
-          <div className="field-row">
-            <input
-              value={uniId}
-              onChange={(e) => setUniId(e.target.value)}
-              placeholder="ID университета (uni_id)"
-              className="admin-input"
-            />
+        {/* SEMESTERS CARD */}
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать семестры (periods)</Typography.Title>
           </div>
 
-          {periods.map((p, idx) => (
-            <div key={idx} className="period-row">
-              <div style={{ flex: 1 }}>
-                <label className="period-label">Start</label>
-                <input
-                  type="datetime-local"
-                  value={p.start}
-                  onChange={(e) => setPeriodAt(idx, "start", e.target.value)}
-                  className="admin-input"
-                />
-              </div>
+          <div className="card-body">
+            <label className="field-label">Университет</label>
+            <select className="admin-input" value={semUniId ?? ""} onChange={e => setSemUniId(e.target.value ? Number(e.target.value) : null)} disabled={loadingUniversities}>
+              {loadingUniversities ? <option value="">Загрузка...</option> : <option value="">Выберите университет</option>}
+              {universities.map(u => <option key={u.id ?? u.uni_id} value={u.id ?? u.uni_id}>{u.uni_name ?? u.uni_short_name ?? u.name}</option>)}
+            </select>
 
-              <div style={{ flex: 1, marginLeft: 12 }}>
-                <label className="period-label">End</label>
-                <input
-                  type="datetime-local"
-                  value={p.end}
-                  onChange={(e) => setPeriodAt(idx, "end", e.target.value)}
-                  className="admin-input"
-                />
-              </div>
+            {periods.map((p, idx) => (
+              <div key={idx} className="period-row">
+                <div style={{ flex: 1 }}>
+                  <label className="period-label">Start</label>
+                  <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
+                </div>
 
-              <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
-                <Button mode="tertiary" size="small" onClick={() => removePeriod(idx)} disabled={periods.length === 1}>
-                  Удалить
-                </Button>
+                <div style={{ flex: 1, marginLeft: 12 }}>
+                  <label className="period-label">End</label>
+                  <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
+                </div>
+
+                <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
+                  <Button mode="tertiary" size="small" onClick={() => removePeriod(idx)} disabled={periods.length === 1}>
+                    Удалить
+                  </Button>
+                </div>
               </div>
+            ))}
+
+            <div style={{ marginTop: 8 }}>
+              <Button mode="tertiary" onClick={addPeriod}>Добавить период</Button>
             </div>
-          ))}
 
-          <div>
-            <Button mode="tertiary" onClick={addPeriod} style={{ marginRight: 8 }}>Добавить период</Button>
-          </div>
-
-          <Flex justify="space-between" align="center">
-            <div className="msg">{semMsg}</div>
-            <div>
-              <Button mode="tertiary" onClick={() => { setPeriods([{ start: "", end: "" }]); setUniId(""); setSemMsg(null); }} style={{ marginRight: 8 }}>
-                Очистить
-              </Button>
+            <div className="card-footer">
+              <div className="msg">{semMsg}</div>
               <Button mode="primary" onClick={onCreateSemesters} disabled={semLoading}>
                 {semLoading ? "Создаём..." : "Создать семестры"}
               </Button>
             </div>
-          </Flex>
-        </Flex>
-      </Panel>
-
-      <div style={{ height: 18 }} />
-
-      <Flex justify="start">
-        <Button mode="tertiary" onClick={() => navigate(-1)}>Назад</Button>
-      </Flex>
+          </div>
+        </Panel>
+      </div>
     </Container>
   );
 }

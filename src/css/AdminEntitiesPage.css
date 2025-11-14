@@ -1,29 +1,77 @@
-.admin-entity-panel {
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 12px;
-}
-
-.field-row {
+/* AdminEntitiesPage.css - стиль под MAX UI */
+.admin-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
   margin-top: 8px;
-  margin-bottom: 6px;
 }
 
+/* карточка */
+.admin-entity-panel {
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.45);
+  background: var(--maxui-surface, #0f1112);
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+/* заголовок карточки */
+.card-header {
+  margin-bottom: 8px;
+}
+
+/* тело карточки — аккуратные поля */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-size: 13px;
+  color: var(--maxui-muted, #8d98a3);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* единый стиль для input/select чтобы визуально совпадало с MAX UI */
 .admin-input {
   width: 100%;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   box-sizing: border-box;
-  border: 1px solid rgba(0,0,0,0.06);
-  background: var(--maxui-card-bg, #ffffff);
+  border: 1px solid rgba(255,255,255,0.03);
+  background: var(--maxui-card-bg, #0b0c0d);
+  color: var(--maxui-text, #e6eef8);
   font-size: 14px;
+  outline: none;
+  transition: box-shadow .12s ease, border-color .12s ease;
+}
+.admin-input:focus {
+  box-shadow: 0 6px 18px rgba(14,165,233,0.08);
+  border-color: rgba(14,165,233,0.8);
 }
 
+/* footer карточки — сообщение + кнопка */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.msg {
+  color: var(--maxui-muted, #9aa);
+  font-size: 13px;
+  min-height: 18px;
+}
+
+/* period row */
 .period-row {
   display: flex;
-  gap: 0;
+  gap: 12px;
   align-items: flex-end;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .period-label {
@@ -33,16 +81,39 @@
   margin-bottom: 6px;
 }
 
-.msg {
-  color: var(--maxui-muted, #6b7280);
-  font-size: 13px;
-  min-height: 18px;
+/* responsive: на больших экранах можно сделать 2 колонки */
+@media (min-width: 980px) {
+  .admin-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  /* семестры можно растянуть на всю ширину */
+  .admin-entity-panel:nth-last-child(1) {
+    grid-column: 1 / -1;
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  .admin-input {
-    background: var(--maxui-surface, #0f1112);
-    color: var(--maxui-text, #e6eef8);
-    border: 1px solid rgba(255,255,255,0.04);
+/* тонкие улучшения для селектов на мобильных */
+@media (max-width: 480px) {
+  .period-row {
+    flex-direction: column;
+    gap: 8px;
   }
+}
+
+/* кнопки: немного больше primary */
+.mx-button--primary {
+  min-width: 160px;
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+
+/* уменьшить визуальный шум для tertiary */
+.mx-button--tertiary {
+  padding: 8px 12px;
+}
+
+/* общий отступ между секциями */
+.admin-entity-panel + .admin-entity-panel {
+  margin-top: 12px;
 }
