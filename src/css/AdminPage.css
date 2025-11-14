@@ -1,6 +1,7 @@
-/* AdminPage.css - улучшенная и более презентабельная визуалка под MAX UI */
+.admin-section__title {
+  margin-bottom: 6px;
+}
 
-/* секция: сделаем заголовки ближе к верху страницы, но дадим отступ между заголовком и карточками */
 .admin-section {
   margin-top: 24px;
   margin-bottom: 8px;
