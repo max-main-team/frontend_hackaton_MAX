@@ -11,7 +11,7 @@ import {
 } from "@maxhub/max-ui";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import "../css/ApplicationsPage.css";
+import "../css/AdminRequestsPage.css";
 
 type Application = {
   role: string;
@@ -357,8 +357,8 @@ export default function ApplicationsPage(): JSX.Element {
             <Container style={{ padding: 18 }}>
               <Flex justify="space-between" align="center">
                 <div>
-                  <Typography.Title variant="medium-strong">Принять заявку</Typography.Title>
-                  <Typography.Label>{displayName(approving)} — <strong>{approving.role}</strong></Typography.Label>
+                  <Typography.Title variant="medium-strong">Принять заявку </Typography.Title>
+                  <Typography.Label>{ displayName(approving)} — <strong>{approving.role}</strong></Typography.Label>
                 </div>
               </Flex>
 
@@ -443,7 +443,7 @@ export default function ApplicationsPage(): JSX.Element {
 
                 {/* Группа */}
                 <div className="apps-field">
-                  <Typography.Label className="apps-field-label">Группа (course_group_id)</Typography.Label>
+                  <Typography.Label className="apps-field-label">Группа</Typography.Label>
                   <div style={{ display: "flex", gap: 8 }}>
                     <select
                       value={String(form.course_group_id)}
