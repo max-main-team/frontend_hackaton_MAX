@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { api, setAccessTokenInMemory } from "./services/api";
 import LoadingPage from "./pages/LoadingPage";
 import AdminPage from "./pages/AdminPage";
@@ -8,6 +8,8 @@ import StudentPage from "./pages/StudentPage";
 import MultiSelectPage from "./pages/MultiSelectPage";
 import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
+import AdminRequestsPage from "./pages/AdminEntitiesPage.tsx";
+import AdminEntitiesPage from "./pages/AdminEntitiesPage.tsx";
 
 function AppInner() {
   const webAppData = window.WebApp?.initData;
@@ -83,9 +85,12 @@ function AppInner() {
 
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/abiturient" replace />} />
       <Route path="/student" element={<StudentPage />} />
       <Route path="/teacher" element={<TeacherPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin/requests" element={<AdminRequestsPage />} />
+      <Route path="/admin/entities" element={<AdminEntitiesPage />} />
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
