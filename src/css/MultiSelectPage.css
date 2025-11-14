@@ -1,0 +1,137 @@
+:root {
+  --accent: #630eff;
+  --accent-strong: #3a89fb;
+  --accent-soft: rgba(99,14,255,0.12);
+  --surface: rgba(255,255,255,0.02);
+  --surface-strong: rgba(255,255,255,0.03);
+  --muted: rgba(255,255,255,0.68);
+  --muted-2: rgba(255,255,255,0.48);
+  --title-color: #ffffff;
+}
+
+/* контейнер страницы */
+.ms-container {
+  padding-top: 8px;
+  padding-bottom: 28px;
+  max-width: 920px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* header area */
+.ms-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+/* главный заголовок */
+.ms-title,
+.ms-title .mx-typography__title {
+  margin: 0;
+  color: var(--title-color);
+  line-height: 1.08;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+
+/* информационная панель под заголовком */
+.ms-note-panel {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(99,14,255,0.04), rgba(58,137,251,0.02));
+  border: 1px solid var(--surface-strong);
+  color: var(--muted);
+}
+
+/* чистая подсказка внутри панели */
+.ms-note {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* загрузка / пустое состояние */
+.ms-loading, .ms-empty {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  border: 1px solid rgba(255,255,255,0.03);
+  color: var(--muted);
+}
+
+/* служебный блок для действий внутри пустого состояния */
+.ms-actions {
+  margin-top: 10px;
+}
+
+/* грид ролей */
+.ms-roles-grid {
+  margin-top: 12px;
+}
+
+/* строка роли */
+.ms-role-row {
+  width: 100%;
+}
+
+/* большая кнопка роли — стиль под ваш акцент */
+.role-button {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(90deg, rgba(99,14,255,0.14), rgba(58,137,251,0.06));
+  border: 1px solid rgba(99,14,255,0.12);
+  color: #fff;
+  transition: transform .12s ease, box-shadow .18s ease, border-color .12s ease;
+  box-shadow: 0 6px 18px rgba(99,14,255,0.04);
+}
+
+/* внутри кнопки — заголовок */
+.role-button__title,
+.role-button .mx-typography__title {
+  margin: 0;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* hover/focus: лёгкий подъём и glow по accent */
+.role-button:hover,
+.role-button:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(99,14,255,0.16);
+  border-color: rgba(99,14,255,0.22);
+  outline: none;
+}
+
+/* focus-visible для доступности */
+.role-button:focus-visible {
+  outline: 3px solid rgba(99,14,255,0.14);
+  outline-offset: 2px;
+}
+
+/* active (нажатие) — небольшой отступ вниз */
+.role-button:active {
+  transform: translateY(-2px) scale(0.998);
+  box-shadow: 0 8px 26px rgba(99,14,255,0.12);
+}
+
+/* адаптив: на малыx экранах чуть больше отступов */
+@media (max-width: 600px) {
+  .ms-container { padding-left: 12px; padding-right: 12px; }
+  .role-button { padding: 14px 16px; border-radius: 10px; }
+}
+
+/* косметическая правка: добавить маленькую иконку-акцент (если нужно в будущем) */
+.role-button .role-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  flex: 0 0 28px;
+  background: radial-gradient(circle at 30% 30%, rgba(99,14,255,0.85), rgba(58,137,251,0.7));
+  box-shadow: 0 6px 18px rgba(99,14,255,0.12);
+}

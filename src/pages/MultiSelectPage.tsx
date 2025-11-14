@@ -1,3 +1,4 @@
+import "../css/MultiSelectPage.css";
 import { useNavigate } from "react-router-dom";
 import { Panel, Container, Typography, Button, Grid } from "@maxhub/max-ui";
 import { useEffect, useState } from "react";
@@ -18,7 +19,7 @@ export default function MultiSelectPage() {
 
   useEffect(() => {
     let mounted = true;
-    
+
     async function loadRoles() {
       setLoading(true);
       try {
@@ -53,14 +54,14 @@ export default function MultiSelectPage() {
 
   useEffect(() => {
     let mounted = true;
-    
+
     async function loadProfile() {
       try {
         const res = await api.get("https://msokovykh.ru/user/me");
         const data = res.data;
         const u = data?.user;
         if (!mounted) return;
-        
+
         if (u) {
           const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || null;
           setUserName(fullName);
@@ -96,55 +97,51 @@ export default function MultiSelectPage() {
 
   return (
     <MainLayout hideTabs={true}>
-      <Container style={{ paddingTop: 4 }}>
-        <div style={{ marginBottom: 16 }}>
-          <Typography.Title variant="large-strong" style={{ marginBottom: 4 }}>
+      <Container className="ms-container">
+        <div className="ms-header">
+          <Typography.Title variant="large-strong" className="ms-title">
             Выберите профиль, {userName || "Гость"}
           </Typography.Title>
+
+          <Panel mode="secondary" className="ms-note-panel">
+            <Typography.Label className="ms-note">
+              Выберите роль, в которой хотите работать в этом сеансе.
+            </Typography.Label>
+          </Panel>
         </div>
 
-        {/* Панель с пояснением */}
-        <Panel mode="secondary" style={{ padding: 16, marginBottom: 16, borderRadius: 8 }}>
-          <Typography.Label>
-            Выберите роль, в которой хотите работать в этом сеансе.
-          </Typography.Label>
-        </Panel>
-
-        {/* Состояние загрузки */}
         {loading && (
-          <Panel mode="secondary" style={{ padding: 16, borderRadius: 8 }}>
+          <Panel mode="secondary" className="ms-note-panel ms-loading">
             <Typography.Label>Загрузка...</Typography.Label>
           </Panel>
         )}
 
-        {/* Состояние ошибки */}
         {!loading && (!roles || roles.length === 0) && (
-          <Panel mode="secondary" style={{ padding: 16, borderRadius: 8 }}>
+          <Panel mode="secondary" className="ms-note-panel ms-empty">
             <Typography.Label style={{ display: "block", marginBottom: 8 }}>
               Не удалось определить доступные роли. Попробуйте перезайти в приложение.
             </Typography.Label>
+            <div className="ms-actions">
+              <Button mode="tertiary" onClick={() => { localStorage.removeItem("user_roles"); window.location.reload(); }}>
+                Повторить попытку
+              </Button>
+            </div>
           </Panel>
         )}
 
-        {/* Список ролей */}
         {!loading && roles && roles.length > 0 && (
-          <Grid cols={1} gap={12}>
+          <Grid cols={1} gap={12} className="ms-roles-grid">
             {roles.map((r) => {
               const key = String(r);
               const label = ROLE_LABEL[key] ?? key;
               return (
-                <div key={key}>
-                  <Button 
+                <div key={key} className="ms-role-row">
+                  <Button
+                    className="role-button"
                     onClick={() => onSelectRole(key)}
-                    style={{ 
-                      width: "100%", 
-                      padding: "12px 16px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center"
-                    }}
+                    aria-label={`Выбрать роль ${label}`}
                   >
-                    <Typography.Title variant="small-strong" style={{ margin: 0 }}>
+                    <Typography.Title variant="small-strong" className="role-button__title">
                       {label}
                     </Typography.Title>
                   </Button>
