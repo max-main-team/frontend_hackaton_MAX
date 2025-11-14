@@ -474,12 +474,12 @@ export default function AdminEntitiesPage(): JSX.Element {
 
             {periods.map((p, idx) => (
               <div key={idx} className="period-row">
-                <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
+                <div style={{ flex: 1 }}>
                   <label className="period-label">Start</label>
                   <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
                 </div>
 
-                <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
+                <div style={{ flex: 1, marginLeft: 12 }}>
                   <label className="period-label">End</label>
                   <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
                 </div>
