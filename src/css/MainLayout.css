@@ -2,7 +2,7 @@
   --header-height: 56px;
   --bottom-height: 72px;
   --content-padding: 16px;
-  --header-gap: 10px;
+  --header-gap: 30px;
 }
 
 html, body, #root {
