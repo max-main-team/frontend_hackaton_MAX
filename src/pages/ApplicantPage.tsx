@@ -12,6 +12,33 @@ import MainLayout from "../layouts/MainLayout";
 import api from "../services/api";
 import "../css/ApplicantPage.css";
 
+function UniAvatar({ src, name, size = 64 }: { src?: string | null; name?: string; size?: number }) {
+  const [ok, setOk] = useState<boolean>(!!src);
+  useEffect(() => { setOk(Boolean(src)); }, [src]);
+
+  const initials = (name || "U").split(/\s+/).map(s => s[0]).slice(0,2).join("").toUpperCase();
+
+  if (ok && src) {
+    return (
+      <Avatar.Container size={size} form="squircle">
+        <img
+          src={src}
+          alt={name ?? "university"}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: 8 }}
+          onError={() => setOk(false)}
+        />
+      </Avatar.Container>
+    );
+  }
+
+  return (
+    <Avatar.Container size={size} form="squircle">
+      <Avatar.Text>{initials}</Avatar.Text>
+    </Avatar.Container>
+  );
+}
+
+
 type University = {
   id: string | number;
   name: string;
@@ -21,6 +48,7 @@ type University = {
   logo?: string;
   tags?: string[];
   site?: string;
+  photo_url?: string;
 };
 
 const FALLBACK_UNIS: University[] = [
@@ -100,6 +128,7 @@ export default function ApplicantPage(): JSX.Element {
             short: it.uni_short_name ?? "",
             description: it.description ?? "",
             city: it.city ?? "",
+            photo_url: it.photo_url ?? null, 
             logo: it.logo ?? it.avatar ?? "",
             site: it.site_url ?? it.site ?? "",
           }));
@@ -114,6 +143,7 @@ export default function ApplicantPage(): JSX.Element {
                 description: it.description ?? "",
                 city: it.city ?? "",
                 logo: it.logo ?? "",
+                photo_url: it.photo_url ?? null,
                 tags: Array.isArray(it.tags) ? it.tags : [],
                 site: it.site_url ?? "",
               }));
@@ -260,9 +290,7 @@ export default function ApplicantPage(): JSX.Element {
                 <Panel key={u.id} mode="secondary" className="uni-card" style={{ marginBottom: 16 }}>
                   <Flex direction="column" gap={12} style={{ width: "100%" }}>
                     <Flex align="center" gap={12}>
-                      <Avatar.Container size={64} form="squircle">
-                        {u.logo ? <Avatar.Image src={u.logo} /> : <Avatar.Text>{(u.name || "U").slice(0,2).toUpperCase()}</Avatar.Text>}
-                      </Avatar.Container>
+                     <UniAvatar src={u.photo_url ?? u.logo} name={u.name} size={64} />
                       <div style={{ flex: 1 }}>
                         <Typography.Title variant="small-strong" style={{ margin: 0, fontSize: '18px', lineHeight: '1.3' }}>
                           {u.name}
@@ -311,9 +339,7 @@ export default function ApplicantPage(): JSX.Element {
                 <Flex direction="column" gap={16}>
                   <Flex justify="space-between" align="flex-start">
                     <div style={{ display: "flex", gap: 12, alignItems: "center", flex: 1 }}>
-                      <Avatar.Container size={56} form="squircle">
-                        {joinUni.logo ? <Avatar.Image src={joinUni.logo} /> : <Avatar.Text>{(joinUni.name||"U").slice(0,2)}</Avatar.Text>}
-                      </Avatar.Container>
+                      <UniAvatar src={joinUni.photo_url ?? joinUni.logo} name={joinUni.name} size={56} />
                       <div style={{ flex: 1 }}>
                         <Typography.Title variant="medium-strong" style={{ margin: 0, lineHeight: '1.3' }}>
                           {joinUni.name}

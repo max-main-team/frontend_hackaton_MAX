@@ -313,7 +313,7 @@ export default function AdminEntitiesPage(): JSX.Element {
 
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
-            <Typography.Title variant="small-strong">Создать направление / кафедру</Typography.Title>
+            <Typography.Title variant="small-strong">Создать направление</Typography.Title>
           </div>
 
           <div className="card-body">

@@ -28,6 +28,7 @@
   color: var(--title-color);
   line-height: 1.08;
   text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+  margin-bottom: 8px;
 }
 
 /* информационная панель — сделать заметнее, но не кричащей */
