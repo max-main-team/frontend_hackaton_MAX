@@ -15,36 +15,31 @@ const ENDPOINTS = {
   CREATE_FACULTY: `${BACKEND_PREFIX}/admin/faculties`,
   CREATE_DEPARTMENT: `${BACKEND_PREFIX}/admin/departments`,
   CREATE_GROUP: `${BACKEND_PREFIX}/admin/groups`,
-  CREATE_SUBJECT: `${BACKEND_PREFIX}/admin/subjects`,
+  CREATE_SUBJECT: `${BACKEND_PREFIX}/subjects`,
   CREATE_SEMESTERS: `${BACKEND_PREFIX}/universities/semesters`,
 };
 
 export default function AdminEntitiesPage(): JSX.Element {
   const navigate = useNavigate();
 
-  // common lists
   const [universities, setUniversities] = useState<any[]>([]);
   const [loadingUniversities, setLoadingUniversities] = useState(false);
 
-  // cascading lists
   const [faculties, setFaculties] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [, setGroupsList] = useState<any[]>([]);
 
-  /* ---------- FACULTY ---------- */
   const [facultyUni, setFacultyUni] = useState<number | null>(null);
   const [facultyName, setFacultyName] = useState("");
   const [facultyLoading, setFacultyLoading] = useState(false);
   const [facultyMsg, setFacultyMsg] = useState<string | null>(null);
 
-  /* ---------- DEPARTMENT (направление) ---------- */
   const [departmentUni, setDepartmentUni] = useState<number | null>(null);
   const [departmentFacultyId, setDepartmentFacultyId] = useState<number | null>(null);
   const [departmentName, setDepartmentName] = useState("");
   const [departmentLoading, setDepartmentLoading] = useState(false);
   const [departmentMsg, setDepartmentMsg] = useState<string | null>(null);
 
-  /* ---------- GROUP ---------- */
   const [groupUni, setGroupUni] = useState<number | null>(null);
   const [groupFacultyId, setGroupFacultyId] = useState<number | null>(null);
   const [groupDepartmentId, setGroupDepartmentId] = useState<number | null>(null);
@@ -52,13 +47,11 @@ export default function AdminEntitiesPage(): JSX.Element {
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupMsg, setGroupMsg] = useState<string | null>(null);
 
-  /* ---------- SUBJECT ---------- */
   const [subjectUniId, setSubjectUniId] = useState<number | null>(null);
   const [subjectName, setSubjectName] = useState("");
   const [subjectLoading, setSubjectLoading] = useState(false);
   const [subjectMsg, setSubjectMsg] = useState<string | null>(null);
 
-  /* ---------- SEMESTERS ---------- */
   const [semUniId, setSemUniId] = useState<number | null>(null);
   const [periods, setPeriods] = useState<{ start: string; end: string }[]>([{ start: "", end: "" }]);
   const [semLoading, setSemLoading] = useState(false);
@@ -273,7 +266,6 @@ export default function AdminEntitiesPage(): JSX.Element {
           </Typography.Label>
         </div>
 
-        {/* Back button in the right top corner */}
         <div>
           <Button mode="tertiary" onClick={() => navigate(-1)}>
             Назад
@@ -282,7 +274,6 @@ export default function AdminEntitiesPage(): JSX.Element {
       </Flex>
 
       <div className="admin-cards">
-        {/* FACULTY CARD */}
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
             <Typography.Title variant="small-strong">Создать факультет</Typography.Title>
@@ -320,7 +311,6 @@ export default function AdminEntitiesPage(): JSX.Element {
           </div>
         </Panel>
 
-        {/* DEPARTMENT CARD */}
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
             <Typography.Title variant="small-strong">Создать направление / кафедру</Typography.Title>
@@ -371,7 +361,6 @@ export default function AdminEntitiesPage(): JSX.Element {
           </div>
         </Panel>
 
-        {/* GROUP CARD */}
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
             <Typography.Title variant="small-strong">Создать группу</Typography.Title>
@@ -442,7 +431,6 @@ export default function AdminEntitiesPage(): JSX.Element {
           </div>
         </Panel>
 
-        {/* SUBJECT CARD */}
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
             <Typography.Title variant="small-strong">Создать предмет</Typography.Title>
@@ -472,7 +460,6 @@ export default function AdminEntitiesPage(): JSX.Element {
           </div>
         </Panel>
 
-        {/* SEMESTERS CARD */}
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
             <Typography.Title variant="small-strong">Создать семестры (periods)</Typography.Title>

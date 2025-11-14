@@ -26,6 +26,7 @@ type Application = {
 const ENDPOINTS = {
   LIST: "https://msokovykh.ru/admin/personalities/access",
   APPROVE: "https://msokovykh.ru/admin/personalities/access/accept",
+  REJECT: "https://msokovykh.ru/admin/personalities/access/reject",
   UNIVERSITIES: "https://msokovykh.ru/personalities/universities",
   FACULTIES: "https://msokovykh.ru/personalities/faculty",
   DEPARTMENTS: "https://msokovykh.ru/personalities/departments",
@@ -112,8 +113,7 @@ export default function ApplicationsPage(): JSX.Element {
     const prev = items;
     setItems(prevItems => prevItems.filter(x => x.user_id !== it.user_id));
     try {
-      // TODO: если появится реальный reject endpoint — вызвать его здесь
-      // await api.post("https://msokovykh.ru/admin/personalities/access/reject", { user_id: it.user_id });
+      await api.post(ENDPOINTS.REJECT, { user_id: it.user_id });
     } catch (e) {
       console.warn("Reject failed", e);
       alert("Не удалось отклонить заявку. Попробуйте позже.");
@@ -158,7 +158,6 @@ export default function ApplicationsPage(): JSX.Element {
         const id = arr[0].id ?? arr[0].uni_id ?? null;
         if (id != null) {
           setSelectedUniversityId(Number(id));
-          // сразу загрузим факультеты для этого университета
           fetchFaculties(Number(id));
         }
       } else {
