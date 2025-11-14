@@ -2,6 +2,11 @@
   margin-bottom: 20px;
 }
 
+.admin-section__title,
+.admin-section__title.mx-typography__title {
+  margin-bottom: 20px;
+}
+
 .admin-section {
   margin-top: 24px;
   margin-bottom: 8px;
