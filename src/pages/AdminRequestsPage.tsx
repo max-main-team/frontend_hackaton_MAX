@@ -14,6 +14,7 @@ import api from "../services/api";
 import "../css/AdminRequestsPage.css";
 
 type Application = {
+  request_id?: number;
   role: string;
   user_id: number;
   first_name?: string;
@@ -26,7 +27,8 @@ type Application = {
 const ENDPOINTS = {
   LIST: "https://msokovykh.ru/admin/personalities/access",
   APPROVE: "https://msokovykh.ru/admin/personalities/access/accept",
-  REJECT: "https://msokovykh.ru/admin/personalities/access/reject",
+  REJECT: "https://msokovykh.ru/admin/personalities/access/reject", // kept for compatibility if needed
+  DELETE_ACCESS: "https://msokovykh.ru/admin/personalities/access", // DELETE endpoint
   UNIVERSITIES: "https://msokovykh.ru/personalities/universities",
   FACULTIES: "https://msokovykh.ru/personalities/faculty",
   DEPARTMENTS: "https://msokovykh.ru/personalities/departments",
@@ -48,7 +50,6 @@ export default function ApplicationsPage(): JSX.Element {
   const [approving, setApproving] = useState<Application | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // form values for approve modal
   const [form, setForm] = useState({
     course_group_id: "",
     faculty_id: "",
@@ -108,15 +109,23 @@ export default function ApplicationsPage(): JSX.Element {
     return [it.first_name, it.second_name].filter(Boolean).join(" ") || it.username || `user#${it.user_id}`;
   }
 
+  // Отклонить заявку — оптимистично удаляем на фронте, затем вызываем DELETE /admin/personalities/access { request_id }
   async function handleReject(it: Application) {
     if (!confirm(`Отклонить заявку от ${displayName(it)} (${it.role})?`)) return;
     const prev = items;
-    setItems(prevItems => prevItems.filter(x => x.user_id !== it.user_id));
+    // optimistic remove
+    setItems(prevItems => prevItems.filter(x => x.request_id !== it.request_id && x.user_id !== it.user_id));
+
+    // prefer request_id, fallback to user_id if absent (log warning)
+    const requestId = it.request_id ?? it.user_id;
+    if (it.request_id == null) console.warn("request_id missing for application, using user_id as fallback for DELETE", it);
+
     try {
-      await api.post(ENDPOINTS.REJECT, { user_id: it.user_id });
+      // axios.delete accepts body via `data` option
+      await api.delete(ENDPOINTS.DELETE_ACCESS, { data: { request_id: requestId } });
     } catch (e) {
-      console.warn("Reject failed", e);
-      alert("Не удалось отклонить заявку. Попробуйте позже.");
+      console.warn("Reject (DELETE) failed", e);
+      alert("Не удалось отклонить заявку на сервере. Попробуйте ещё раз.");
       setItems(prev); // rollback
     }
   }
@@ -226,6 +235,7 @@ export default function ApplicationsPage(): JSX.Element {
     }
   }
 
+  // Принять заявку: оптимистично удаляем из UI, затем вызываем approve POST и DELETE request_id; откатываем на ошибке.
   async function submitApprove() {
     if (!approving) return;
 
@@ -252,16 +262,26 @@ export default function ApplicationsPage(): JSX.Element {
       user_id: approving.user_id,
     };
 
+    const prev = items;
+    // optimistic remove from UI
+    setItems(prevItems => prevItems.filter(x => x.request_id !== approving.request_id && x.user_id !== approving.user_id));
     setSubmitting(true);
+
     try {
+      // call approve endpoint
       await api.post(ENDPOINTS.APPROVE, payload);
-      // удаляем из UI
-      setItems(prev => prev.filter(x => x.user_id !== approving.user_id));
+
+      // then ensure request is removed from access table by DELETE request
+      const requestId = approving.request_id ?? approving.user_id;
+      if (approving.request_id == null) console.warn("request_id missing for application during approve, using user_id as fallback for DELETE", approving);
+      await api.delete(ENDPOINTS.DELETE_ACCESS, { data: { request_id: requestId } });
+
       closeApprove();
     } catch (e) {
-      console.warn("Approve failed", e);
+      console.warn("Approve or DELETE failed", e);
       alert("Не удалось принять заявку. Попробуйте позже.");
       setSubmitting(false);
+      setItems(prev); // rollback UI
     }
   }
 
@@ -299,20 +319,13 @@ export default function ApplicationsPage(): JSX.Element {
 
       {!loading && items.length === 0 && !error && (
         <Panel mode="secondary" style={{ padding: 16, marginBottom: 12 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <Typography.Title variant="large-strong" style={{ margin: 0 }}>
-            Заявки на вступление
-          </Typography.Title>
-          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-            Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
-          </Typography.Label>
-        </div>
+          <Typography.Title variant="small-strong" style={{ margin: 0 }}>Заявок нет</Typography.Title>
         </Panel>
       )}
 
       <Grid cols={1} gap={12} style={{ width: '100%' }}>
         {items.map(it => (
-          <Panel key={it.user_id} mode="secondary" className="apps-item" style={{ padding: 16 }}>
+          <Panel key={it.request_id ?? it.user_id} mode="secondary" className="apps-item" style={{ padding: 16 }}>
             <Flex align="center" gap={8}>
               <Avatar.Container size={56} form="squircle">
                 {(it.avatar_url || it.photo_url) ? (
@@ -337,7 +350,6 @@ export default function ApplicationsPage(): JSX.Element {
                     {it.user_id}
                   </Typography.Label>
                 </div>
-
 
                 <div style={{ marginTop: 10 }}>
                   <span className="apps-role-badge">{it.role}</span>
