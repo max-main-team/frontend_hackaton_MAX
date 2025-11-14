@@ -11,7 +11,7 @@ import {
   // если в вашей версии MAX UI есть CellList/CellSimple — можно заменить карточки на них
 } from "@maxhub/max-ui";
 import api from "../services/api";
-import "../css/ApplicationsPage.css";
+import "../css/AdminRequestsPage.css";
 
 type Application = {
   role: string;
