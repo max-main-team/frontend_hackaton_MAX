@@ -1,57 +1,114 @@
+/* AdminPage.css - улучшенная и более презентабельная визуалка под MAX UI */
+
+/* секция: сделаем заголовки ближе к верху страницы, но дадим отступ между заголовком и карточками */
 .admin-section {
+  margin-top: 24px;
   margin-bottom: 8px;
 }
 
+.admin-section--tight {
+  margin-top: 12px; /* поднять повыше */
+}
+
+.admin-section__title {
+  margin-bottom: 18px; /* отступ между названием секции и карточками */
+}
+
+/* общий стиль карточек */
 .admin-card {
   border-radius: 12px;
   overflow: hidden;
   min-height: 84px;
   display: flex;
   align-items: stretch;
+  transition: transform .14s ease, box-shadow .14s ease;
+  cursor: default;
+  border: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
 }
 
+/* hover для интерактивных карточек */
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+}
+
+/* более высокий вариант карточки */
 .admin-card--tall {
   min-height: 160px;
 }
 
-.admin-card--wide {
-  min-height: 92px;
-  align-items: center;
-}
-
-.admin-card--feature {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
+/* контент внутри карточки */
 .admin-card__content {
-  padding: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
+/* хинты под заголовком (мелкий текст) */
+.admin-card__hint {
+  margin-top: 6px;
+  color: var(--maxui-muted, #9aa);
+  font-size: 13px;
+}
+
+/* акцентная левая панель — зелёная */
 .admin-card--accent-left {
   background: linear-gradient(135deg, rgba(34,197,94,0.10), rgba(34,197,94,0.04));
+  border-left: 4px solid rgba(34,197,94,0.95);
 }
 
-.admin-card--right {
-  background: linear-gradient(135deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
+/* основная стильная карточка (primary) — яркая и заметная */
+.admin-card--primary {
+  background: linear-gradient(135deg, rgba(2,132,199,0.14), rgba(6,95,212,0.08));
+  border: 1px solid rgba(3,105,161,0.12);
 }
 
-.admin-card--wide-bg {
-  background: linear-gradient(135deg, rgba(243,244,246,0.6), rgba(255,255,255,0.4));
+/* подпись заголовка внутри primary -> светлый текст */
+.admin-card--primary .mx-typography__title,
+.admin-card--primary .admin-card__hint {
+  color: var(--maxui-text, #eaf6ff);
 }
 
-.admin-card--feature-bg {
-  background: linear-gradient(90deg, rgba(250,250,250,1), rgba(245,247,250,1));
+/* карточка пропуск — сделана светлее чтобы не терялась на темном фоне */
+.admin-card--accent-pass {
+  background: linear-gradient(135deg, rgba(10,132,255,0.10), rgba(10,132,255,0.04));
+  border-left: 4px solid rgba(10,132,255,0.9);
+  border: 1px solid rgba(10,132,255,0.06);
 }
 
-.admin-card__content .mx-typography__title {
-  color: var(--maxui-text, #111);
+/* заголовки внутри secondary должны быть более контрастными */
+.admin-card--accent-pass .mx-typography__title,
+.admin-card--accent-pass .admin-card__hint {
+  color: var(--maxui-text, #e6f4ff);
 }
 
+/* лёгкий контраст для обычных secondary карточек */
+.admin-card--tall .mx-typography__title {
+  color: var(--maxui-text, #e6eef8);
+}
 
+/* делаем карточки кликабельными визуально */
+.admin-card[style*="cursor: pointer"] {
+  cursor: pointer;
+}
+
+/* responsive: одна колонка на маленьких экранах, увеличенный отступ заголовков */
 @media (max-width: 600px) {
-  .admin-card--tall { min-height: 140px; }
-  .admin-card--wide {
-    grid-column: 1 / -1 !important;
+  .admin-section__title {
+    margin-bottom: 14px;
   }
+  .admin-card {
+    min-height: 110px;
+  }
+  .admin-card--tall {
+    min-height: 140px;
+  }
+}
+
+/* мелкая доработка: упростим вид возврата к контенту */
+.admin-card__content .mx-typography__title {
+  margin: 0;
+  line-height: 1.15;
 }
