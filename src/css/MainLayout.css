@@ -1,5 +1,5 @@
 :root {
-  --header-height: 56px;
+  --header-height: 59px; /* было 56px -> увеличили на 3px */
   --bottom-height: 72px;
   --content-padding: 16px;
 }
@@ -20,6 +20,7 @@ html, body, #root {
   font-family: inherit;
 }
 
+/* Header — чуть выше, с более мягкой прозрачностью/размытием */
 .main-header {
   position: fixed;
   top: 0;
@@ -30,12 +31,24 @@ html, body, #root {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  /* немного больше верхнего паддинга визуально (но мы опустим содержимое трансформом) */
   padding: 10px 14px;
   z-index: 60;
-  background: rgba(10,10,10,0.75);
-  backdrop-filter: blur(6px);
+  /* лёгкая полупрозрачная подложка + размытие для "шторки" */
+  background: rgba(8,8,10,0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.04);
 }
+
+/* опустим внутренние блоки (бренд и правая область с аватаркой) ровно на 3px */
+.main-header-left,
+.main-header-right {
+  transform: translateY(3px);
+  will-change: transform;
+}
+
+/* Бренд */
 .brand {
   font-weight: 600;
   font-size: 16px;
@@ -43,13 +56,12 @@ html, body, #root {
 }
 
 .main-content {
-  margin-top: 3px;
   box-sizing: border-box;
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--content-padding);
-  margin-top: var(--header-height);
+  margin-top: var(--header-height); /* учитываем новую высоту шапки */
   margin-bottom: var(--bottom-height);
   height: calc(100vh - var(--header-height) - var(--bottom-height));
   overflow: auto;
