@@ -12,6 +12,10 @@ export default function ProfilePage(): JSX.Element {
   const [fullName, setFullName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
+  // NEW: preload status
+  const [photoLoaded, setPhotoLoaded] = useState<boolean>(false);
+  const [photoError, setPhotoError] = useState<boolean>(false);
+
   function initials(name?: string | null) {
     if (!name) return "U";
     const parts = name.split(/\s+/).filter(Boolean);
@@ -37,7 +41,7 @@ export default function ProfilePage(): JSX.Element {
           return;
         }
       } catch (e) {
-          console.log("Fail post from /user/me ", e)
+        console.log("Fail post from /user/me ", e);
       }
 
       if (!mounted) return;
@@ -49,6 +53,41 @@ export default function ProfilePage(): JSX.Element {
     loadProfileFromApi();
     return () => { mounted = false; };
   }, [webUser]);
+
+  // NEW: preload avatarUrl — we only render Avatar.Image after it's fully loaded
+  useEffect(() => {
+    // reset status whenever avatarUrl changes
+    setPhotoLoaded(false);
+    setPhotoError(false);
+
+    if (!avatarUrl) {
+      // nothing to preload
+      return;
+    }
+
+    let cancelled = false;
+    const img = new Image();
+    // try to allow CORS where possible (if backend provides proper headers)
+    img.crossOrigin = "anonymous";
+    img.src = avatarUrl;
+
+    img.onload = () => {
+      if (!cancelled) setPhotoLoaded(true);
+    };
+    img.onerror = () => {
+      if (!cancelled) {
+        console.warn("Profile avatar failed to load:", avatarUrl);
+        setPhotoError(true);
+        setPhotoLoaded(false);
+      }
+    };
+
+    return () => {
+      cancelled = true;
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [avatarUrl]);
 
   function goToSelectProfile() {
     navigate("/select", { replace: true });
@@ -88,10 +127,19 @@ export default function ProfilePage(): JSX.Element {
         <Flex direction="column" align="center" justify="start" style={{ width: "100%", gap: 12 }}>
           <div style={{ height: 18 }} />
 
-          <Avatar.Container size={112} form="circle">
+          {/* Avatar: показываем пустое место, пока image не загружена.
+              Если avatarUrl отсутствует или загрузка упала — показываем инициалы */}
+          <Avatar.Container size={112} form="circle" className="profile-avatar">
             {avatarUrl ? (
-              <Avatar.Image src={avatarUrl} />
+              photoLoaded && !photoError ? (
+                // показываем картинку только когда она предзагружена
+                <Avatar.Image src={avatarUrl} className="profile-avatar__img" />
+              ) : (
+                // пустой блок — чтобы не показывать инициалы и не было мерцания
+                <div className="profile-avatar__placeholder" />
+              )
             ) : (
+              // если вообще нет avatarUrl — показываем инициалы (fallback)
               <Avatar.Text>{initials(fullName ?? webUser?.username ?? null)}</Avatar.Text>
             )}
           </Avatar.Container>
