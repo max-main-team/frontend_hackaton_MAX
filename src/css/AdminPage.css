@@ -1,50 +1,73 @@
-.admin-section__title {
-  margin-bottom: 20px;
+/* AdminPage — цветовая гамма MAX UI (halo bubbles) */
+:root {
+  --halo-1: #aa4cff; /* purple-pink */
+  --halo-2: #3838ff; /* deep blue */
+  --halo-3: #3a89fb; /* bright blue */
+  --halo-4: #630eff; /* deep purple */
+
+  /* полупрозрачные варианты для градиентов/подложек */
+  --halo-1-a: rgba(170,76,255,0.10);
+  --halo-2-a: rgba(56,56,255,0.12);
+  --halo-3-a: rgba(58,137,251,0.10);
+  --halo-4-a: rgba(99,14,255,0.10);
+
+  --card-border: rgba(255,255,255,0.04);
+  --muted: var(--maxui-muted, #9aa);
+  --text-contrast: var(--maxui-text, #eaf6ff);
 }
 
-.admin-section__title,
-.admin-section__title.mx-typography__title {
-  margin-bottom: 20px;
-}
-
+/* Секция: используем gap — это решит проблему "плотности" заголовка и Grid */
 .admin-section {
   margin-top: 24px;
   margin-bottom: 8px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* управляет расстоянием между заголовком и карточками */
 }
 
+/* "Плотный" вариант секции (поднятие вверх) */
 .admin-section--tight {
-  margin-top: 12px; /* поднять повыше */
+  margin-top: 12px;
 }
 
-.admin-section__title {
-  margin-bottom: 18px;
+/* Заголовок секции — специфичность + аккуратный отступ */
+.admin-section__title,
+.admin-section .mx-typography__title {
+  margin: 0;
+  margin-bottom: 20px;
+  color: var(--text-contrast);
+  /* небольшая тень для глубины */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  line-height: 1.12;
 }
 
-/* общий стиль карточек */
+/* Общий стиль карточек — теперь в палитре halo */
 .admin-card {
   border-radius: 12px;
   overflow: hidden;
   min-height: 84px;
   display: flex;
   align-items: stretch;
-  transition: transform .14s ease, box-shadow .14s ease;
+  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
   cursor: default;
-  border: 1px solid rgba(255,255,255,0.03);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--card-border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
 }
 
-/* hover для интерактивных карточек */
+/* Hover - лёгкий сдвиг и подсветка в наших цветах */
 .admin-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  box-shadow: 0 12px 30px rgba(56,56,255,0.08);
+  border-color: rgba(58,137,251,0.18);
 }
 
-/* более высокий вариант карточки */
+/* Высокая карточка */
 .admin-card--tall {
   min-height: 160px;
 }
 
-/* контент внутри карточки */
+/* Внутренний контент карточки */
 .admin-card__content {
   padding: 18px;
   display: flex;
@@ -52,57 +75,61 @@
   justify-content: center;
 }
 
-/* хинты под заголовком (мелкий текст) */
+/* Мелкий хинт под заголовком */
 .admin-card__hint {
   margin-top: 6px;
-  color: var(--maxui-muted, #9aa);
+  color: var(--muted);
   font-size: 13px;
 }
 
-/* акцентная левая панель — зелёная */
-.admin-card--accent-left {
-  background: linear-gradient(135deg, rgba(34,197,94,0.10), rgba(34,197,94,0.04));
-  border-left: 4px solid rgba(34,197,94,0.95);
-}
-
-/* основная стильная карточка (primary) — яркая и заметная */
+/* Primary — главный акцент: градиент от halo-2 к halo-3 */
 .admin-card--primary {
-  background: linear-gradient(135deg, rgba(2,132,199,0.14), rgba(6,95,212,0.08));
-  border: 1px solid rgba(3,105,161,0.12);
+  background: linear-gradient(135deg, var(--halo-2-a), var(--halo-3-a));
+  border: 1px solid rgba(58,137,251,0.10);
+  color: var(--text-contrast);
 }
 
-/* подпись заголовка внутри primary -> светлый текст */
+/* Текст и хинт для primary — светлый */
 .admin-card--primary .mx-typography__title,
 .admin-card--primary .admin-card__hint {
-  color: var(--maxui-text, #eaf6ff);
+  color: var(--text-contrast);
 }
 
-/* карточка пропуск — сделана светлее чтобы не терялась на темном фоне */
+/* Accent-left — используем halo-1 и halo-4 (фиолетово-розовый акцент слева) */
+.admin-card--accent-left {
+  background: linear-gradient(135deg, var(--halo-1-a), rgba(99,14,255,0.04));
+  border-left: 4px solid var(--halo-4);
+  border: 1px solid rgba(170,76,255,0.06);
+}
+
+/* Accent-pass — для карточки Пропуск делаем более светлый, но в синей гамме */
 .admin-card--accent-pass {
-  background: linear-gradient(135deg, rgba(10,132,255,0.10), rgba(10,132,255,0.04));
-  border-left: 4px solid rgba(10,132,255,0.9);
-  border: 1px solid rgba(10,132,255,0.06);
+  background: linear-gradient(135deg, rgba(58,137,251,0.06), rgba(56,56,255,0.04));
+  border-left: 4px solid var(--halo-3);
+  border: 1px solid rgba(58,137,251,0.06);
 }
 
-/* заголовки внутри secondary должны быть более контрастными */
+/* Текст внутри accent-pass */
 .admin-card--accent-pass .mx-typography__title,
 .admin-card--accent-pass .admin-card__hint {
-  color: var(--maxui-text, #e6f4ff);
+  color: var(--text-contrast);
 }
 
-/* лёгкий контраст для обычных secondary карточек */
+/* Контраст для обычных secondary карточек (чуть светлее заголовки) */
 .admin-card--tall .mx-typography__title {
-  color: var(--maxui-text, #e6eef8);
+  color: var(--text-contrast);
 }
 
-/* делаем карточки кликабельными визуально */
-.admin-card[style*="cursor: pointer"] {
+/* Сделать явно кликабельными карточки с inline cursor указанием */
+.admin-card[style*="cursor: pointer"],
+.admin-card.clickable {
   cursor: pointer;
 }
 
-/* responsive: одна колонка на маленьких экранах, увеличенный отступ заголовков */
+/* Responsive: на мелких экранах ставим одну колонку и уменьшаем отступы */
 @media (max-width: 600px) {
-  .admin-section__title {
+  .admin-section__title,
+  .admin-section .mx-typography__title {
     margin-bottom: 14px;
   }
   .admin-card {
@@ -113,8 +140,33 @@
   }
 }
 
-/* мелкая доработка: упростим вид возврата к контенту */
+/* Мелкая доработка: заголовок внутри карточки — меньше отступов и компактнее */
 .admin-card__content .mx-typography__title {
   margin: 0;
-  line-height: 1.15;
+  line-height: 1.12;
+}
+
+/* Доп: акцентная рамка/глоу вокруг активной карточки (для выделения) */
+.admin-card--highlight {
+  box-shadow: 0 12px 40px rgba(58,137,251,0.12);
+  border-color: rgba(58,137,251,0.18);
+}
+
+/* Тёмная тема — чуть другие прозрачности (если используется prefers-color-scheme) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --card-border: rgba(255,255,255,0.03);
+  }
+  .admin-card {
+    background: linear-gradient(180deg, rgba(6,7,12,0.6), rgba(6,7,12,0.5));
+  }
+  .admin-card--primary {
+    background: linear-gradient(135deg, rgba(56,56,255,0.12), rgba(58,137,251,0.08));
+  }
+  .admin-card--accent-left {
+    background: linear-gradient(135deg, rgba(170,76,255,0.08), rgba(99,14,255,0.06));
+  }
+  .admin-card--accent-pass {
+    background: linear-gradient(135deg, rgba(58,137,251,0.08), rgba(56,56,255,0.06));
+  }
 }
