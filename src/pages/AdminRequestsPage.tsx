@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, type JSX } from "react";
 import {
   Panel,
   Container,
@@ -6,352 +7,285 @@ import {
   Avatar,
   Typography,
   Button,
-  Grid
+  Grid,
+  // если в вашей версии MAX UI есть CellList/CellSimple — можно заменить карточки на них
 } from "@maxhub/max-ui";
-import MainLayout from "../layouts/MainLayout";
 import api from "../services/api";
-import "../css/AdminRequestsPage.css";
+import "../css/ApplicationsPage.css";
 
-interface Request {
+type Application = {
   role: string;
   user_id: number;
-  first_name: string;
-  second_name: string;
-}
+  first_name?: string;
+  second_name?: string;
+  username?: string;
+  avatar_url?: string;
+};
 
-interface AcceptRequestData {
-  course_group_id?: number;
-  faculty_id?: number;
-  role: string;
-  university_department_id?: number;
-  university_id?: number;
-  user_id: number;
-}
+const ENDPOINTS = {
+  LIST: "https://msokovykh.ru/admin/personalities/access",
+  REJECT: "/applications/reject",
+  APPROVE: "https://msokovykh.ru/admin/personalities/access/accept",
+};
 
-export default function AdminRequestsPage() {
-  const [requests, setRequests] = useState<Request[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ApplicationsPage(): JSX.Element {
+  const [items, setItems] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [moreLoading, setMoreLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [acceptLoading, setAcceptLoading] = useState(false);
+
+  const [offset, setOffset] = useState(0);
+  const LIMIT = 20;
+  const [hasMore, setHasMore] = useState(false);
+
+  const [approving, setApproving] = useState<Application | null>(null);
+  const [form, setForm] = useState({
+    course_group_id: "",
+    faculty_id: "",
+    university_department_id: "",
+    university_id: "",
+    role: "student",
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchRequests();
+    loadList(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchRequests = async () => {
-    try {
+  async function loadList(reset = false) {
+    if (reset) {
       setLoading(true);
-      const response = await api.get("/admin/personalities/access");
-      setRequests(response.data.data || []);
-    } catch (err) {
-      setError("Ошибка при загрузке заявок");
-      console.error("Failed to fetch requests:", err);
+      setOffset(0);
+    } else {
+      setMoreLoading(true);
+    }
+    setError(null);
+
+    try {
+      const off = reset ? 0 : offset;
+      const res = await api.get(ENDPOINTS.LIST, { params: { limit: LIMIT, offset: off }});
+      const data = res.data;
+      const list: Application[] = Array.isArray(data?.data) ? data.data : [];
+
+      if (reset) {
+        setItems(list);
+      } else {
+        setItems(prev => [...prev, ...list]);
+      }
+
+      setHasMore(Boolean(data?.has_more));
+      setOffset(off + LIMIT);
+    } catch (e: any) {
+      console.warn("Failed to load applications", e);
+      setError("Не удалось загрузить заявки. Проверьте соединение.");
     } finally {
       setLoading(false);
+      setMoreLoading(false);
     }
-  };
+  }
 
-  const handleAcceptClick = (request: Request) => {
-    setSelectedRequest(request);
-    setModalOpen(true);
-  };
+  function displayName(it: Application) {
+    return [it.first_name, it.second_name].filter(Boolean).join(" ") || it.username || `user#${it.user_id}`;
+  }
 
-  const handleRejectClick = async (request: Request) => {
+  async function handleReject(it: Application) {
+    if (!confirm(`Отклонить заявку от ${displayName(it)} (${it.role})?`)) return;
+    // оптимистично удаляем из UI
+    const prev = items;
+    setItems(prevItems => prevItems.filter(x => x.user_id !== it.user_id));
     try {
-      // Remove from UI immediately
-      setRequests(prev => prev.filter(r => r.user_id !== request.user_id));
-      // Here you would typically call a reject endpoint if available
-      console.log("Rejected request:", request);
-    } catch (err) {
-      console.error("Failed to reject request:", err);
-      // Re-add if error
-      setRequests(prev => [...prev, request]);
+      await api.post(ENDPOINTS.REJECT, { user_id: it.user_id });
+    } catch (e) {
+      console.warn("Reject failed", e);
+      alert("Не удалось отклонить заявку. Попробуйте позже.");
+      setItems(prev); // rollback
     }
-  };
+  }
 
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setSelectedRequest(null);
-  };
+  function openApprove(it: Application) {
+    setApproving(it);
+    setForm({
+      course_group_id: "",
+      faculty_id: "",
+      university_department_id: "",
+      university_id: "",
+      role: it.role || "student",
+    });
+  }
 
-  const handleModalSubmit = async (formData: AcceptRequestData) => {
-    if (!selectedRequest) return;
+  function closeApprove() {
+    setApproving(null);
+    setSubmitting(false);
+  }
 
+  function onFormChange<K extends keyof typeof form>(key: K, value: string) {
+    setForm(prev => ({ ...prev, [key]: value }));
+  }
+
+  async function submitApprove() {
+    if (!approving) return;
+
+    const toNum = (v: string) => {
+      const n = Number(v);
+      return Number.isFinite(n) && !Number.isNaN(n) ? n : null;
+    };
+
+    const course_group_id = toNum(form.course_group_id);
+    const faculty_id = toNum(form.faculty_id);
+    const university_department_id = toNum(form.university_department_id);
+    const university_id = toNum(form.university_id);
+    const role = form.role;
+
+    if (!course_group_id || !faculty_id || !university_department_id || !university_id) {
+      alert("Заполните все поля ID валидными числами.");
+      return;
+    }
+
+    const payload = {
+      course_group_id,
+      faculty_id,
+      role,
+      university_department_id,
+      university_id,
+      user_id: approving.user_id,
+    };
+
+    setSubmitting(true);
     try {
-      setAcceptLoading(true);
-      await api.post("/admin/personalities/access/accept", formData);
-      
-      // Remove the accepted request from the list
-      setRequests(prev => prev.filter(r => r.user_id !== selectedRequest.user_id));
-      handleModalClose();
-    } catch (err) {
-      setError("Ошибка при принятии заявки");
-      console.error("Failed to accept request:", err);
-    } finally {
-      setAcceptLoading(false);
+      await api.post(ENDPOINTS.APPROVE, payload);
+      // удаляем из UI
+      setItems(prev => prev.filter(x => x.user_id !== approving.user_id));
+      closeApprove();
+    } catch (e) {
+      console.warn("Approve failed", e);
+      alert("Не удалось принять заявку. Попробуйте позже.");
+      setSubmitting(false);
     }
-  };
-
-  const getRoleDisplayName = (role: string) => {
-    const roleMap: { [key: string]: string } = {
-      student: "Студент",
-      teacher: "Преподаватель",
-      admin: "Администратор"
-    };
-    return roleMap[role] || role;
-  };
-
-  const getRoleColor = (role: string) => {
-    const colorMap: { [key: string]: string } = {
-      student: "var(--maxui-color-success-500)",
-      teacher: "var(--maxui-color-warning-500)",
-      admin: "var(--maxui-color-primary-500)"
-    };
-    return colorMap[role] || "var(--maxui-color-gray-500)";
-  };
-
-  if (loading) {
-    return (
-      <MainLayout>
-        <Container className="admin-requests-container">
-          <div className="loading-state">
-            <Typography.Title variant="medium-strong">Загрузка заявок...</Typography.Title>
-          </div>
-        </Container>
-      </MainLayout>
-    );
   }
 
   return (
-    <MainLayout>
-      <Container className="admin-requests-container">
-        <div className="admin-requests-header">
-          <Typography.Title variant="large-strong" className="page-title">
-            Заявки на вступление в группы
-          </Typography.Title>
-          <Typography.Label className="page-subtitle">
-            Управление заявками пользователей на получение ролей в университете
-          </Typography.Label>
-        </div>
+    <Container style={{ paddingTop: 12 }}>
+      <Typography.Title variant="large-strong" style={{ marginBottom: 8 }}>
+        Заявки на вступление
+      </Typography.Title>
 
-        {error && (
-          <Panel mode="secondary" className="error-panel">
-            <Typography.Label style={{ color: "var(--maxui-color-error-500)" }}>
-              {error}
-            </Typography.Label>
-          </Panel>
-        )}
+      <Typography.Label style={{ display: "block", marginBottom: 16 }}>
+        Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
+      </Typography.Label>
 
-        {requests.length === 0 ? (
-          <Panel mode="secondary" className="empty-state">
-            <Typography.Title variant="small-strong">Заявок нет</Typography.Title>
-            <Typography.Label>Новых заявок на вступление не найдено</Typography.Label>
-          </Panel>
-        ) : (
-          <Grid cols={1} gap={16} className="requests-grid">
-            {requests.map(request => (
-              <Panel key={request.user_id} mode="secondary" className="request-card">
-                <Flex align="center" gap={16} style={{ width: "100%" }}>
-                  <Avatar.Container size={56} form="circle">
-                    <Avatar.Text>
-                      {request.first_name?.[0]?.toUpperCase()}{request.second_name?.[0]?.toUpperCase()}
-                    </Avatar.Text>
-                  </Avatar.Container>
-                  
-                  <div style={{ flex: 1 }}>
-                    <Flex align="center" gap={8} style={{ marginBottom: 8 }}>
-                      <Typography.Title variant="small-strong" className="user-name">
-                        {request.first_name} {request.second_name}
-                      </Typography.Title>
-                      <span 
-                        className="role-badge"
-                        style={{ backgroundColor: getRoleColor(request.role) }}
-                      >
-                        {getRoleDisplayName(request.role)}
-                      </span>
-                    </Flex>
-                    <Typography.Label className="user-id">
-                      ID пользователя: {request.user_id}
-                    </Typography.Label>
-                  </div>
+      {loading && (
+        <Panel mode="secondary" className="apps-placeholder" style={{ padding: 18, marginBottom: 12 }}>
+          <Typography.Label>Загрузка заявок…</Typography.Label>
+        </Panel>
+      )}
 
-                  <Flex gap={8} className="action-buttons">
-                    <Button 
-                      mode="primary" 
-                      size="small"
-                      onClick={() => handleAcceptClick(request)}
-                      className="accept-button"
-                    >
-                      Принять
-                    </Button>
-                    <Button 
-                      mode="tertiary" 
-                      size="small"
-                      onClick={() => handleRejectClick(request)}
-                      className="reject-button"
-                    >
-                      Отклонить
-                    </Button>
-                  </Flex>
-                </Flex>
-              </Panel>
-            ))}
-          </Grid>
-        )}
+      {error && (
+        <Panel mode="secondary" style={{ padding: 12, marginBottom: 12 }}>
+          <Typography.Label style={{ color: "var(--maxui-negative, #e11d48)" }}>{error}</Typography.Label>
+          <div style={{ marginTop: 10 }}>
+            <Button mode="primary" onClick={() => loadList(true)}>Повторить</Button>
+          </div>
+        </Panel>
+      )}
 
-        {modalOpen && selectedRequest && (
-          <AcceptRequestModal
-            request={selectedRequest}
-            onClose={handleModalClose}
-            onSubmit={handleModalSubmit}
-            loading={acceptLoading}
-          />
-        )}
-      </Container>
-    </MainLayout>
-  );
-}
+      {!loading && items.length === 0 && !error && (
+        <Panel mode="secondary" style={{ padding: 16, marginBottom: 12 }}>
+          <Typography.Title variant="small-strong">Заявок пока нет</Typography.Title>
+          <Typography.Label>Новые заявки появятся здесь автоматически.</Typography.Label>
+        </Panel>
+      )}
 
-interface AcceptRequestModalProps {
-  request: Request;
-  onClose: () => void;
-  onSubmit: (formData: AcceptRequestData) => void;
-  loading: boolean;
-}
+      <Grid cols={1} gap={12}>
+        {items.map(it => (
+          <Panel key={it.user_id} mode="secondary" className="apps-item" style={{ padding: 12 }}>
+            <Flex align="center" gap={12}>
+              <Avatar.Container size={56} form="squircle">
+                {it.avatar_url ? <Avatar.Image src={it.avatar_url} /> : <Avatar.Text>{(displayName(it) || "U").slice(0,2).toUpperCase()}</Avatar.Text>}
+              </Avatar.Container>
 
-function AcceptRequestModal({ request, onClose, onSubmit, loading }: AcceptRequestModalProps) {
-  const [formData, setFormData] = useState({
-    university_department_id: "",
-    course_group_id: "",
-    university_id: "",
-    faculty_id: ""
-  });
+              <div style={{ flex: 1 }}>
+                <Typography.Title variant="small-strong" style={{ margin: 0 }}>{displayName(it)}</Typography.Title>
+                <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>{it.username ?? `ID ${it.user_id}`}</Typography.Label>
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const submitData: AcceptRequestData = {
-      user_id: request.user_id,
-      role: request.role
-    };
-
-    if (request.role === "student") {
-      submitData.university_department_id = Number(formData.university_department_id);
-      if (formData.course_group_id) {
-        submitData.course_group_id = Number(formData.course_group_id);
-      }
-    } else {
-      submitData.university_id = Number(formData.university_id);
-      if (formData.faculty_id) {
-        submitData.faculty_id = Number(formData.faculty_id);
-      }
-    }
-
-    onSubmit(submitData);
-  };
-
-  return (
-    <div className="modal-overlay">
-      <Panel mode="secondary" className="modal-panel">
-        <Container>
-          <Flex justify="space-between" align="flex-start" style={{ marginBottom: 24 }}>
-            <div>
-              <Typography.Title variant="medium-strong" style={{ marginBottom: 8 }}>
-                Принять заявку
-              </Typography.Title>
-              <Typography.Label>
-                {request.first_name} {request.second_name} · {request.role}
-              </Typography.Label>
-            </div>
-            <Button mode="tertiary" onClick={onClose} size="small">
-              Закрыть
-            </Button>
-          </Flex>
-
-          <form onSubmit={handleSubmit}>
-            {request.role === "student" ? (
-              <>
-                <div className="form-field" style={{ marginBottom: 16 }}>
-                  <Typography.Label style={{ display: "block", marginBottom: 8 }}>
-                    ID отделения университета *
-                  </Typography.Label>
-                  <input
-                    type="number"
-                    value={formData.university_department_id}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      university_department_id: e.target.value 
-                    }))}
-                    required
-                    placeholder="Введите ID отделения"
-                    className="form-input"
-                  />
+                <div style={{ marginTop: 10 }}>
+                  <span className="apps-role-badge">{it.role}</span>
                 </div>
-                <div className="form-field" style={{ marginBottom: 24 }}>
-                  <Typography.Label style={{ display: "block", marginBottom: 8 }}>
-                    ID группы курса
-                  </Typography.Label>
-                  <input
-                    type="number"
-                    value={formData.course_group_id}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      course_group_id: e.target.value 
-                    }))}
-                    placeholder="Введите ID группы (опционально)"
-                    className="form-input"
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="form-field" style={{ marginBottom: 16 }}>
-                  <Typography.Label style={{ display: "block", marginBottom: 8 }}>
-                    ID университета *
-                  </Typography.Label>
-                  <input
-                    type="number"
-                    value={formData.university_id}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      university_id: e.target.value 
-                    }))}
-                    required
-                    placeholder="Введите ID университета"
-                    className="form-input"
-                  />
-                </div>
-                <div className="form-field" style={{ marginBottom: 24 }}>
-                  <Typography.Label style={{ display: "block", marginBottom: 8 }}>
-                    ID факультета
-                  </Typography.Label>
-                  <input
-                    type="number"
-                    value={formData.faculty_id}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      faculty_id: e.target.value 
-                    }))}
-                    placeholder="Введите ID факультета (опционально)"
-                    className="form-input"
-                  />
-                </div>
-              </>
-            )}
+              </div>
 
-            <Flex justify="end" gap={12}>
-              <Button mode="tertiary" onClick={onClose} disabled={loading}>
-                Отмена
-              </Button>
-              <Button mode="primary" type="submit" disabled={loading}>
-                {loading ? "Принятие..." : "Принять заявку"}
-              </Button>
+              <div className="apps-actions">
+                <Button mode="tertiary" size="small" onClick={() => openApprove(it)}>Принять</Button>
+                <Button mode="tertiary" size="small" onClick={() => handleReject(it)} style={{ marginLeft: 8 }}>Отклонить</Button>
+              </div>
             </Flex>
-          </form>
-        </Container>
-      </Panel>
-    </div>
+          </Panel>
+        ))}
+      </Grid>
+
+      {hasMore && (
+        <div style={{ marginTop: 12, textAlign: "center" }}>
+          <Button mode="secondary" onClick={() => loadList(false)} disabled={moreLoading}>
+            {moreLoading ? "Загрузка..." : "Показать ещё"}
+          </Button>
+        </div>
+      )}
+
+      {/* Approve modal overlay */}
+      {approving && (
+        <div className="apps-modal-overlay" role="dialog" aria-modal="true">
+          <Panel className="apps-modal" mode="secondary">
+            <Container style={{ padding: 18 }}>
+              <Flex justify="space-between" align="center">
+                <div>
+                  <Typography.Title variant="medium-strong">Принять заявку</Typography.Title>
+                  <Typography.Label>{displayName(approving)} — {approving.role}</Typography.Label>
+                </div>
+                <div>
+                  <Button mode="tertiary" onClick={closeApprove}>Закрыть</Button>
+                </div>
+              </Flex>
+
+              <div style={{ marginTop: 12 }}>
+                <label className="apps-field">
+                  <div className="apps-field-label">Роль</div>
+                  <select value={form.role} onChange={e => onFormChange("role", e.target.value)}>
+                    <option value="student">Студент</option>
+                    <option value="teacher">Преподаватель</option>
+                    <option value="admin">Администратор</option>
+                  </select>
+                </label>
+
+                <label className="apps-field">
+                  <div className="apps-field-label">ID группы (course_group_id)</div>
+                  <input value={form.course_group_id} onChange={e => onFormChange("course_group_id", e.target.value)} placeholder="123" />
+                </label>
+
+                <label className="apps-field">
+                  <div className="apps-field-label">ID факультета (faculty_id)</div>
+                  <input value={form.faculty_id} onChange={e => onFormChange("faculty_id", e.target.value)} placeholder="10" />
+                </label>
+
+                <label className="apps-field">
+                  <div className="apps-field-label">ID департамента (university_department_id)</div>
+                  <input value={form.university_department_id} onChange={e => onFormChange("university_department_id", e.target.value)} placeholder="5" />
+                </label>
+
+                <label className="apps-field">
+                  <div className="apps-field-label">ID университета (university_id)</div>
+                  <input value={form.university_id} onChange={e => onFormChange("university_id", e.target.value)} placeholder="2" />
+                </label>
+
+                <Flex justify="end" style={{ marginTop: 16 }}>
+                  <Button mode="tertiary" onClick={closeApprove} style={{ marginRight: 8 }}>Отмена</Button>
+                  <Button mode="primary" onClick={submitApprove} disabled={submitting}>
+                    {submitting ? "Сохраняем..." : "Принять и сохранить"}
+                  </Button>
+                </Flex>
+              </div>
+            </Container>
+          </Panel>
+        </div>
+      )}
+    </Container>
   );
 }
