@@ -23,7 +23,7 @@ export default function AdminPage() {
           Административное
         </Typography.Title>
 
-        <Grid cols={2} gap={12}>
+        <Grid cols={2} gap={6}>
           <Panel
             className="admin-card admin-card--primary"
             mode="primary"
@@ -50,13 +50,12 @@ export default function AdminPage() {
         </Grid>
       </div>
 
-      {/* Кампус — добавили отступ между заголовком и карточками */}
       <div className="admin-section">
         <Typography.Title variant="medium-strong" className="admin-section__title">
           Кампус
         </Typography.Title>
 
-        <Grid cols={2} gap={12}>
+        <Grid cols={2} gap={6}>
           <Panel className="admin-card admin-card--tall admin-card--accent-left" mode="secondary">
             <Container className="admin-card__content">
               <Typography.Title variant="small-strong">Загруженность</Typography.Title>
