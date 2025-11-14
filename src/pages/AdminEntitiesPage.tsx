@@ -42,7 +42,7 @@ export default function AdminEntitiesPage(): JSX.Element {
       const w = (window as any).WebApp ?? webApp ?? null;
       if (w && w.BackButton) {
         // show and attach handler
-        w.BackButton.show?.();
+        w.BackButton.isVisible?.();
         w.BackButton.onClick?.(() => {
           navigate(-1);
         });
