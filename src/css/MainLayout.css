@@ -192,3 +192,38 @@ html, body, #root {
     height: calc(100vh - var(--header-height)) !important;
   }
 }
+
+/* Avatar overlay: initials always present, image overlays and fades in */
+.main-avatar {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+/* ensure Avatar.Text sits beneath the image but is visible until image fades in */
+.main-avatar__text {
+  position: relative;
+  z-index: 1;
+  /* keep text visible and centered as Avatar.Text normally does */
+}
+
+/* overlayed img covers whole container */
+.main-avatar__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px; /* circle */
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  display: block;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* when loaded -> fade in */
+.main-avatar__img.loaded {
+  opacity: 1;
+}

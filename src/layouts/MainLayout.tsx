@@ -50,6 +50,10 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
   const [userName, setUserName] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
+  // preload state
+  const [photoLoaded, setPhotoLoaded] = useState<boolean>(false);
+  const [photoError, setPhotoError] = useState<boolean>(false);
+
   useEffect(() => {
     let mounted = true;
 
@@ -83,6 +87,38 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
       mounted = false;
     };
   }, [webAppData]);
+
+
+  // prefetch image and set loaded/error flags
+  useEffect(() => {
+    setPhotoLoaded(false);
+    setPhotoError(false);
+
+    if (!userPhoto) {
+      return;
+    }
+
+    let canceled = false;
+    const img = new Image();
+    img.src = userPhoto;
+
+    img.onload = () => {
+      if (!canceled) setPhotoLoaded(true);
+    };
+    img.onerror = () => {
+      if (!canceled) {
+        console.warn("Avatar image failed to load:", userPhoto);
+        setPhotoError(true);
+        setPhotoLoaded(false);
+      }
+    };
+
+    return () => {
+      canceled = true;
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [userPhoto]);
 
   const goProfile = (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -129,11 +165,24 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
         <div className="main-header-right">
           <Button type="button" mode="tertiary" onClick={goProfile} aria-label="Profile">
-            <Avatar.Container size={40} form="circle">
-              {userPhoto ? (
-                <Avatar.Image src={userPhoto} />
-              ) : (
-                <Avatar.Text>{initials(userName)}</Avatar.Text>
+            {/* main-avatar класс нужен для позиционирования картинки поверх текста */}
+            <Avatar.Container size={40} form="circle" className="main-avatar">
+              {/* всегда рендерим инициалы (чтобы размер был стабильным) */}
+              <Avatar.Text className="main-avatar__text">{initials(userName)}</Avatar.Text>
+
+              {/* картинка накладывается поверх; видна только когда photoLoaded === true */}
+              {userPhoto && !photoError && (
+                <img
+                  className={`main-avatar__img ${photoLoaded ? "loaded" : ""}`}
+                  src={userPhoto}
+                  alt={userName ?? "avatar"}
+                  // onError на случай, если что-то пойдёт не так при вставке в DOM
+                  onError={() => {
+                    console.warn("Avatar img tag error for:", userPhoto);
+                    setPhotoError(true);
+                    setPhotoLoaded(false);
+                  }}
+                />
               )}
             </Avatar.Container>
           </Button>
