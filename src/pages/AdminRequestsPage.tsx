@@ -272,7 +272,7 @@ export default function ApplicationsPage(): JSX.Element {
         <div style={{ marginTop: 6 }}>
           <Typography.Title variant="large-strong" style={{ margin: 0 }}>Заявки на вступление</Typography.Title>
           <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-            Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
+             Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
           </Typography.Label>
         </div>
 
@@ -298,8 +298,14 @@ export default function ApplicationsPage(): JSX.Element {
 
       {!loading && items.length === 0 && !error && (
         <Panel mode="secondary" style={{ padding: 16, marginBottom: 12 }}>
-          <Typography.Title variant="small-strong">Заявок пока нет</Typography.Title>
-          <Typography.Label>Новые заявки появятся здесь автоматически.</Typography.Label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <Typography.Title variant="large-strong" style={{ margin: 0 }}>
+            Заявки на вступление
+          </Typography.Title>
+          <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
+            Здесь показаны поступившие заявки — отклоняйте или принимайте участников в группу.
+          </Typography.Label>
+        </div>
         </Panel>
       )}
 
@@ -322,11 +328,15 @@ export default function ApplicationsPage(): JSX.Element {
                     {it.username ? `@${it.username}` : null}
                   </Typography.Label>
                 </div>
-                <div style={{ marginTop: 6 }}>
+                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
                   <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)" }}>
-                    ID: {it.user_id}
+                    ID:
+                  </Typography.Label>
+                  <Typography.Label style={{ color: "var(--maxui-muted, #6b7280)", fontWeight: 600 }}>
+                    {it.user_id}
                   </Typography.Label>
                 </div>
+
 
                 <div style={{ marginTop: 10 }}>
                   <span className="apps-role-badge">{it.role}</span>
@@ -355,13 +365,12 @@ export default function ApplicationsPage(): JSX.Element {
         <div className="apps-modal-overlay" role="dialog" aria-modal="true">
           <Panel className="apps-modal" mode="secondary">
             <Container style={{ padding: 18 }}>
-              <Flex justify="space-between" align="center">
-                <div>
-                  <Typography.Title variant="medium-strong">Принять заявку </Typography.Title>
-                  <Typography.Label>{ displayName(approving)} — <strong>{approving.role}</strong></Typography.Label>
-                </div>
+              <Flex direction="column" justify="start" align="flex-start" gap={6}>
+                <Typography.Title variant="medium-strong">Принять заявку</Typography.Title>
+                <Typography.Label>
+                  {displayName(approving)} — <strong>{approving.role}</strong>
+                </Typography.Label>
               </Flex>
-
               <div style={{ marginTop: 12 }}>
                 {/* Роль */}
                 <div className="apps-field">
@@ -373,9 +382,7 @@ export default function ApplicationsPage(): JSX.Element {
                   </select>
                 </div>
 
-                {/* Университет — скрытое поле (берётся автоматически) */}
                 <div style={{ marginTop: 10 }}>
-                  <Typography.Label className="apps-field-label">Университет</Typography.Label>
                   <div>
                     <Typography.Label style={{ color: "var(--maxui-muted,#6b7280)" }}>
                       {loadingUniversities ? "Загрузка..." : (universities[0]?.uni_name ?? universities[0]?.uni_short_name ?? "—")}
