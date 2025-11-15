@@ -10,6 +10,8 @@ import ProfilePage from "./pages/ProfilePage";
 import ApplicantPage from "./pages/ApplicantPage";
 import AdminRequestsPage from "./pages/AdminRequestsPage.tsx";
 import AdminEntitiesPage from "./pages/AdminEntitiesPage.tsx";
+import WorkloadPage from "./pages/WorkloadPage.tsx";
+import PassPage from "./pages/PassPage.tsx";
 
 function AppInner() {
   const webAppData = window.WebApp?.initData;
@@ -91,6 +93,8 @@ function AppInner() {
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/requests" element={<AdminRequestsPage />} />
       <Route path="/admin/entities" element={<AdminEntitiesPage />} />
+      <Route path="/admin/pass" element={<PassPage />} />
+      <Route path="/admin/workload" element={<WorkloadPage />} />
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
