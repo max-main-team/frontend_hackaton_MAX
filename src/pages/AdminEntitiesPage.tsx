@@ -178,7 +178,6 @@ export default function AdminEntitiesPage(): JSX.Element {
     }
   }
 
-  // Функция для создания курса
   async function onCreateCourse() {
     setCourseMsg(null);
     if (!courseUniId) return setCourseMsg("Выберите университет");
@@ -189,9 +188,12 @@ export default function AdminEntitiesPage(): JSX.Element {
     
     setCourseLoading(true);
     try {
+      const startDate = new Date(courseStartDate).toISOString().split('T')[0];
+      const endDate = new Date(courseEndDate).toISOString().split('T')[0];
+      
       const res = await api.post(ENDPOINTS.CREATE_COURSE, {
-        start_date: new Date(courseStartDate).toISOString(),
-        end_date: new Date(courseEndDate).toISOString(),
+        start_date: startDate,
+        end_date: endDate, 
         university_department_id: courseDepartmentId,
       });
       
@@ -268,11 +270,23 @@ export default function AdminEntitiesPage(): JSX.Element {
     const periodsPayload: any[] = [];
     for (const p of periods) {
       if (!p.start || !p.end) return setSemMsg("Укажите даты для всех периодов (start/end)");
-      periodsPayload.push({ start_date: new Date(p.start).toISOString(), end_date: new Date(p.end).toISOString() });
+      
+      const startDate = new Date(p.start).toISOString().split('T')[0];
+      const endDate = new Date(p.end).toISOString().split('T')[0];
+      
+      periodsPayload.push({ 
+        start_date: startDate, 
+        end_date: endDate 
+      });
     }
+    
     setSemLoading(true);
     try {
-      const res = await api.post(ENDPOINTS.CREATE_SEMESTERS, { uni_id: semUniId, periods: periodsPayload });
+      const res = await api.post(ENDPOINTS.CREATE_SEMESTERS, { 
+        uni_id: semUniId, 
+        periods: periodsPayload 
+      });
+      
       if (res?.status === 200) {
         setPeriods([{ start: "", end: "" }]);
         setSemMsg("Семестры успешно созданы");
@@ -457,7 +471,7 @@ export default function AdminEntitiesPage(): JSX.Element {
 
             <label className="field-label">Дата начала</label>
             <input 
-              type="datetime-local" 
+              type="date" 
               value={courseStartDate} 
               onChange={e => setCourseStartDate(e.target.value)} 
               className="admin-input" 
@@ -465,7 +479,7 @@ export default function AdminEntitiesPage(): JSX.Element {
 
             <label className="field-label">Дата окончания</label>
             <input 
-              type="datetime-local" 
+              type="date" 
               value={courseEndDate} 
               onChange={e => setCourseEndDate(e.target.value)} 
               className="admin-input" 
@@ -494,11 +508,16 @@ export default function AdminEntitiesPage(): JSX.Element {
               disabled={loadingCourses}
             >
               {loadingCourses ? <option value="">Загрузка курсов...</option> : <option value="">Выберите курс</option>}
-              {courses.map(course => (
-                <option key={course.id} value={course.id}>
-                  {course.start_date} - {course.end_date} (Направление: {course.university_department_id})
-                </option>
-              ))}
+              {courses.map(course => {
+                const startDate = course.start_date ? new Date(course.start_date).toLocaleDateString('ru-RU') : 'нет даты';
+                const endDate = course.end_date ? new Date(course.end_date).toLocaleDateString('ru-RU') : 'нет даты';
+                
+                return (
+                  <option key={course.id} value={course.id}>
+                    {startDate} - {endDate} (Направление: {course.university_department_id})
+                  </option>
+                );
+              })}
             </select>
 
             <label className="field-label">Название группы</label>
@@ -563,12 +582,12 @@ export default function AdminEntitiesPage(): JSX.Element {
               <div key={idx} className="period-row">
                 <div style={{ flex: 1 }}>
                   <label className="period-label">Start</label>
-                  <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
+                  <input type="date" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
                 </div>
 
                 <div style={{ flex: 1 }}>
                   <label className="period-label">End</label>
-                  <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
+                  <input type="date" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
                 </div>
 
                 <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
