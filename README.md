@@ -1,73 +1,81 @@
-# React + TypeScript + Vite
+# University Portal — Backend API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Многофункциональный университетский портал для автоматизации ключевых процессов вуза:  
+от подачи заявок абитуриентов до управления факультетами, учебными планами и составления расписаний.
 
-Currently, two official plugins are available:
+Система объединяет студентов, преподавателей и администрацию в едином цифровом пространстве.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Возможности системы
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Абитуриенты
+- просмотр факультетов и направлений подготовки
+- подача заявки на поступление
+- отслеживание статуса заявки
 
-## Expanding the ESLint configuration
+###  Роли и управление пользователями
+Пользователь может подать заявку на присоединение как:
+- студент
+- преподаватель
+- администратор
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Администрация рассматривает заявки и назначает роли.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+###  Управление академической структурой
+Администраторы могут полностью формировать структуру университета:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- факультеты
+- направления подготовки
+- курсы
+- семестры
+- учебные группы
+- предметы и учебные планы
+- назначение преподавателей
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+###  Расписание (Schedule)
+Гибкая система составления расписания с автоматической проверкой конфликтов:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- создание учебных пар (**lessons**)
+- интервалы занятий:
+    - `every week`
+    - `every two week`
+- контроль занятости:
+    - аудиторий
+    - преподавателей
+    - учебных групп
+    - студентов (включая элективные группы)
+- поддержка лекций для нескольких групп в одной аудитории
+- получение персонального расписания по `user_id`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+###  Университетские мероприятия
+- просмотр актуальных событий и активностей
+- управление мероприятиями администрацией
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+##  Swagger-документация
+
+Полная документация API доступна по ссылке:
+
+👉 **https://msokovykh.ru/swagger//index.html**
+
+---
+
+##  ERD Диаграмма базы данных
+
+![ERD](./docs/erd.png)
+
+---
+
+## 🐳 Запуск через Docker Compose
+
+Убедитесь, что установлены:
+
+- Docker
+- Docker Compose
+
+### Запуск проекта
+
+```bash
+docker compose up --build
