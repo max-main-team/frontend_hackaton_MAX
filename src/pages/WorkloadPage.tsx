@@ -25,7 +25,6 @@ return (
 
           <div className="cs-actions">
             <Button mode="tertiary" onClick={() => navigate(-1)}>Назад</Button>
-            <Button mode="primary" onClick={() => window.location.reload()}>Обновить</Button>
           </div>
 
           <Typography.Label className="cs-hint">
