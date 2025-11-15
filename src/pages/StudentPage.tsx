@@ -3,6 +3,9 @@ import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhu
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import "../css/AdminPage.css"
+import hiStudent from "../images/hi_student.png";
+import sport from "../images/sport.png";
+
 
 export default function StudentPage() {
   const { webAppData } = useMaxWebApp();
@@ -14,7 +17,7 @@ export default function StudentPage() {
       <div style={{ marginBottom: 12 }}>
         <Flex align="center" gap={12}>
           <Avatar.Container size={56} form="circle">
-            <Avatar.Image src={user?.full_avatar_url ?? user?.avatar_url ?? ""} />
+            <Avatar.Image src={hiStudent} />
           </Avatar.Container>
 
           <div>
@@ -65,7 +68,7 @@ export default function StudentPage() {
           <Container style={{ padding: 12 }}>
             <Flex align="center" gap={12}>
               <Avatar.Container size={72} form="squircle">
-                <Avatar.Image src="https://placekitten.com/400/200" />
+                <Avatar.Image src={sport} />
               </Avatar.Container>
               <div style={{ flex: 1 }}>
                 <Typography.Title variant="medium-strong">Студенческий спорт</Typography.Title>
