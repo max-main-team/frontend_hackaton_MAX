@@ -78,6 +78,10 @@ function formatDateRu(d: Date) {
   return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
 }
 
+const DAY_INDEX: Record<string, number> = {
+  Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6
+};
+
 export default function SchedulePage(): JSX.Element {
   const loc = useLocation();
   const fromState = (loc.state as any)?.from;
@@ -137,7 +141,9 @@ export default function SchedulePage(): JSX.Element {
     for (const d of WEEK_DAYS) {
       const arr = map.get(d) || [];
       arr.sort((a,b) => {
-        if (a.pair_number && b.pair_number) return a.pair_number - b.pair_number;
+        const pa = (a.pair_number ?? 0);
+        const pb = (b.pair_number ?? 0);
+        if (pa !== pb) return pa - pb;
         if (a.start_time && b.start_time) return a.start_time.localeCompare(b.start_time);
         return 0;
       });
@@ -145,6 +151,47 @@ export default function SchedulePage(): JSX.Element {
     }
     return result;
   }, [schedules]);
+
+  // helper: sort lessons array globally by day->pair
+  function sortLessonsArray(arr: Lesson[]) {
+    return arr.slice().sort((a, b) => {
+      const da = DAY_INDEX[a.day] ?? 0;
+      const db = DAY_INDEX[b.day] ?? 0;
+      if (da !== db) return da - db;
+      const pa = (a.pair_number ?? 0);
+      const pb = (b.pair_number ?? 0);
+      return pa - pb;
+    });
+  }
+
+  // upsert lesson (insert or replace) into schedules state for the primary user
+  function upsertLessonToSchedules(lesson: Lesson) {
+    setSchedules(prev => {
+      // clone
+      const copy = prev.map(s => ({ ...s, schedule: s.schedule.slice() }));
+      const uid = userId ?? (copy[0]?.user_id ?? null);
+      const idx = copy.findIndex(s => s.user_id === uid);
+      if (idx === -1) {
+        // if no target user schedule yet — push new one
+        const ns: UserSchedule = { user_id: uid ?? 0, schedule: [lesson] };
+        return [ns, ...copy];
+      }
+      const target = { ...copy[idx], schedule: copy[idx].schedule.slice() };
+      const existingIndex = target.schedule.findIndex(l => l.lesson_id === lesson.lesson_id);
+      if (existingIndex !== -1) {
+        target.schedule[existingIndex] = { ...target.schedule[existingIndex], ...lesson };
+      } else {
+        target.schedule.push(lesson);
+      }
+      target.schedule = sortLessonsArray(target.schedule);
+      copy[idx] = target;
+      return copy;
+    });
+  }
+
+  function removeLessonFromSchedules(lessonId: number) {
+    setSchedules(prev => prev.map(s => ({ ...s, schedule: s.schedule.filter(l => l.lesson_id !== lessonId) })));
+  }
 
   // Load initial data
   useEffect(() => {
@@ -183,19 +230,28 @@ export default function SchedulePage(): JSX.Element {
             const data: ClassTime[] = Array.isArray(resClasses?.data) ? resClasses.data : [];
             if (mounted && data.length) setClassTimes(data);
             else if (mounted && !data.length) {
+              // expanded mock: 8 pairs
               setClassTimes([
-                { pair_number: 1, start_time: "09:00", end_time: "10:30" },
-                { pair_number: 2, start_time: "10:40", end_time: "12:10" },
-                { pair_number: 3, start_time: "12:30", end_time: "14:00" },
-                { pair_number: 4, start_time: "14:10", end_time: "15:40" },
+                { pair_number: 1, start_time: "08:30", end_time: "10:00", university_id: uniId },
+                { pair_number: 2, start_time: "10:15", end_time: "11:45", university_id: uniId },
+                { pair_number: 3, start_time: "12:15", end_time: "13:45", university_id: uniId },
+                { pair_number: 4, start_time: "14:00", end_time: "15:30", university_id: uniId },
+                { pair_number: 5, start_time: "15:45", end_time: "17:15", university_id: uniId },
+                { pair_number: 6, start_time: "17:30", end_time: "19:00", university_id: uniId },
+                { pair_number: 7, start_time: "19:15", end_time: "20:45", university_id: uniId },
+                { pair_number: 8, start_time: "21:00", end_time: "22:30", university_id: uniId },
               ]);
             }
           } catch (e) {
             if (mounted) setClassTimes([
-              { pair_number: 1, start_time: "09:00", end_time: "10:30" },
-              { pair_number: 2, start_time: "10:40", end_time: "12:10" },
-              { pair_number: 3, start_time: "12:30", end_time: "14:00" },
-              { pair_number: 4, start_time: "14:10", end_time: "15:40" },
+              { pair_number: 1, start_time: "08:30", end_time: "10:00", university_id: uniId ?? undefined },
+              { pair_number: 2, start_time: "10:15", end_time: "11:45", university_id: uniId ?? undefined },
+              { pair_number: 3, start_time: "12:15", end_time: "13:45", university_id: uniId ?? undefined },
+              { pair_number: 4, start_time: "14:00", end_time: "15:30", university_id: uniId ?? undefined },
+              { pair_number: 5, start_time: "15:45", end_time: "17:15", university_id: uniId ?? undefined },
+              { pair_number: 6, start_time: "17:30", end_time: "19:00", university_id: uniId ?? undefined },
+              { pair_number: 7, start_time: "19:15", end_time: "20:45", university_id: uniId ?? undefined },
+              { pair_number: 8, start_time: "21:00", end_time: "22:30", university_id: uniId ?? undefined },
             ]);
           }
         }
@@ -207,11 +263,15 @@ export default function SchedulePage(): JSX.Element {
             if (!mounted) return;
             if (data.length) setSchedules(data);
             else {
+              // larger mock: fill several days with multiple pairs
               setSchedules([{
                 user_id: u.id,
                 schedule: [
-                  { day: "Monday", end_time: "10:30", interval: "week", lesson_id: 101, pair_number: 1, room: "101", room_id: 1, start_time: "09:00", subject_name: "Математика", subject_type: "Лекция", teacher_first_name: "Иван", teacher_last_name: "Иванов" },
-                  { day: "Tuesday", end_time: "12:10", interval: "week", lesson_id: 102, pair_number: 2, room: "202", room_id: 2, start_time: "10:40", subject_name: "Физика", subject_type: "Практика", teacher_first_name: "Пётр", teacher_last_name: "Петров" }
+                  { day: "Monday", end_time: "10:00", interval: "week", lesson_id: 101, pair_number: 1, room: "101", room_id: 1, start_time: "08:30", subject_name: "Математика", subject_type: "Лекция", teacher_first_name: "Иван", teacher_last_name: "Иванов" },
+                  { day: "Monday", end_time: "11:45", interval: "week", lesson_id: 110, pair_number: 2, room: "102", room_id: 2, start_time: "10:15", subject_name: "Физика", subject_type: "Практика", teacher_first_name: "Пётр", teacher_last_name: "Петров" },
+                  { day: "Tuesday", end_time: "13:45", interval: "week", lesson_id: 102, pair_number: 3, room: "202", room_id: 3, start_time: "12:15", subject_name: "Программирование", subject_type: "Лаб", teacher_first_name: "Елена", teacher_last_name: "Сидорова" },
+                  { day: "Wednesday", end_time: "15:30", interval: "week", lesson_id: 103, pair_number: 4, room: "305", room_id: 4, start_time: "14:00", subject_name: "История", subject_type: "Лекция", teacher_first_name: "Мария", teacher_last_name: "Кузнецова" },
+                  { day: "Thursday", end_time: "17:15", interval: "week", lesson_id: 104, pair_number: 5, room: "410", room_id: 5, start_time: "15:45", subject_name: "Английский", subject_type: "Семинар", teacher_first_name: "Ольга", teacher_last_name: "Новикова" },
                 ]
               }]);
             }
@@ -220,7 +280,7 @@ export default function SchedulePage(): JSX.Element {
             setSchedules([{
               user_id: u.id,
               schedule: [
-                { day: "Monday", end_time: "10:30", interval: "week", lesson_id: 101, pair_number: 1, room: "101", room_id: 1, start_time: "09:00", subject_name: "Математика", subject_type: "Лекция", teacher_first_name: "Иван", teacher_last_name: "Иванов" }
+                { day: "Monday", end_time: "10:00", interval: "week", lesson_id: 101, pair_number: 1, room: "101", room_id: 1, start_time: "08:30", subject_name: "Математика", subject_type: "Лекция", teacher_first_name: "Иван", teacher_last_name: "Иванов" }
               ]
             }]);
           }
@@ -275,7 +335,7 @@ export default function SchedulePage(): JSX.Element {
       const payload = { pair_number: newClassPair, start_time: newClassStart, end_time: newClassEnd, university_id: universityId };
       const res = await api.post("/schedules/classes", payload);
       if (res?.status === 200 || res?.status === 201) {
-        setClassTimes(prev => [...prev, { pair_number: newClassPair, start_time: newClassStart, end_time: newClassEnd, universityId }]);
+        setClassTimes(prev => [...prev, { pair_number: newClassPair, start_time: newClassStart, end_time: newClassEnd, university_id: universityId }]);
         setNewClassPair(null); setNewClassStart(""); setNewClassEnd("");
       } else {
         alert(`Сервер вернул ${res?.status}`);
@@ -283,7 +343,7 @@ export default function SchedulePage(): JSX.Element {
     } catch (e: any) {
       console.error(e);
       alert(e?.response?.data?.message ?? "Ошибка при создании времени пары (локально)");
-      setClassTimes(prev => [...prev, { pair_number: newClassPair!, start_time: newClassStart, end_time: newClassEnd, universityId }]);
+      setClassTimes(prev => [...prev, { pair_number: newClassPair!, start_time: newClassStart, end_time: newClassEnd, university_id: universityId }]);
     } finally {
       setCreateClassLoading(false);
     }
@@ -298,7 +358,7 @@ export default function SchedulePage(): JSX.Element {
       const payload = { room: newRoomName.trim(), university_id: universityId };
       const res = await api.post("/schedules/rooms", payload);
       if (res?.status === 200 || res?.status === 201) {
-        const created = res.data ?? { id: Date.now(), room: newRoomName.trim(), universityId };
+        const created = res.data ?? { id: Date.now(), room: newRoomName.trim(), university_id: universityId };
         setRooms(prev => [...prev, created]);
         setNewRoomName("");
       } else {
@@ -307,14 +367,14 @@ export default function SchedulePage(): JSX.Element {
     } catch (e: any) {
       console.error(e);
       alert(e?.response?.data?.message ?? "Ошибка при создании аудитории (локально)");
-      setRooms(prev => [...prev, { id: Date.now(), room: newRoomName.trim(), universityId }]);
+      setRooms(prev => [...prev, { id: Date.now(), room: newRoomName.trim(), university_id: universityId }]);
       setNewRoomName("");
     } finally {
       setCreateRoomLoading(false);
     }
   }
 
-  // Admin: create lesson
+  // Admin: create lesson (uses upsert to place correctly)
   async function handleCreateLesson() {
     if (!lessonDay || !lessonClassPair || !lessonRoomId || !lessonSubjectId) return alert("Заполните все поля создания занятия");
     setCreateLessonLoading(true);
@@ -328,33 +388,24 @@ export default function SchedulePage(): JSX.Element {
         room_id: lessonRoomId
       };
       const res = await api.post("/schedules/lessons", payload);
-      if (res?.status === 200 || res?.status === 201) {
-        const classTime = classTimes.find(ct => ct.pair_number === lessonClassPair);
-        const newLesson: Lesson = {
-          day: lessonDay,
-          end_time: classTime?.end_time ?? "",
-          interval: lessonInterval,
-          lesson_id: res.data?.id ?? Date.now(),
-          pair_number: lessonClassPair,
-          room: rooms.find(r => r.id === lessonRoomId)?.room ?? "",
-          room_id: lessonRoomId,
-          start_time: classTime?.start_time ?? "",
-          subject_name: `Предмет #${lessonSubjectId}`,
-          subject_type: "Лекция",
-          teacher_first_name: userName ?? "Преподаватель",
-          teacher_last_name: ""
-        };
-        setSchedules(prev => {
-          if (!prev.length) return [{ user_id: userId ?? 0, schedule: [newLesson] }];
-          const copy = prev.slice();
-          copy[0] = { ...copy[0], schedule: [...copy[0].schedule, newLesson] };
-          return copy;
-        });
-        // reset form
-        setLessonDay(null); setLessonClassPair(null); setLessonRoomId(null); setLessonSubjectId(null);
-      } else {
-        alert(`Сервер вернул ${res?.status}`);
-      }
+      const lessonId = res?.data?.id ?? Date.now();
+      const classTime = classTimes.find(ct => ct.pair_number === lessonClassPair);
+      const newLesson: Lesson = {
+        day: lessonDay,
+        end_time: classTime?.end_time ?? "",
+        interval: lessonInterval,
+        lesson_id: lessonId,
+        pair_number: lessonClassPair,
+        room: rooms.find(r => r.id === lessonRoomId)?.room ?? "",
+        room_id: lessonRoomId,
+        start_time: classTime?.start_time ?? "",
+        subject_name: `Предмет #${lessonSubjectId}`,
+        subject_type: "Лекция",
+        teacher_first_name: userName ?? "Преподаватель",
+        teacher_last_name: ""
+      };
+      upsertLessonToSchedules(newLesson);
+      setLessonDay(null); setLessonClassPair(null); setLessonRoomId(null); setLessonSubjectId(null);
     } catch (e: any) {
       console.error(e);
       alert(e?.response?.data?.message ?? "Ошибка при создании занятия (локально)");
@@ -373,12 +424,7 @@ export default function SchedulePage(): JSX.Element {
         teacher_first_name: userName ?? "Преподаватель",
         teacher_last_name: ""
       };
-      setSchedules(prev => {
-        if (!prev.length) return [{ user_id: userId ?? 0, schedule: [newLesson] }];
-        const copy = prev.slice();
-        copy[0] = { ...copy[0], schedule: [...copy[0].schedule, newLesson] };
-        return copy;
-      });
+      upsertLessonToSchedules(newLesson);
       setLessonDay(null); setLessonClassPair(null); setLessonRoomId(null); setLessonSubjectId(null);
     } finally {
       setCreateLessonLoading(false);
@@ -390,15 +436,15 @@ export default function SchedulePage(): JSX.Element {
     if (!confirm("Удалить занятие?")) return;
     try {
       await api.delete(`/schedules/lessons/${lessonId}`);
-      setSchedules(prev => prev.map(s => ({ ...s, schedule: s.schedule.filter(l => l.lesson_id !== lessonId) })));
+      removeLessonFromSchedules(lessonId);
     } catch (e) {
       // optimistic fallback
-      setSchedules(prev => prev.map(s => ({ ...s, schedule: s.schedule.filter(l => l.lesson_id !== lessonId) })));
+      removeLessonFromSchedules(lessonId);
       console.warn("Удаление локально (API failed)", e);
     }
   }
 
-  // Admin: save edited lesson
+  // Admin: save edited lesson (replace and re-sort)
   async function handleSaveEditedLesson() {
     if (!editingLessonId) return alert("Нет редактируемого занятия");
     if (!lessonDay || !lessonClassPair || !lessonRoomId || !lessonSubjectId) return alert("Заполните все поля");
@@ -412,27 +458,29 @@ export default function SchedulePage(): JSX.Element {
         interval: lessonInterval,
         room_id: lessonRoomId
       };
-      // prefer PATCH, fallback to PUT, otherwise local update
       try {
         await api.patch(`/schedules/lessons/${editingLessonId}`, payload);
       } catch (patchErr) {
-        try {
-          await api.put(`/schedules/lessons/${editingLessonId}`, payload);
-        } catch (putErr) {
+        try { await api.put(`/schedules/lessons/${editingLessonId}`, payload); } catch (putErr) {
           console.warn("PATCH/PUT failed; doing local update", patchErr, putErr);
         }
       }
-      // update local copy
-      setSchedules(prev => prev.map(s => ({
-        ...s,
-        schedule: s.schedule.map(l => l.lesson_id === editingLessonId ? {
-          ...l,
-          day: lessonDay,
-          pair_number: lessonClassPair!,
-          room_id: lessonRoomId!,
-          room: rooms.find(r => r.id === lessonRoomId)?.room ?? l.room
-        } : l)
-      })));
+      const classTime = classTimes.find(ct => ct.pair_number === lessonClassPair);
+      const updatedLesson: Lesson = {
+        lesson_id: editingLessonId,
+        day: lessonDay,
+        pair_number: lessonClassPair!,
+        room_id: lessonRoomId!,
+        room: rooms.find(r => r.id === lessonRoomId!)?.room ?? "",
+        start_time: classTime?.start_time ?? "",
+        end_time: classTime?.end_time ?? "",
+        interval: lessonInterval,
+        subject_name: `Предмет #${lessonSubjectId}`,
+        subject_type: "Лекция",
+        teacher_first_name: userName ?? "Преподаватель",
+        teacher_last_name: ""
+      };
+      upsertLessonToSchedules(updatedLesson);
       setEditingLessonId(null);
       setEditingLessonValues(null);
       setLessonDay(null); setLessonClassPair(null); setLessonRoomId(null); setLessonSubjectId(null);
@@ -530,13 +578,12 @@ export default function SchedulePage(): JSX.Element {
                                       mode="tertiary"
                                       size="small"
                                       onClick={() => {
-                                        // prefill form for editing
                                         setEditingLessonId(lesson.lesson_id);
                                         setEditingLessonValues(lesson);
                                         setLessonDay((lesson.day as DayKey) ?? null);
                                         setLessonClassPair(lesson.pair_number ?? null);
                                         setLessonRoomId(lesson.room_id ?? null);
-                                        // nothing to set for subject id if not available
+                                        // not all lessons carry subject_id — leave lessonSubjectId as-is or null
                                         setTimeout(() => adminPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
                                       }}
                                     >

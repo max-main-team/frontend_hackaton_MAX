@@ -1,144 +1,203 @@
-/* SchedulePage.css — улучшенный, Max UI style */
 :root{
   --accent: #630eff;
-  --accent-2: #3a89fb;
-  --alt-accent: #aa4cff; /* дополнительный мягкий фиолетовый для деталей */
-  --bg: #07070b;
-  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  --muted: #9aa3b2;
-  --radius-lg: 14px;
+  --accent-2: #646cff;
+  --bg: #070710;
+  --card-bg: #0f1220;
+  --muted: #98a0b3;
+  --glass: rgba(255,255,255,0.03);
+  --radius-lg: 12px;
+  --gap: 12px;
 }
 
 /* Page root */
 .schedule-page-root{
-  padding: 28px;
-  max-width: 1180px;
+  padding: var(--gap);
+  max-width: 1080px;
   margin: 0 auto;
   min-height: 100vh;
+  background: linear-gradient(180deg, rgba(6,6,10,0.6), rgba(3,3,6,0.6));
   box-sizing: border-box;
-  background: linear-gradient(180deg, rgba(7,7,11,0.7), rgba(10,10,14,0.6));
-  color: #e6eef8;
-  -webkit-font-smoothing:antialiased;
+  color: #fff;
 }
 
 /* Header */
-.schedule-header { margin-bottom: 6px; align-items:center; }
-.schedule-meta { margin-bottom: 18px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
-.muted { color: var(--muted); font-size: 13px; }
+.schedule-header{
+  padding: 8px 0;
+  align-items: center;
+}
+
+/* Meta row */
+.schedule-meta {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin: 8px 0 18px;
+}
+.schedule-meta .muted {
+  color: var(--muted);
+}
 
 /* Weeks container */
-.weeks-container { display:flex; flex-direction:column; gap:20px; }
+.weeks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
 
-/* Week block */
-.week-block { width:100%; }
-.week-title { margin-bottom: 10px; }
+/* Single week block */
+.week-block {
+  display: block;
+}
+
+/* week title */
+.week-title {
+  margin-bottom: 8px;
+}
+.week-title .maxui-typography-title {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
 /* Day panel */
 .day-panel {
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  background: var(--card-bg);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: 0 8px 30px rgba(13,11,25,0.45);
-  transition: transform .18s ease, box-shadow .18s ease;
+  border-radius: var(--radius-lg);
+  padding: 12px;
   overflow: visible;
 }
-.day-panel:hover { transform: translateY(-4px); box-shadow: 0 22px 48px rgba(99,14,255,0.06); }
 
-.day-header-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 12px; }
-.day-header-row .Typography-Title { margin:0; font-size:16px; }
-.day-date { color: var(--muted); margin-top: 4px; font-size:13px; }
-
-/* Lessons list */
-.day-lessons { display:flex; flex-direction:column; gap:12px; }
-
-/* Lesson row: 3 columns (time | content | badge) */
-.lesson-row{
-  display:grid;
-  grid-template-columns: 110px 1fr 96px;
-  gap: 12px;
+/* header row for day */
+.day-header-row {
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  padding: 12px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  margin-bottom: 10px;
+}
+.day-header-row .day-date {
+  color: var(--muted);
+  display:block;
+  font-size: 13px;
+}
+
+/* day actions (count and add button) */
+.day-actions {
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+.day-actions .muted { color: var(--muted); }
+
+/* lessons list */
+.day-lessons {
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+/* single lesson row */
+.lesson-row {
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background .18s, transform .12s;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
   border: 1px solid rgba(255,255,255,0.02);
-  transition: transform .14s ease, box-shadow .14s ease;
 }
-.lesson-row:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(99,14,255,0.06); }
+.lesson-row:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(99,14,255,0.06);
+  border-color: rgba(99,14,255,0.12);
+}
 
-/* Time column */
+/* time column */
 .lesson-time {
+  min-width: 110px;
+  font-weight: 600;
+  color: var(--accent-2);
+  font-size: 13px;
+}
+
+/* main content */
+.lesson-main {
+  flex:1;
+  min-width:0;
+}
+.lesson-title {
   font-weight:700;
-  color: #ffffff;
-  font-size:14px;
-  text-align:left;
-}
-
-/* Main info column */
-.lesson-title { font-weight:700; color:#fff; margin-bottom:6px; font-size:15px; }
-.lesson-meta{ color:var(--muted); font-size:13px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-
-/* Badge (pair number) */
-.lesson-badge{
-  justify-self:end;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  font-size:15px;
   color: #fff;
-  padding: 8px 12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.lesson-meta {
+  color: var(--muted);
+  font-size: 13px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:6px;
+}
+
+/* badge */
+.lesson-badge {
+  background: linear-gradient(180deg, rgba(99,14,255,0.14), rgba(100,108,255,0.08));
+  border: 1px solid rgba(100,108,255,0.12);
+  padding: 6px 10px;
   border-radius: 999px;
-  font-weight:600;
-  font-size:13px;
-  box-shadow: 0 8px 30px rgba(99,14,255,0.08);
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
 }
 
-/* Placeholder when no lessons */
-.lesson-empty { color:var(--muted); padding: 12px 8px; font-style: italic; }
+/* empty state */
+.lesson-empty {
+  padding: 14px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.01);
+  border-radius: 10px;
+  text-align: center;
+}
 
-/* Admin panel */
-.admin-panel-wrapper { margin-top: 22px; }
+/* admin panel */
+.admin-panel-wrapper {
+  margin-top: 18px;
+  margin-bottom: 80px;
+}
 .admin-panel {
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: 0 12px 34px rgba(8,8,12,0.45);
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(99,14,255,0.06), rgba(58,137,251,0.02));
+  border: 1px solid rgba(99,14,255,0.08);
+}
+.admin-panel .maxui-typography-title {
+  color: #fff;
 }
 
-/* --- Custom native select styling to match Max UI --- */
+/* selects (native fallback) */
 .mp-select {
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 10px;
   background: rgba(255,255,255,0.02);
-  color: #e6eef8;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.04);
   border-radius: 8px;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  outline: none;
-  box-sizing: border-box;
-  font-size: 14px;
-  min-height: 40px;
-  background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.18) 50%),
-                    linear-gradient(135deg, rgba(255,255,255,0.18) 50%, transparent 50%);
-  background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
-.mp-select:focus { border-color: var(--accent); box-shadow: 0 8px 30px rgba(99,14,255,0.06); }
-
-/* Small helpers */
-.grid-3cols { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
-.mt-12 { margin-top: 12px; }
-
-/* Responsive tweaks */
-@media (max-width: 920px) {
-  .lesson-row { grid-template-columns: 92px 1fr 72px; }
-  .lesson-time { font-size:13px; }
+  color: #fff;
 }
 
-@media (max-width: 620px) {
-  .lesson-row { grid-template-columns: 1fr; gap:8px; }
-  .lesson-badge { justify-self: start; }
-  .day-header-row { flex-direction:column; align-items:flex-start; gap:8px; }
-  .schedule-meta { flex-direction:column; align-items:flex-start; gap:6px; }
+/* small responsive adjustments */
+@media (max-width: 900px) {
+  .lesson-time { min-width: 86px; font-size: 12px; }
+  .lesson-badge { font-size: 12px; padding: 5px 8px; }
+  .admin-panel .maxui-input { font-size: 14px; }
+}
+
+@media (max-width: 520px) {
+  .schedule-page-root { padding: 10px; }
+  .lesson-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .lesson-time { min-width: auto; }
 }
