@@ -1,171 +1,182 @@
+:root {
+  --accent: #630eff;
+  --accent-2: #3a89fb;
+  --bg: #07070b;
+  --card-bg: #0f1220;
+  --muted: #9aa3b2;
+  --radius-lg: 14px;
+  --gap: 16px;
+}
+
+/* Контейнер страницы */
 .gradebook-container {
-  padding: var(--maxui-space-5);
-  max-width: 800px;
+  padding: var(--maxui-space-5, 20px);
+  max-width: 980px;
   margin: 0 auto;
-  background: var(--maxui-bg-primary, #0b0b0b);
+  background: linear-gradient(180deg, rgba(10,10,14,0.6), rgba(5,5,8,0.6));
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
+/* Хедер — только заголовок */
 .gradebook-header {
-  margin-bottom: var(--maxui-space-6);
+  margin: 8px 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
 }
 
+/* Заголовок с градиентным текстом на акценте */
 .page-title {
-  color: var(--maxui-text-primary, #ffffff);
-  margin-bottom: var(--maxui-space-2);
-  background: linear-gradient(135deg, var(--accent, #630eff), var(--accent-2, #3a89fb));
+  margin: 0;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  background: linear-gradient(90deg, var(--accent), rgba(99,14,255,0.85));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: white; /* fallback */
 }
 
-.navigation {
-  padding: var(--maxui-space-2) 0;
-}
-
+/* Сетка карточек — гибкая: 2 колонки на десктопе, 1 на мобильных */
 .subjects-grid {
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
 }
 
+/* Карточка предмета */
 .subject-card {
-  background: var(--maxui-bg-secondary, #111827);
-  border: 1px solid var(--maxui-border-primary, #1f2937);
-  border-radius: var(--maxui-radius-lg);
-  padding: var(--maxui-space-5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  min-height: 96px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  display: flex;
+  align-items: center;
 }
 
 .subject-card::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0;
   left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--accent, #630eff), var(--accent-2, #3a89fb));
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--accent), rgba(99,14,255,0.9));
+  opacity: 0.95;
+  transform-origin: left;
 }
 
+/* Hover эффект */
 .subject-card:hover {
-  border-color: var(--accent, #630eff);
-  box-shadow: 0 8px 24px rgba(99, 14, 255, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(99,14,255,0.08);
+  border-color: rgba(99,14,255,0.18);
 }
 
-.subject-card:hover::before {
-  opacity: 1;
-}
-
+/* Инфо слева */
 .subject-info {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  padding-right: 12px;
 }
 
 .subject-name {
-  color: var(--maxui-text-primary, #ffffff);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.subject-type-badge {
-  padding: 8px 16px;
-  border-radius: 20px;
-  color: white;
-  font-size: var(--maxui-font-size-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.25;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.status-display {
-  min-width: 100px;
-  text-align: right;
+.subject-sub {
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.status-text {
-  color: var(--maxui-text-primary, #ffffff);
-  margin: 0;
+/* Блок справа — балл и полоса прогресса */
+.subject-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 96px;
+  margin-left: 8px;
 }
 
-/* Состояния загрузки */
+/* Круг с баллом */
+.score-bubble {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: white;
+  background: conic-gradient(from 90deg, rgba(99,14,255,0.95), rgba(58,137,251,0.9));
+  box-shadow: 0 6px 18px rgba(99,14,255,0.12), inset 0 -4px 12px rgba(0,0,0,0.25);
+}
+
+/* Плашка прогресса — тонкая */
+.score-bar {
+  width: 120px;
+  height: 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(99,14,255,0.95), rgba(58,137,251,0.95));
+  border-radius: 999px;
+  transition: width 480ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* Загрузка */
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--maxui-space-12);
-  text-align: center;
+  padding: 48px 16px;
+  gap: 12px;
+  width: 100%;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(99, 14, 255, 0.3);
-  border-top: 3px solid var(--accent, #630eff);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  border: 4px solid rgba(99,14,255,0.12);
+  border-top-color: var(--accent);
   animation: spin 1s linear infinite;
-  margin-bottom: var(--maxui-space-4);
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .gradebook-container {
-    padding: var(--maxui-space-4);
-  }
-  
-  .subject-card {
-    padding: var(--maxui-space-4);
-  }
-  
-  .gradebook-header {
-    flex-direction: column;
-    gap: var(--maxui-space-4);
-  }
-  
-  .navigation {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .subject-card > .maxui-flex {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--maxui-space-3);
-  }
-  
-  .status-display {
-    text-align: left;
-    min-width: auto;
-  }
+/* Мобильная адаптация */
+@media (max-width: 720px) {
+  .page-title { font-size: 22px; }
+  .subject-right { align-items: flex-start; min-width: auto; }
+  .score-bar { width: 100%; max-width: 160px; }
 }
 
-@media (max-width: 480px) {
-  .gradebook-container {
-    padding: var(--maxui-space-3);
-  }
-  
-  .subject-card {
-    padding: var(--maxui-space-3);
-  }
-  
-  .subject-type-badge {
-    padding: 6px 12px;
-    font-size: var(--maxui-font-size-xs);
-  }
-}
-
-:root {
-  --accent: #630eff;
-  --accent-2: #3a89fb;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-error: #ef4444;
+@media (max-width: 420px) {
+  .subjects-grid { grid-template-columns: 1fr; }
+  .score-bubble { width: 48px; height: 48px; font-size: 16px; }
+  .subject-card { padding: 12px; min-height: 84px; }
 }
