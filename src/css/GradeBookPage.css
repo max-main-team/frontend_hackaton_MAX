@@ -18,11 +18,12 @@
   box-sizing: border-box;
 }
 
-/* Хедер — только заголовок */
+/* Хедер — заголовок и кнопка справа */
 .gradebook-header {
   margin: 8px 0 20px 0;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--gap);
 }
 
@@ -37,6 +38,19 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: white; /* fallback */
+}
+
+/* Контейнер для действий в хедере (право) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Слегка сузим кнопку назад чтобы не выпирала */
+.back-btn {
+  min-width: 84px;
+  height: 36px;
 }
 
 /* Сетка карточек — гибкая: 2 колонки на десктопе, 1 на мобильных */
@@ -103,7 +117,7 @@
   font-size: 12px;
 }
 
-/* Блок справа — балл и полоса прогресса */
+/* Блок справа — теперь круговая диаграмма */
 .subject-right {
   display: flex;
   flex-direction: column;
@@ -113,35 +127,34 @@
   margin-left: 8px;
 }
 
-/* Круг с баллом */
-.score-bubble {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
+/* Обёртка для SVG */
+.circular-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SVG: базовый стиль */
+.circular-root {
+  display: block;
+}
+
+/* фон круга */
+.circular-bg {
+  stroke: rgba(255,255,255,0.06);
+}
+
+/* прогресс */
+.circular-progress {
+  transition: stroke-dashoffset 700ms cubic-bezier(.2,.9,.2,1);
+  stroke-linecap: round;
+}
+
+/* текст внутри круга */
+.circular-text {
+  fill: #ffffff;
   font-weight: 700;
-  font-size: 18px;
-  color: white;
-  background: conic-gradient(from 90deg, rgba(99,14,255,0.95), rgba(58,137,251,0.9));
-  box-shadow: 0 6px 18px rgba(99,14,255,0.12), inset 0 -4px 12px rgba(0,0,0,0.25);
-}
-
-/* Плашка прогресса — тонкая */
-.score-bar {
-  width: 120px;
-  height: 8px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 999px;
-  overflow: hidden;
-  position: relative;
-}
-
-.score-fill {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(99,14,255,0.95), rgba(58,137,251,0.95));
-  border-radius: 999px;
-  transition: width 480ms cubic-bezier(.2,.9,.2,1);
+  font-size: 16px;
 }
 
 /* Загрузка */
@@ -172,11 +185,10 @@
 @media (max-width: 720px) {
   .page-title { font-size: 22px; }
   .subject-right { align-items: flex-start; min-width: auto; }
-  .score-bar { width: 100%; max-width: 160px; }
 }
 
 @media (max-width: 420px) {
   .subjects-grid { grid-template-columns: 1fr; }
-  .score-bubble { width: 48px; height: 48px; font-size: 16px; }
   .subject-card { padding: 12px; min-height: 84px; }
+  .circular-text { font-size: 14px; }
 }
