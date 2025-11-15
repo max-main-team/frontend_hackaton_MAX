@@ -75,10 +75,15 @@ export default function TeacherPage(): JSX.Element {
                 if (c.key === "announcements") navigate("/admin/workload");
               }} role="button">
                 <Flex justify="space-between" align="center" style={{ width: "100%" }}>
-                  <div className="teacher-card-left">
-                    <Typography.Title variant="small-strong" className="teacher-card-title">{c.title}</Typography.Title>
-                    <Typography.Label className="teacher-card-desc" style={{ marginTop: 4 }}>{c.desc}</Typography.Label>
-                  </div>
+                  <Flex direction="column" gap={4} className="teacher-card-left">
+                    <Typography.Title variant="small-strong" className="teacher-card-title">
+                      {c.title}
+                    </Typography.Title>
+
+                    <Typography.Label className="teacher-card-desc">
+                      {c.desc}
+                    </Typography.Label>
+                  </Flex>
 
                   <div className="teacher-card-actions">
                     <Button mode="tertiary" size="small">{}</Button>
