@@ -153,22 +153,19 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
     const cached = readCache(key);
     if (cached && cached.dataUrl) {
       setCachedDataUrl(cached.dataUrl);
-      return; // we have cached image, done
-    }
-
-    if (!userPhoto) {
-      // nothing to load, keep empty (no initials) until maybe later
       return;
     }
 
-    // otherwise fetch remote image and cache
+    if (!userPhoto) {
+      return;
+    }
+
     setLoadingAvatar(true);
     (async () => {
       try {
         const dataUrl = await fetchImageAsDataUrl(userPhoto);
         if (canceled) return;
         setCachedDataUrl(dataUrl);
-        // try to save to localStorage (best-effort)
         try { writeCache(key, dataUrl); } catch (e) { /* ignore */ }
       } catch (e) {
         console.warn("Avatar fetch/convert failed", e);

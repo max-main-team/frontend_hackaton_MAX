@@ -1,131 +1,112 @@
-import { useEffect, useState, type JSX } from "react";
+import { useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
-import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
+import { Container, Panel, Typography, Flex, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
-import { useMaxWebApp } from "../hooks/useMaxWebApp";
-import "../css/StudentPage.css";
+import "../css/SettingsPage.css";
 
-export default function StudentPage(): JSX.Element {
-  const { webAppData } = useMaxWebApp();
-  const user = webAppData?.user ?? {};
-  const name = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "Студент";
-
+export default function SettingsPage(): JSX.Element {
   const navigate = useNavigate();
 
-  // avatar handling: ставим src если есть, иначе fallback инициалы
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-  const [avatarError, setAvatarError] = useState(false);
-
-  useEffect(() => {
-    const src = user?.full_avatar_url ?? user?.avatar_url ?? null;
-    // если хотите использовать локальную заглушку по умолчанию, пишите src || defaultAvatar
-    setAvatarSrc(src);
-    setAvatarError(false);
-  }, [user?.full_avatar_url, user?.avatar_url]);
-
-  const cards = [
-    {
-      key: "schedule",
-      title: "Расписание",
-      desc: "Посмотреть текущее расписание занятий и изменения.",
-      action: "Открыть",
-      to: "/schedule",
-    },
-    {
-      key: "gradebook",
-      title: "Зачётка",
-      desc: "Оценки и прогресс по дисциплинам.",
-      action: "Оценки",
-      to: "/grade",
-    },
-    {
-      key: "feed",
-      title: "Актуальное",
-      desc: "Новости университета и объявления.",
-      action: "Читать",
-      to: "/events",
-    },
-    {
-      key: "services",
-      title: "Сервисы",
-      desc: "Полезные кампусные сервисы и ресурсы.",
-      action: "Перейти",
-      to: "/services",
-    },
-  ];
+  const [notifications, setNotifications] = useState(true);
+  const [compactMode, setCompactMode] = useState(false);
+  const [language, setLanguage] = useState("ru");
 
   return (
     <MainLayout>
-      <Container className="student-container">
-        {/* Header */}
-        <div className="student-header">
-          <Flex align="center" gap={12} style={{ width: "100%" }}>
-            <Avatar.Container size={64} form="circle" className="student-avatar-container">
-              {avatarSrc && !avatarError ? (
-                <Avatar.Image
-                  src={avatarSrc}
-                  alt={name}
-                  className="student-avatar-image"
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <Avatar.Text className="student-avatar-fallback">
-                  {(name || "СТ").slice(0, 2).toUpperCase()}
-                </Avatar.Text>
-              )}
-            </Avatar.Container>
-
-            <div className="student-greeting">
-              <Typography.Title variant="large-strong" className="student-title">Привет, {name}!</Typography.Title>
-              <Typography.Label className="student-sub">{user?.university ?? ""}</Typography.Label>
+      <Container className="settings-container">
+        <div className="settings-header">
+          <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+            <div>
+              <Typography.Title variant="large-strong" className="settings-title">
+                Настройки
+              </Typography.Title>
+              <Typography.Label className="settings-sub">
+                Параметры вашего аккаунта и интерфейса
+              </Typography.Label>
             </div>
 
-            <div style={{ marginLeft: "auto" }} className="student-header-actions">
-              <Button mode="secondary" size="small" onClick={() => navigate("/my-courses")}>Мои курсы</Button>
+            <div className="header-actions">
+              <Button mode="secondary" size="small" onClick={() => navigate(-1)}>Назад</Button>
             </div>
           </Flex>
         </div>
 
-        {/* Cards grid */}
-        <Grid cols={2} gap={16} className="student-cards-grid">
-          {cards.map(c => (
-            <Panel key={c.key} mode="secondary" className="student-card" onClick={() => navigate(c.to)} role="button">
-              <Flex justify="space-between" align="center" style={{ width: "100%" }}>
-                <div className="student-card-left">
-                  <Typography.Title variant="small-strong" className="student-card-title">{c.title}</Typography.Title>
-                  <Typography.Label className="student-card-desc">{c.desc}</Typography.Label>
-                </div>
+        <div className="settings-list">
+          <Panel mode="secondary" className="settings-panel">
+            <div className="settings-row">
+              <div className="settings-row-left">
+                <Typography.Title variant="small-strong" className="row-title">Уведомления</Typography.Title>
+                <Typography.Label className="row-sub">Получать push-уведомления об оценках и объявлениях</Typography.Label>
+              </div>
 
-                <div className="student-card-actions">
-                  <Button mode="tertiary" size="small" onClick={(e) => { e.stopPropagation(); navigate(c.to); }}>
-                    {c.action}
-                  </Button>
-                </div>
-              </Flex>
-            </Panel>
-          ))}
-        </Grid>
-
-        {/* Feature block */}
-        <div style={{ marginTop: 18 }}>
-          <Panel className="student-feature" mode="secondary">
-            <Container style={{ padding: 14 }}>
-              <Flex align="center" gap={12}>
-                <Avatar.Container size={72} form="squircle">
-                  <Avatar.Image src="https://placekitten.com/800/450" className="feature-img" />
-                </Avatar.Container>
-
-                <div style={{ flex: 1 }}>
-                  <Typography.Title variant="medium-strong">Студенческий спорт</Typography.Title>
-                  <Typography.Label>Расписание тренировок, запись и новости спортивного центра.</Typography.Label>
-                </div>
-
-                <div>
-                  <Button mode="primary" onClick={() => navigate("/sports")}>Записаться</Button>
-                </div>
-              </Flex>
-            </Container>
+              <div className="settings-row-right">
+                <label className="toggle">
+                  <input
+                    type="checkbox"
+                    checked={notifications}
+                    onChange={() => setNotifications(prev => !prev)}
+                    aria-label="Уведомления"
+                  />
+                  <span className="toggle-track" />
+                </label>
+              </div>
+            </div>
           </Panel>
+
+          <Panel mode="secondary" className="settings-panel">
+            <div className="settings-row">
+              <div className="settings-row-left">
+                <Typography.Title variant="small-strong" className="row-title">Режим компактности</Typography.Title>
+                <Typography.Label className="row-sub">Плотное отображение списков и карточек (экономит место)</Typography.Label>
+              </div>
+
+              <div className="settings-row-right">
+                <label className="toggle">
+                  <input
+                    type="checkbox"
+                    checked={compactMode}
+                    onChange={() => setCompactMode(prev => !prev)}
+                    aria-label="Compact mode"
+                  />
+                  <span className="toggle-track" />
+                </label>
+              </div>
+            </div>
+          </Panel>
+
+          <Panel mode="secondary" className="settings-panel">
+            <div className="settings-row">
+              <div className="settings-row-left">
+                <Typography.Title variant="small-strong" className="row-title">Язык</Typography.Title>
+                <Typography.Label className="row-sub">Предпочитаемый язык интерфейса</Typography.Label>
+              </div>
+
+              <div className="settings-row-right">
+                <select
+                  className="select-lang"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  aria-label="Язык интерфейса"
+                >
+                  <option value="ru">Русский</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
+          </Panel>
+
+          <Panel mode="secondary" className="settings-panel settings-actions">
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, width: "100%", alignItems: "center" }}>
+              <div>
+                <Typography.Title variant="small-strong" className="row-title">Аккаунт</Typography.Title>
+                <Typography.Label className="row-sub">Безопасность и выход</Typography.Label>
+              </div>
+            </div>
+          </Panel>
+
+          <div className="credits">
+            <Typography.Label className="muted">Версия интерфейса: 1.0.0</Typography.Label>
+          </div>
         </div>
       </Container>
     </MainLayout>
