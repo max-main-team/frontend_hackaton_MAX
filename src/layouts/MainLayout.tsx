@@ -193,9 +193,17 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
     const isFromTeacher = loc.pathname.startsWith("/teacher");
 
+    const isFromAdmin = loc.pathname.startsWith("/admin");
+
     if (path === "/grade") {
       const to = isFromTeacher ? "/grade?mode=teacher" : "/grade";
       navigate(to, { state: { from: isFromTeacher ? "/teacher" : "/student" } });
+      return;
+    }
+
+    if (path === "/events") {
+      const to = isFromTeacher ? "/events?mode=admin" : "/events";
+      navigate(to, { state: { from: isFromAdmin ? "/admin" : "/student" } });
       return;
     }
 

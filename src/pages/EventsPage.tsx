@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, type JSX } from "react";
-import {
-  Container,
-  Panel,
-  Typography,
-  Grid,
-  Flex,
-  Button,
-} from "@maxhub/max-ui";
 import { useLocation, useNavigate } from "react-router-dom";
-import MainLayout from "../layouts/MainLayout";
+import { Container, Panel, Typography, Grid, Flex, Button } from "@maxhub/max-ui";
+import api from "../services/api";
 import "../css/EventsPage.css";
+
+const BACKEND_PREFIX = "https://msokovykh.ru";
+const ENDPOINTS = {
+  GET_EVENTS: `${BACKEND_PREFIX}/universities/events`,
+  CREATE_EVENT: `${BACKEND_PREFIX}/universities/events`,
+};
 
 interface EventItem {
   id: number;
@@ -28,7 +27,7 @@ export default function EventsPage(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
 
-  // admin form state
+  // create form state
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
@@ -42,22 +41,21 @@ export default function EventsPage(): JSX.Element {
     const ref = typeof document !== "undefined" ? document.referrer : "";
     const adminDetected =
       fromState === "/admin" || qp === "admin" || /\/admin(\/|$)/.test(ref);
-
     setIsAdminMode(Boolean(adminDetected));
   }, [location]);
 
-  // fetch events (GET /universities/events)
   useEffect(() => {
     let mounted = true;
+
     async function fetchEvents() {
       setLoading(true);
       try {
-        const resp = await fetch("/universities/events");
-        if (!resp.ok) throw new Error("no api");
-        const data = (await resp.json()) as EventItem[];
-        if (mounted) setEvents(Array.isArray(data) ? data : []);
-      } catch {
-        // мок-данные
+        const res = await api.get(ENDPOINTS.GET_EVENTS);
+        const data = res.data;
+        const arr: any[] = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+        if (mounted) setEvents(arr as EventItem[]);
+      } catch (e) {
+        console.warn("failed to load events, using mock", e);
         if (mounted) {
           setEvents([
             {
@@ -100,206 +98,152 @@ export default function EventsPage(): JSX.Element {
     };
   }, []);
 
-  // create event (admin)
   async function createEvent() {
     setError(null);
-    const trimmedTitle = title.trim();
-    const trimmedDescription = description.trim();
-    const trimmedPhoto = photoUrl.trim();
+    const t = title.trim();
+    const d = description.trim();
+    const p = photoUrl.trim();
 
-    if (!trimmedTitle) {
-      setError("Введите название события.");
-      return;
-    }
-    if (!trimmedDescription) {
-      setError("Введите описание события.");
-      return;
-    }
+    if (!t) return setError("Введите название события.");
+    if (!d) return setError("Введите описание.");
 
     setSubmitting(true);
     try {
-      const payload = {
-        title: trimmedTitle,
-        description: trimmedDescription,
-        photo_url: trimmedPhoto || undefined,
-      };
+      const payload = { title: t, description: d, photo_url: p || undefined };
 
-      // try real API
-      const resp = await fetch("/universities/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        // если неудача — попытка мок-ответа
-        throw new Error("no api or bad response");
+      const res = await api.post(ENDPOINTS.CREATE_EVENT, payload);
+      if (res?.status === 200 || res?.status === 201) {
+        // API вернул созданный объект — пытаемся взять res.data
+        const created = res.data ?? { id: Date.now(), ...payload };
+        setEvents(prev => [created, ...prev]);
+        resetForm();
+        setCreating(false);
+      } else {
+        setError(`Сервер вернул ${res?.status}`);
       }
-
-      const created = (await resp.json()) as EventItem;
-
-      // если API вернул объект — добавляем
-      setEvents((prev) => [created, ...prev]);
-      resetCreateForm();
-      setCreating(false);
-    } catch {
-      // мок: эмулируем успешное создание
+    } catch (e: any) {
+      console.error("create event failed", e);
+      // мок: добавить локально
       const newItem: EventItem = {
-        id: Math.max(1000, ...events.map((e) => e.id)) + 1,
-        title: trimmedTitle,
-        description: trimmedDescription,
-        photo_url: trimmedPhoto || undefined,
+        id: Math.max(1000, ...events.map(ev => ev.id)) + 1,
+        title: t,
+        description: d,
+        photo_url: p || undefined,
       };
-      setEvents((prev) => [newItem, ...prev]);
-      resetCreateForm();
+      setEvents(prev => [newItem, ...prev]);
+      resetForm();
       setCreating(false);
     } finally {
       setSubmitting(false);
     }
   }
 
-  function resetCreateForm() {
+  function resetForm() {
     setTitle("");
     setPhotoUrl("");
     setDescription("");
     setError(null);
   }
 
-  function openCreate() {
-    setCreating(true);
-    setTimeout(() => {
-      // focus first field if needed (native input focus not shown here)
-    }, 0);
-  }
-
   return (
-    <MainLayout>
-      <Container className="events-container">
-        <div className="events-header">
-          <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+    <Container className="events-container">
+      <div className="events-header">
+        <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+          <div style={{ flex: 1 }}>
             <Typography.Title variant="large-strong" className="events-title">
               Актуальное
             </Typography.Title>
-
-            <div className="header-actions">
-              <Button mode="secondary" size="small" onClick={() => navigate(-1)}>
-                Назад
-              </Button>
-            </div>
-          </Flex>
-        </div>
-
-        {isAdminMode && (
-          <div className="create-area">
-            {!creating ? (
-              <div style={{ display: "flex", gap: 8 }}>
-                <Button mode="primary" onClick={openCreate}>
-                  Создать событие
-                </Button>
-                <Button mode="tertiary" onClick={() => { setIsAdminMode(false); }}>
-                  Просмотреть как студент
-                </Button>
-              </div>
-            ) : (
-              <Panel mode="secondary" className="create-panel">
-                <Grid cols={2} gap={12}>
-                  <div>
-                    <Typography.Label className="form-label">Название</Typography.Label>
-                    <input
-                      className="form-input"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Короткое название"
-                    />
-                  </div>
-
-                  <div>
-                    <Typography.Label className="form-label">Ссылка на изображение</Typography.Label>
-                    <input
-                      className="form-input"
-                      value={photoUrl}
-                      onChange={(e) => setPhotoUrl(e.target.value)}
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <Typography.Label className="form-label">Описание</Typography.Label>
-                    <textarea
-                      className="form-textarea"
-                      rows={4}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Короткое подробное описание события"
-                    />
-                  </div>
-
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", gridColumn: "1 / -1" }}>
-                    <Button mode="tertiary" onClick={() => { resetCreateForm(); setCreating(false); }}>
-                      Отмена
-                    </Button>
-                    <Button mode="primary" onClick={createEvent} disabled={submitting}>
-                      {submitting ? "Создаём..." : "Создать"}
-                    </Button>
-                  </div>
-                </Grid>
-
-                {photoUrl.trim() && (
-                  <div className="create-preview">
-                    <Typography.Label className="form-label">Превью</Typography.Label>
-                    <div className="preview-frame">
-                      <img src={photoUrl} alt="preview" onError={(e) => {
-                        (e.target as HTMLImageElement).src = "";
-                      }} />
-                    </div>
-                  </div>
-                )}
-
-                {error && <div className="form-error">{error}</div>}
-              </Panel>
-            )}
+            <div className="events-sub">Новости университета и события для студентов</div>
           </div>
-        )}
 
-        <div className="events-list">
-          {loading ? (
-            <div className="loading-state">
-              <div className="loading-spinner" />
-              <Typography.Label>Загрузка событий...</Typography.Label>
+          <div className="header-actions">
+            <Button mode="secondary" size="small" onClick={() => navigate(-1)}>
+              Назад
+            </Button>
+          </div>
+        </Flex>
+      </div>
+
+      {isAdminMode && (
+        <div className="create-area">
+          {!creating ? (
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button mode="primary" onClick={() => setCreating(true)}>Создать событие</Button>
+              <Button mode="tertiary" onClick={() => setIsAdminMode(false)}>Просмотреть как студент</Button>
             </div>
-          ) : events.length === 0 ? (
-            <Panel mode="secondary" className="empty-panel">
-              <Typography.Label>Событий пока нет.</Typography.Label>
-            </Panel>
           ) : (
-            <Grid cols={1} gap={16} className="events-grid">
-              {events.map((ev) => (
-                <Panel key={ev.id} mode="secondary" className="event-card" aria-label={ev.title}>
-                  <div className="event-card-inner">
-                    <div className="event-card-head">
-                      <Typography.Title variant="small-strong" className="event-title">{ev.title}</Typography.Title>
-                    </div>
+            <Panel mode="secondary" className="create-panel">
+              <Grid cols={2} gap={12}>
+                <div>
+                  <Typography.Label className="form-label">Название</Typography.Label>
+                  <input className="form-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Короткое название" />
+                </div>
+                <div>
+                  <Typography.Label className="form-label">Ссылка на изображение</Typography.Label>
+                  <input className="form-input" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} placeholder="https://..." />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <Typography.Label className="form-label">Описание</Typography.Label>
+                  <textarea className="form-textarea" rows={4} value={description} onChange={e => setDescription(e.target.value)} />
+                </div>
 
-                    <div className="event-card-media">
-                      {ev.photo_url ? (
-                        <img src={ev.photo_url} alt={ev.title} onError={(e) => {
-                          (e.target as HTMLImageElement).src = "";
-                        }} />
-                      ) : (
-                        <div className="media-placeholder">Нет изображения</div>
-                      )}
-                    </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", gridColumn: "1 / -1" }}>
+                  <Button mode="tertiary" onClick={() => { resetForm(); setCreating(false); }}>Отмена</Button>
+                  <Button mode="primary" onClick={createEvent} disabled={submitting}>{submitting ? "Создаём..." : "Создать"}</Button>
+                </div>
+              </Grid>
 
-                    <div className="event-card-body">
-                      <Typography.Label className="event-desc">{ev.description}</Typography.Label>
-                    </div>
+              {photoUrl.trim() && (
+                <div className="create-preview">
+                  <Typography.Label className="form-label">Превью</Typography.Label>
+                  <div className="preview-frame">
+                    <img src={photoUrl} alt="preview" onError={e => ((e.target as HTMLImageElement).src = "")} />
                   </div>
-                </Panel>
-              ))}
-            </Grid>
+                </div>
+              )}
+
+              {error && <div className="form-error">{error}</div>}
+            </Panel>
           )}
         </div>
-      </Container>
-    </MainLayout>
+      )}
+
+      <div className="events-list">
+        {loading ? (
+          <div className="loading-state">
+            <div className="loading-spinner" />
+            <Typography.Label>Загрузка событий...</Typography.Label>
+          </div>
+        ) : events.length === 0 ? (
+          <Panel mode="secondary" className="empty-panel">
+            <Typography.Label>Событий пока нет.</Typography.Label>
+          </Panel>
+        ) : (
+          <Grid cols={1} gap={16} className="events-grid">
+            {events.map(ev => (
+              <Panel key={ev.id} mode="secondary" className="event-card" aria-label={ev.title}>
+                <div className="event-card-inner">
+                  <div className="event-card-head">
+                    <Typography.Title variant="small-strong" className="event-title">{ev.title}</Typography.Title>
+                  </div>
+
+                  <div className="event-card-media">
+                    {ev.photo_url ? (
+                      <img src={ev.photo_url} alt={ev.title} onError={e => ((e.target as HTMLImageElement).src = "")} />
+                    ) : (
+                      <div className="media-placeholder">Нет изображения</div>
+                    )}
+                  </div>
+
+                  <div className="event-card-body">
+                    <Typography.Label className="event-desc">{ev.description}</Typography.Label>
+                  </div>
+                </div>
+              </Panel>
+            ))}
+          </Grid>
+        )}
+      </div>
+    </Container>
   );
 }
