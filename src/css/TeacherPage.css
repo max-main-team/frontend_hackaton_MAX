@@ -47,13 +47,25 @@
 }
 
 /* header actions */
-.teacher-header-actions { display:flex; gap:10px; align-items:center; }
+.teacher-header-actions { 
+  display: flex; 
+  gap: 10px; 
+  align-items: center; 
+}
+
+/* Cards container - добавлен для отступа */
+.teacher-cards-container {
+  margin-top: 24px; /* Опускаем карточки вниз */
+  width: 100%;
+}
 
 /* Cards grid */
 .teacher-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Исправлено: auto-fit вместо auto-fill и уменьшен minmax */
   gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Card styles */
@@ -90,7 +102,11 @@
 }
 
 /* Left block (title + desc) */
-.teacher-card-left { flex: 1 1 0; min-width: 0; padding-right: 12px; }
+.teacher-card-left { 
+  flex: 1 1 0; 
+  min-width: 0; 
+  padding-right: 12px; 
+}
 
 .teacher-card-title {
   margin: 0 0 8px 0;
@@ -101,6 +117,7 @@
 .teacher-card-desc {
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.4;
 }
 
 /* Actions */
@@ -122,14 +139,31 @@
 
 /* Responsive tweaks */
 @media (max-width: 880px) {
-  .teacher-cards-grid { grid-template-columns: 1fr; }
-  .teacher-header { gap: 10px; }
-  .teacher-title { font-size: 22px; }
+  .teacher-cards-grid { 
+    grid-template-columns: 1fr; 
+  }
+  .teacher-header { 
+    gap: 10px; 
+  }
+  .teacher-title { 
+    font-size: 22px; 
+  }
 }
 
 @media (max-width: 420px) {
-  .teacher-container { padding: 12px; }
-  .teacher-title { font-size: 20px; }
-  .teacher-card { padding: 12px; }
-  .teacher-card-title { font-size: 15px; }
+  .teacher-container { 
+    padding: 12px; 
+  }
+  .teacher-title { 
+    font-size: 20px; 
+  }
+  .teacher-card { 
+    padding: 12px; 
+  }
+  .teacher-card-title { 
+    font-size: 15px; 
+  }
+  .teacher-cards-container {
+    margin-top: 16px; /* Меньший отступ на мобильных */
+  }
 }

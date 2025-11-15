@@ -46,8 +46,7 @@ export default function TeacherPage(): JSX.Element {
         <div className="teacher-header">
           <Flex align="center" gap={12} style={{ width: "100%" }}>
             <Avatar.Container size={64} form="circle">
-                <Avatar.Image src={"src/images/hi_teacher.webp"} />
-                <Avatar.Text>{(name || "ПР").slice(0, 2).toUpperCase()}</Avatar.Text>
+                <Avatar.Image src={"../images/hi_teacher.webp"} />
             </Avatar.Container>
 
             <div className="teacher-greeting">
@@ -56,35 +55,34 @@ export default function TeacherPage(): JSX.Element {
             </div>
 
             <div style={{ marginLeft: "auto" }} className="teacher-header-actions">
-              <Button mode="secondary" size="small" onClick={() => navigate(-1)}>Назад</Button>
               <Button mode="primary" size="small" onClick={() => navigate("/teacher/groups")}>Мои группы</Button>
             </div>
           </Flex>
         </div>
 
-        {/* Cards grid */}
-        <Grid cols={2} gap={16} className="teacher-cards-grid">
-          {cards.map(c => (
-            <Panel key={c.key} mode="secondary" className="teacher-card" onClick={() => {
-              // Простая навигация по ключу — замените на реальные маршруты
-              if (c.key === "grades") navigate("/grade");
-              if (c.key === "schedule") navigate("/schedule");
-              if (c.key === "office_hours") navigate("/office-hours");
-              if (c.key === "announcements") navigate("/teacher/announcements");
-            }} role="button">
-              <Flex justify="space-between" align="center" style={{ width: "100%" }}>
-                <div className="teacher-card-left">
-                  <Typography.Title variant="small-strong" className="teacher-card-title">{c.title}</Typography.Title>
-                  <Typography.Label className="teacher-card-desc">{c.desc}</Typography.Label>
-                </div>
+        <div className="teacher-cards-container">
+          <Grid cols={2} gap={16} className="teacher-cards-grid">
+            {cards.map(c => (
+              <Panel key={c.key} mode="secondary" className="teacher-card" onClick={() => {
+                if (c.key === "grades") navigate("/grade");
+                if (c.key === "schedule") navigate("/schedule");
+                if (c.key === "office_hours") navigate("/office-hours");
+                if (c.key === "announcements") navigate("/teacher/announcements");
+              }} role="button">
+                <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+                  <div className="teacher-card-left">
+                    <Typography.Title variant="small-strong" className="teacher-card-title">{c.title}</Typography.Title>
+                    <Typography.Label className="teacher-card-desc">{c.desc}</Typography.Label>
+                  </div>
 
-                <div className="teacher-card-actions">
-                  <Button mode="tertiary" size="small">{c.action}</Button>
-                </div>
-              </Flex>
-            </Panel>
-          ))}
-        </Grid>
+                  <div className="teacher-card-actions">
+                    <Button mode="tertiary" size="small">{c.action}</Button>
+                  </div>
+                </Flex>
+              </Panel>
+            ))}
+          </Grid>
+        </div>
 
         {/* Feature block */}
         <div style={{ marginTop: 18 }}>
