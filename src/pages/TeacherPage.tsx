@@ -4,6 +4,7 @@ import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhu
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
 import "../css/TeacherPage.css";
+import hiTeacher from "../images/hi_teacher.webp";
 
 export default function TeacherPage(): JSX.Element {
   const { webAppData } = useMaxWebApp();
@@ -46,7 +47,7 @@ export default function TeacherPage(): JSX.Element {
         <div className="teacher-header">
           <Flex align="center" gap={12} style={{ width: "100%" }}>
             <Avatar.Container size={64} form="circle">
-                <Avatar.Image src={"../images/hi_teacher.webp"} />
+                <Avatar.Image src={hiTeacher} />
             </Avatar.Container>
 
             <div className="teacher-greeting">
@@ -55,7 +56,7 @@ export default function TeacherPage(): JSX.Element {
             </div>
 
             <div style={{ marginLeft: "auto" }} className="teacher-header-actions">
-              <Button mode="primary" size="small" onClick={() => navigate("/teacher/groups")}>Мои группы</Button>
+              <Button mode="primary" size="small" onClick={() => {}}>Мои группы</Button>
             </div>
           </Flex>
         </div>
@@ -76,7 +77,7 @@ export default function TeacherPage(): JSX.Element {
                   </div>
 
                   <div className="teacher-card-actions">
-                    <Button mode="tertiary" size="small">{c.action}</Button>
+                    <Button mode="tertiary" size="small">{}</Button>
                   </div>
                 </Flex>
               </Panel>
@@ -95,7 +96,7 @@ export default function TeacherPage(): JSX.Element {
                 </div>
 
                 <div>
-                  <Button mode="primary" onClick={() => navigate("/teacher/course")}>Перейти</Button>
+                  <Button mode="primary" onClick={() => {}}>Перейти</Button>
                 </div>
               </Flex>
             </Container>
