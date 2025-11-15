@@ -17,6 +17,8 @@ const ENDPOINTS = {
   CREATE_GROUP: `${BACKEND_PREFIX}/admin/groups`,
   CREATE_SUBJECT: `${BACKEND_PREFIX}/subjects`,
   CREATE_SEMESTERS: `${BACKEND_PREFIX}/universities/semesters`,
+  COURSES_LIST: `${BACKEND_PREFIX}/admin/courses`,
+  CREATE_COURSE: `${BACKEND_PREFIX}/admin/courses`,
 };
 
 export default function AdminEntitiesPage(): JSX.Element {
@@ -27,8 +29,6 @@ export default function AdminEntitiesPage(): JSX.Element {
 
   const [faculties, setFaculties] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
-  const [, setGroupsList] = useState<any[]>([]);
-
   const [facultyUni, setFacultyUni] = useState<number | null>(null);
   const [facultyName, setFacultyName] = useState("");
   const [facultyLoading, setFacultyLoading] = useState(false);
@@ -40,9 +40,18 @@ export default function AdminEntitiesPage(): JSX.Element {
   const [departmentLoading, setDepartmentLoading] = useState(false);
   const [departmentMsg, setDepartmentMsg] = useState<string | null>(null);
 
-  const [groupUni, setGroupUni] = useState<number | null>(null);
-  const [groupFacultyId, setGroupFacultyId] = useState<number | null>(null);
-  const [groupDepartmentId, setGroupDepartmentId] = useState<number | null>(null);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
+  const [courseUniId, setCourseUniId] = useState<number | null>(null);
+  const [courseFacultyId, setCourseFacultyId] = useState<number | null>(null);
+  const [courseDepartmentId, setCourseDepartmentId] = useState<number | null>(null);
+  const [courseStartDate, setCourseStartDate] = useState("");
+  const [courseEndDate, setCourseEndDate] = useState("");
+  const [courseLoading, setCourseLoading] = useState(false);
+  const [courseMsg, setCourseMsg] = useState<string | null>(null);
+
+  const [groupCourseId, setGroupCourseId] = useState<number | null>(null);
   const [groupName, setGroupName] = useState("");
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupMsg, setGroupMsg] = useState<string | null>(null);
@@ -108,22 +117,6 @@ export default function AdminEntitiesPage(): JSX.Element {
     }
   }
 
-  async function fetchGroupsFor(departmentId: number | null) {
-    if (!departmentId) {
-      setGroupsList([]);
-      return;
-    }
-    try {
-      const res = await api.get(ENDPOINTS.GROUPS_LIST, { params: { department_id: departmentId } });
-      const data = res.data;
-      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
-      setGroupsList(arr || []);
-    } catch (e) {
-      console.warn("failed to load groups", e);
-      setGroupsList([]);
-    }
-  }
-
 
   async function onCreateFaculty() {
     setFacultyMsg(null);
@@ -170,25 +163,73 @@ export default function AdminEntitiesPage(): JSX.Element {
     }
   }
 
+  async function fetchCourses() {
+    setLoadingCourses(true);
+    try {
+      const res = await api.get(ENDPOINTS.COURSES_LIST);
+      const data = res.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setCourses(arr || []);
+    } catch (e) {
+      console.warn("failed to load courses", e);
+      setCourses([]);
+    } finally {
+      setLoadingCourses(false);
+    }
+  }
+
+  // Функция для создания курса
+  async function onCreateCourse() {
+    setCourseMsg(null);
+    if (!courseUniId) return setCourseMsg("Выберите университет");
+    if (!courseFacultyId) return setCourseMsg("Выберите факультет");
+    if (!courseDepartmentId) return setCourseMsg("Выберите направление");
+    if (!courseStartDate) return setCourseMsg("Введите дату начала");
+    if (!courseEndDate) return setCourseMsg("Введите дату окончания");
+    
+    setCourseLoading(true);
+    try {
+      const res = await api.post(ENDPOINTS.CREATE_COURSE, {
+        start_date: new Date(courseStartDate).toISOString(),
+        end_date: new Date(courseEndDate).toISOString(),
+        university_department_id: courseDepartmentId,
+      });
+      
+      if (res?.status === 200) {
+        setCourseStartDate("");
+        setCourseEndDate("");
+        setCourseMsg("Курс успешно создан");
+        await fetchCourses(); 
+      } else {
+        setCourseMsg(`Сервер вернул ${res?.status}`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      setCourseMsg(e?.response?.data?.message ?? "Ошибка при создании курса");
+    } finally {
+      setCourseLoading(false);
+    }
+  }
+
   async function onCreateGroup() {
     setGroupMsg(null);
-    if (!groupUni) return setGroupMsg("Выберите университет");
-    if (!groupFacultyId) return setGroupMsg("Выберите факультет");
-    if (!groupDepartmentId) return setGroupMsg("Выберите направление");
+    if (!groupCourseId) return setGroupMsg("Выберите курс");
     if (!groupName.trim()) return setGroupMsg("Введите название группы");
+    
     setGroupLoading(true);
     try {
       const res = await api.post(ENDPOINTS.CREATE_GROUP, {
-        name: groupName.trim(),
-        university_id: groupUni,
-        faculty_id: groupFacultyId,
-        department_id: groupDepartmentId,
+        course_id: groupCourseId,
+        group_name: groupName.trim(),
       });
+      
       if (res?.status === 200) {
         setGroupName("");
+        setGroupCourseId(null);
         setGroupMsg("Группа успешно создана");
-        await fetchGroupsFor(groupDepartmentId);
-      } else setGroupMsg(`Сервер вернул ${res?.status}`);
+      } else {
+        setGroupMsg(`Сервер вернул ${res?.status}`);
+      }
     } catch (e: any) {
       console.error(e);
       setGroupMsg(e?.response?.data?.message ?? "Ошибка при создании группы");
@@ -196,6 +237,11 @@ export default function AdminEntitiesPage(): JSX.Element {
       setGroupLoading(false);
     }
   }
+
+  useEffect(() => {
+    fetchUniversities();
+    fetchCourses(); // Загружаем курсы при загрузке страницы
+  }, []);
 
   async function onCreateSubject() {
     setSubjectMsg(null);
@@ -363,22 +409,19 @@ export default function AdminEntitiesPage(): JSX.Element {
 
         <Panel mode="secondary" className="admin-entity-panel">
           <div className="card-header">
-            <Typography.Title variant="small-strong">Создать группу</Typography.Title>
+            <Typography.Title variant="small-strong">Создать курс</Typography.Title>
           </div>
 
           <div className="card-body">
             <label className="field-label">Университет</label>
             <select
               className="admin-input"
-              value={groupUni ?? ""}
+              value={courseUniId ?? ""}
               onChange={e => {
                 const id = e.target.value ? Number(e.target.value) : null;
-                setGroupUni(id);
-                setGroupFacultyId(null);
-                setGroupDepartmentId(null);
-                setFaculties([]);
-                setDepartments([]);
-                setGroupsList([]);
+                setCourseUniId(id);
+                setCourseFacultyId(null);
+                setCourseDepartmentId(null);
                 if (id) fetchFacultiesFor(id);
               }}
               disabled={loadingUniversities}
@@ -390,13 +433,11 @@ export default function AdminEntitiesPage(): JSX.Element {
             <label className="field-label">Факультет</label>
             <select
               className="admin-input"
-              value={groupFacultyId ?? ""}
+              value={courseFacultyId ?? ""}
               onChange={e => {
                 const id = e.target.value ? Number(e.target.value) : null;
-                setGroupFacultyId(id);
-                setGroupDepartmentId(null);
-                setDepartments([]);
-                setGroupsList([]);
+                setCourseFacultyId(id);
+                setCourseDepartmentId(null);
                 if (id) fetchDepartmentsFor(id);
               }}
             >
@@ -407,20 +448,66 @@ export default function AdminEntitiesPage(): JSX.Element {
             <label className="field-label">Направление</label>
             <select
               className="admin-input"
-              value={groupDepartmentId ?? ""}
-              onChange={e => {
-                const id = e.target.value ? Number(e.target.value) : null;
-                setGroupDepartmentId(id);
-                setGroupsList([]);
-                if (id) fetchGroupsFor(id);
-              }}
+              value={courseDepartmentId ?? ""}
+              onChange={e => setCourseDepartmentId(e.target.value ? Number(e.target.value) : null)}
             >
               <option value="">Выберите направление</option>
               {departments.map(d => <option key={d.id ?? JSON.stringify(d)} value={d.id}>{d.department_name ?? d.name ?? d.title}</option>)}
             </select>
 
+            <label className="field-label">Дата начала</label>
+            <input 
+              type="datetime-local" 
+              value={courseStartDate} 
+              onChange={e => setCourseStartDate(e.target.value)} 
+              className="admin-input" 
+            />
+
+            <label className="field-label">Дата окончания</label>
+            <input 
+              type="datetime-local" 
+              value={courseEndDate} 
+              onChange={e => setCourseEndDate(e.target.value)} 
+              className="admin-input" 
+            />
+
+            <div className="card-footer">
+              <div className="msg">{courseMsg}</div>
+              <Button mode="primary" onClick={onCreateCourse} disabled={courseLoading}>
+                {courseLoading ? "Создаём..." : "Создать курс"}
+              </Button>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel mode="secondary" className="admin-entity-panel">
+          <div className="card-header">
+            <Typography.Title variant="small-strong">Создать группу</Typography.Title>
+          </div>
+
+          <div className="card-body">
+            <label className="field-label">Курс</label>
+            <select
+              className="admin-input"
+              value={groupCourseId ?? ""}
+              onChange={e => setGroupCourseId(e.target.value ? Number(e.target.value) : null)}
+              disabled={loadingCourses}
+            >
+              {loadingCourses ? <option value="">Загрузка курсов...</option> : <option value="">Выберите курс</option>}
+              {courses.map(course => (
+                <option key={course.id} value={course.id}>
+                  {course.start_date} - {course.end_date} (Направление: {course.university_department_id})
+                </option>
+              ))}
+            </select>
+
             <label className="field-label">Название группы</label>
-            <input value={groupName} onChange={e => setGroupName(e.target.value)} placeholder="Например: 20ИИ-1" className="admin-input" />
+            <input 
+              value={groupName} 
+              onChange={e => setGroupName(e.target.value)} 
+              placeholder="Например: 20ИИ-1" 
+              className="admin-input" 
+            />
 
             <div className="card-footer">
               <div className="msg">{groupMsg}</div>
