@@ -192,23 +192,37 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
     if (loc.pathname === path) return;
 
     const isFromTeacher = loc.pathname.startsWith("/teacher");
-
     const isFromAdmin = loc.pathname.startsWith("/admin");
 
     if (path === "/grade") {
+      if (isFromAdmin) {
+        return; // ничего не делаем
+      }
+
       const to = isFromTeacher ? "/grade?mode=teacher" : "/grade";
       navigate(to, { state: { from: isFromTeacher ? "/teacher" : "/student" } });
       return;
     }
 
     if (path === "/events") {
-      const to = isFromTeacher ? "/events?mode=admin" : "/events";
-      navigate(to, { state: { from: isFromAdmin ? "/admin" : "/student" } });
+      if (isFromAdmin) {
+        navigate("/events?mode=admin", { state: { from: "/admin" } });
+        return;
+      }
+
+      // Для teacher и student — только просмотр
+      if (isFromTeacher) {
+        navigate("/events", { state: { from: "/teacher" } });
+      } else {
+        navigate("/events", { state: { from: "/student" } });
+      }
       return;
     }
 
+    // Default
     navigate(path);
   };
+
 
 
   const handleMouseEnter = (tabKey: string) => {
