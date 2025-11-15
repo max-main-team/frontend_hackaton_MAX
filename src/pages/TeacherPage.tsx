@@ -47,7 +47,11 @@ export default function TeacherPage(): JSX.Element {
         <div className="teacher-header">
           <Flex align="center" gap={12} style={{ width: "100%" }}>
             <Avatar.Container size={64} form="circle">
-                <Avatar.Image src={hiTeacher} />
+                <Avatar.Image
+                  src={hiTeacher}
+                  alt="Teacher"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }}
+                />
             </Avatar.Container>
 
             <div className="teacher-greeting">
