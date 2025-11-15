@@ -334,6 +334,9 @@ export default function GradeBookPage(): JSX.Element {
           <Typography.Title variant="large-strong" className="page-title">
             Зачетка
           </Typography.Title>
+          <div className="header-actions">
+            <Button mode="secondary" size="small" onClick={() => navigate(-1)}>Назад</Button>
+          </div>
         </div>
 
         {/* Сетка карточек */}

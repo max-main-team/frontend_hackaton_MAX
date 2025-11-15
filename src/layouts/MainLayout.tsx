@@ -190,8 +190,18 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
   const onTabClick = (path: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (loc.pathname === path) return;
+
+    const isFromTeacher = loc.pathname.startsWith("/teacher");
+
+    if (path === "/grade") {
+      const to = isFromTeacher ? "/grade?mode=teacher" : "/grade";
+      navigate(to, { state: { from: isFromTeacher ? "/teacher" : "/student" } });
+      return;
+    }
+
     navigate(path);
   };
+
 
   const handleMouseEnter = (tabKey: string) => {
     setHoveredTab(tabKey);
