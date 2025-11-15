@@ -193,9 +193,8 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
 
     if (path === "/grade") {
       if (isFromAdmin) {
-        return; // ничего не делаем
+        return;
       }
-
       const to = isFromTeacher ? "/grade?mode=teacher" : "/grade";
       navigate(to, { state: { from: isFromTeacher ? "/teacher" : "/student" } });
       return;
@@ -206,19 +205,27 @@ export default function MainLayout({ children, hideTabs = false }: MainLayoutPro
         navigate("/events?mode=admin", { state: { from: "/admin" } });
         return;
       }
-
-      // Для teacher и student — только просмотр
-      if (isFromTeacher) {
-        navigate("/events", { state: { from: "/teacher" } });
-      } else {
-        navigate("/events", { state: { from: "/student" } });
-      }
+      navigate("/events", { state: { from: isFromTeacher ? "/teacher" : "/student" } });
       return;
     }
 
-    // Default
+    if (path === "/schedule" || path === "/schedules") {
+      if (isFromAdmin) {
+        navigate("/schedule?mode=admin", { state: { from: "/admin" } });
+        return;
+      }
+      if (isFromTeacher) {
+        navigate("/schedule?mode=teacher", { state: { from: "/teacher" } });
+        return;
+      }
+      navigate("/schedule", { state: { from: "/student" } });
+      return;
+    }
+
+    // Default behaviour for other tabs
     navigate(path);
   };
+
 
 
 
