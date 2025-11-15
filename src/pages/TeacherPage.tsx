@@ -1,77 +1,109 @@
-import "../css/AdminPage.css";
+import { type JSX } from "react";
+import { useNavigate } from "react-router-dom";
 import { Panel, Grid, Container, Flex, Avatar, Typography, Button } from "@maxhub/max-ui";
 import MainLayout from "../layouts/MainLayout";
 import { useMaxWebApp } from "../hooks/useMaxWebApp";
+import "../css/TeacherPage.css";
 
-export default function TeacherPage() {
+export default function TeacherPage(): JSX.Element {
   const { webAppData } = useMaxWebApp();
   const user = webAppData?.user ?? {};
   const name = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "Преподаватель";
 
+  const navigate = useNavigate();
+
+  const cards = [
+    {
+      key: "schedule",
+      title: "Расписания",
+      desc: "Изменить расписание, назначить замену и экспортировать в календарь.",
+      action: "Управлять",
+    },
+    {
+      key: "grades",
+      title: "Оценки",
+      desc: "Просмотр, массовое выставление и экспорт оценок студентов.",
+      action: "Перейти",
+    },
+    {
+      key: "office_hours",
+      title: "Приёмные часы",
+      desc: "Управление временем приёма, запись студентов и уведомления.",
+      action: "Настроить",
+    },
+    {
+      key: "announcements",
+      title: "Объявления",
+      desc: "Создать объявление для группы или дисциплины.",
+      action: "Создать",
+    },
+  ];
+
   return (
     <MainLayout>
-      <div style={{ marginBottom: 12 }}>
-        <Flex align="center" gap={12}>
-          <Avatar.Container size={56} form="circle">
-            <Avatar.Image src={user?.full_avatar_url ?? user?.avatar_url ?? ""} />
-          </Avatar.Container>
+      <Container className="teacher-container">
+        {/* Header */}
+        <div className="teacher-header">
+          <Flex align="center" gap={12} style={{ width: "100%" }}>
+            <Avatar.Container size={64} form="circle">
+                <Avatar.Image src={"src/images/hi_teacher.webp"} />
+                <Avatar.Text>{(name || "ПР").slice(0, 2).toUpperCase()}</Avatar.Text>
+            </Avatar.Container>
 
-          <div>
-            <Typography.Title variant="large-strong">Здравствуйте, {name}!</Typography.Title>
-            <Typography.Label>{user?.university ?? ""}</Typography.Label>
-          </div>
+            <div className="teacher-greeting">
+              <Typography.Title variant="large-strong" className="teacher-title">Здравствуйте, {name}!</Typography.Title>
+              <Typography.Label className="teacher-sub">{user?.university ?? ""}</Typography.Label>
+            </div>
 
-          <div style={{ marginLeft: "auto" }}>
-            <Button>Мои группы</Button>
-          </div>
-        </Flex>
-      </div>
+            <div style={{ marginLeft: "auto" }} className="teacher-header-actions">
+              <Button mode="secondary" size="small" onClick={() => navigate(-1)}>Назад</Button>
+              <Button mode="primary" size="small" onClick={() => navigate("/teacher/groups")}>Мои группы</Button>
+            </div>
+          </Flex>
+        </div>
 
-      <Grid cols={2} gap={12}>
-        <Panel mode="secondary" className="card">
-          <Container style={{ padding: 12 }}>
-            <Typography.Title variant="small-strong">Расписания</Typography.Title>
-            <Typography.Label>Изменить расписание и вызвать замену</Typography.Label>
-          </Container>
-        </Panel>
+        {/* Cards grid */}
+        <Grid cols={2} gap={16} className="teacher-cards-grid">
+          {cards.map(c => (
+            <Panel key={c.key} mode="secondary" className="teacher-card" onClick={() => {
+              // Простая навигация по ключу — замените на реальные маршруты
+              if (c.key === "grades") navigate("/grade");
+              if (c.key === "schedule") navigate("/schedule");
+              if (c.key === "office_hours") navigate("/office-hours");
+              if (c.key === "announcements") navigate("/teacher/announcements");
+            }} role="button">
+              <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+                <div className="teacher-card-left">
+                  <Typography.Title variant="small-strong" className="teacher-card-title">{c.title}</Typography.Title>
+                  <Typography.Label className="teacher-card-desc">{c.desc}</Typography.Label>
+                </div>
 
-        <Panel mode="secondary" className="card">
-          <Container style={{ padding: 12 }}>
-            <Typography.Title variant="small-strong">Оценки</Typography.Title>
-            <Typography.Label>Просмотр и выставление оценок</Typography.Label>
-          </Container>
-        </Panel>
+                <div className="teacher-card-actions">
+                  <Button mode="tertiary" size="small">{c.action}</Button>
+                </div>
+              </Flex>
+            </Panel>
+          ))}
+        </Grid>
 
-        <Panel mode="secondary" className="card card--wide">
-          <Container style={{ padding: 12 }}>
-            <Typography.Title variant="small-strong">Приемные часы</Typography.Title>
-            <Typography.Label>Управление временем приёма студентов</Typography.Label>
-          </Container>
-        </Panel>
+        {/* Feature block */}
+        <div style={{ marginTop: 18 }}>
+          <Panel className="teacher-feature" mode="secondary">
+            <Container style={{ padding: 14 }}>
+              <Flex align="center" gap={12}>
+                <div style={{ flex: 1 }}>
+                  <Typography.Title variant="medium-strong">Управление курсом</Typography.Title>
+                  <Typography.Label>Инструменты для загрузки материалов, домашек и проверки работ — всё в одном месте.</Typography.Label>
+                </div>
 
-        <Panel mode="secondary" className="card">
-          <Container style={{ padding: 12 }}>
-            <Typography.Title variant="small-strong">Объявления</Typography.Title>
-            <Typography.Label>Создать объявление для группы</Typography.Label>
-          </Container>
-        </Panel>
-      </Grid>
-
-      <div style={{ marginTop: 18 }}>
-        <Panel className="card card--feature">
-          <Container style={{ padding: 12 }}>
-            <Flex align="center" gap={12}>
-              <div style={{ flex: 1 }}>
-                <Typography.Title variant="medium-strong">Управление курсом</Typography.Title>
-                <Typography.Label>Инструменты для загрузки материалов и проверки работ.</Typography.Label>
-              </div>
-              <div>
-                <Button>Перейти</Button>
-              </div>
-            </Flex>
-          </Container>
-        </Panel>
-      </div>
+                <div>
+                  <Button mode="primary" onClick={() => navigate("/teacher/course")}>Перейти</Button>
+                </div>
+              </Flex>
+            </Container>
+          </Panel>
+        </div>
+      </Container>
     </MainLayout>
   );
 }
