@@ -35,8 +35,10 @@ export default function SettingsPage(): JSX.Element {
           <Panel mode="secondary" className="settings-panel">
             <div className="settings-row">
               <div className="settings-row-left">
-                <Typography.Title variant="small-strong" className="row-title">Уведомления</Typography.Title>
-                <Typography.Label className="row-sub">Получать push-уведомления об оценках и объявлениях</Typography.Label>
+                <Flex direction="column" gap={4} style={{ flex: 1 }}>
+                  <Typography.Title variant="small-strong" className="row-title">Уведомления</Typography.Title>
+                  <Typography.Label className="row-sub">Получать push-уведомления об оценках и объявлениях</Typography.Label>
+                </Flex>
               </div>
 
               <div className="settings-row-right">
@@ -56,8 +58,10 @@ export default function SettingsPage(): JSX.Element {
           <Panel mode="secondary" className="settings-panel">
             <div className="settings-row">
               <div className="settings-row-left">
-                <Typography.Title variant="small-strong" className="row-title">Режим компактности</Typography.Title>
-                <Typography.Label className="row-sub">Плотное отображение списков и карточек (экономит место)</Typography.Label>
+                <Flex direction="column" gap={4} style={{ flex: 1 }}>
+                  <Typography.Title variant="small-strong" className="row-title">Режим компактности</Typography.Title>
+                  <Typography.Label className="row-sub">Плотное отображение списков и карточек (экономит место)</Typography.Label>
+                </Flex>
               </div>
 
               <div className="settings-row-right">
@@ -77,8 +81,10 @@ export default function SettingsPage(): JSX.Element {
           <Panel mode="secondary" className="settings-panel">
             <div className="settings-row">
               <div className="settings-row-left">
-                <Typography.Title variant="small-strong" className="row-title">Язык</Typography.Title>
-                <Typography.Label className="row-sub">Предпочитаемый язык интерфейса</Typography.Label>
+                <Flex direction="column" gap={4} style={{ flex: 1 }}>
+                  <Typography.Title variant="small-strong" className="row-title">Язык</Typography.Title>
+                  <Typography.Label className="row-sub">Предпочитаемый язык интерфейса</Typography.Label>
+                </Flex>
               </div>
 
               <div className="settings-row-right">
@@ -98,8 +104,10 @@ export default function SettingsPage(): JSX.Element {
           <Panel mode="secondary" className="settings-panel settings-actions">
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, width: "100%", alignItems: "center" }}>
               <div>
-                <Typography.Title variant="small-strong" className="row-title">Аккаунт</Typography.Title>
-                <Typography.Label className="row-sub">Безопасность и выход</Typography.Label>
+                <Flex direction="column" gap={4} style={{ flex: 1 }}>
+                  <Typography.Title variant="small-strong" className="row-title">Аккаунт</Typography.Title>
+                  <Typography.Label className="row-sub">Безопасность и выход</Typography.Label>
+                </Flex>
               </div>
             </div>
           </Panel>
