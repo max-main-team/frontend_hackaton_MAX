@@ -24,8 +24,7 @@ export default function AdminPage() {
   };
 
   return (
-    <MainLayout hideTabs={true}>
-      {/* подняли секцию чуть повыше (меньше верхнего марджина) */}
+    <MainLayout>
       <div className="admin-section admin-section--tight">
         <Typography.Title variant="medium-strong" className="admin-section__title" >
           Административное
