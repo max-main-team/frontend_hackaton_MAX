@@ -15,6 +15,14 @@ export default function AdminPage() {
     navigate("/admin/entities");
   };
 
+  const handlePassClick = () => {
+    navigate("/admin/pass");
+  };
+
+  const handleWorkloadClick = () => {
+    navigate("/admin/workload");
+  };
+
   return (
     <MainLayout hideTabs={true}>
       {/* подняли секцию чуть повыше (меньше верхнего марджина) */}
@@ -56,14 +64,14 @@ export default function AdminPage() {
         </Typography.Title>
 
         <Grid cols={2} gap={6}>
-          <Panel className="admin-card admin-card--tall admin-card--accent-left" mode="secondary">
+          <Panel className="admin-card admin-card--tall admin-card--accent-left" mode="secondary" onClick={handleWorkloadClick}>
             <Container className="admin-card__content">
               <Typography.Title variant="small-strong">Загруженность</Typography.Title>
               <Typography.Label className="admin-card__hint">Нагрузка по аудиториям и преподавателям</Typography.Label>
             </Container>
           </Panel>
 
-          <Panel className="admin-card admin-card--tall admin-card--accent-pass" mode="secondary">
+          <Panel className="admin-card admin-card--tall admin-card--accent-pass" mode="secondary" onClick={handlePassClick}>
             <Container className="admin-card__content">
               <Typography.Title variant="small-strong">Пропуск</Typography.Title>
               <Typography.Label className="admin-card__hint">Управление проходами и доступом на кампус</Typography.Label>
