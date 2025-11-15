@@ -71,7 +71,7 @@ export default function TeacherPage(): JSX.Element {
               <Panel key={c.key} mode="secondary" className="teacher-card" onClick={() => {
                 if (c.key === "grades") navigate("/grade?mode=teacher");
                 if (c.key === "schedule") navigate("/admin/workload");
-                if (c.key === "office_hours") navigate("/admin/workload-hours");
+                if (c.key === "office_hours") navigate("/admin/workload");
                 if (c.key === "announcements") navigate("/admin/workload");
               }} role="button">
                 <Flex justify="space-between" align="center" style={{ width: "100%" }}>
@@ -95,8 +95,10 @@ export default function TeacherPage(): JSX.Element {
             <Container style={{ padding: 14 }}>
               <Flex align="center" gap={12}>
                 <div style={{ flex: 1 }}>
-                  <Typography.Title variant="medium-strong">Управление курсом</Typography.Title>
-                  <Typography.Label>Инструменты для загрузки материалов, домашек и проверки работ — всё в одном месте.</Typography.Label>
+                  <Flex direction="column" gap={4}>
+                    <Typography.Title variant="medium-strong">Управление курсом</Typography.Title>
+                    <Typography.Label>Инструменты для загрузки материалов, домашек и проверки работ — всё в одном месте.</Typography.Label>
+                  </Flex>
                 </div>
 
                 <div>

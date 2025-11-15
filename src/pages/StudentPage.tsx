@@ -71,10 +71,10 @@ export default function StudentPage() {
                 <Avatar.Image src={sport} />
               </Avatar.Container>
               <div style={{ flex: 1 }}>
-                <Typography.Title variant="medium-strong">Студенческий спорт</Typography.Title>
-                <Typography.Label>
-                  Расписание тренировок, запись и новости спортивного центра.
-                </Typography.Label>
+                <Flex direction="column" gap={4}>
+                  <Typography.Title variant="medium-strong">Студенческий спорт</Typography.Title>
+                  <Typography.Label>Расписание и записи на тренировки.</Typography.Label>
+                </Flex>
               </div>
               <div style={{ marginLeft: "auto" }}>
                 <Button>Записаться</Button>
