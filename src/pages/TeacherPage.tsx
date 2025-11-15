@@ -69,10 +69,10 @@ export default function TeacherPage(): JSX.Element {
           <Grid cols={2} gap={16} className="teacher-cards-grid">
             {cards.map(c => (
               <Panel key={c.key} mode="secondary" className="teacher-card" onClick={() => {
-                if (c.key === "grades") navigate("/grade");
-                if (c.key === "schedule") navigate("/schedule");
-                if (c.key === "office_hours") navigate("/office-hours");
-                if (c.key === "announcements") navigate("/teacher/announcements");
+                if (c.key === "grades") navigate("/grade?mode=teacher");
+                if (c.key === "schedule") navigate("/admin/workload");
+                if (c.key === "office_hours") navigate("/admin/workload-hours");
+                if (c.key === "announcements") navigate("/admin/workload");
               }} role="button">
                 <Flex justify="space-between" align="center" style={{ width: "100%" }}>
                   <div className="teacher-card-left">
