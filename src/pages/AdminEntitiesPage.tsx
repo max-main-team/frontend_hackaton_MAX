@@ -270,23 +270,11 @@ export default function AdminEntitiesPage(): JSX.Element {
     const periodsPayload: any[] = [];
     for (const p of periods) {
       if (!p.start || !p.end) return setSemMsg("Укажите даты для всех периодов (start/end)");
-      
-      const startDate = new Date(p.start).toISOString().split('T')[0];
-      const endDate = new Date(p.end).toISOString().split('T')[0];
-      
-      periodsPayload.push({ 
-        start_date: startDate, 
-        end_date: endDate 
-      });
+      periodsPayload.push({ start_date: new Date(p.start).toISOString(), end_date: new Date(p.end).toISOString() });
     }
-    
     setSemLoading(true);
     try {
-      const res = await api.post(ENDPOINTS.CREATE_SEMESTERS, { 
-        uni_id: semUniId, 
-        periods: periodsPayload 
-      });
-      
+      const res = await api.post(ENDPOINTS.CREATE_SEMESTERS, { uni_id: semUniId, periods: periodsPayload });
       if (res?.status === 200) {
         setPeriods([{ start: "", end: "" }]);
         setSemMsg("Семестры успешно созданы");
@@ -582,12 +570,12 @@ export default function AdminEntitiesPage(): JSX.Element {
               <div key={idx} className="period-row">
                 <div style={{ flex: 1 }}>
                   <label className="period-label">Start</label>
-                  <input type="date" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
+                  <input type="datetime-local" value={p.start} onChange={e => setPeriodAt(idx, "start", e.target.value)} className="admin-input" />
                 </div>
 
                 <div style={{ flex: 1 }}>
                   <label className="period-label">End</label>
-                  <input type="date" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
+                  <input type="datetime-local" value={p.end} onChange={e => setPeriodAt(idx, "end", e.target.value)} className="admin-input" />
                 </div>
 
                 <div style={{ display: "flex", alignItems: "flex-end", marginLeft: 12 }}>
