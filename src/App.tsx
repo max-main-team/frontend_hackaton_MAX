@@ -12,6 +12,10 @@ import AdminRequestsPage from "./pages/AdminRequestsPage.tsx";
 import AdminEntitiesPage from "./pages/AdminEntitiesPage.tsx";
 import WorkloadPage from "./pages/WorkloadPage.tsx";
 import PassPage from "./pages/PassPage.tsx";
+import RecordBookPage from "./pages/RecordBookPage.tsx";
+import SchedulePage from "./pages/SchedulePage.tsx";
+import EventsPage from "./pages/EventsPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
 
 function AppInner() {
   const webAppData = window.WebApp?.initData;
@@ -98,6 +102,10 @@ function AppInner() {
       <Route path="/select" element={<MultiSelectPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/abiturient" element={<ApplicantPage />} />
+      <Route path="/grade" element={<RecordBookPage />} />
+      <Route path="/schedule" element={<SchedulePage />} />
+      <Route path="/events" element={<EventsPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<LoadingPage />} />
     </Routes>
   );

@@ -16,9 +16,9 @@ import settings_white from '../images/settings_white.png';
 import settings_blue from '../images/settings_blue.png';
 
 const TAB_ITEMS = [
-  { key: "grade_book", path: "/grade_book", label: "Зачётка" },
+  { key: "grade_book", path: "/grade", label: "Зачётка" },
   { key: "schedule", path: "/schedule", label: "Расписание" },
-  { key: "feed", path: "/feed", label: "Актуальное" },
+  { key: "feed", path: "/events", label: "Актуальное" },
   { key: "settings", path: "/settings", label: "Настройки" },
 ];
 

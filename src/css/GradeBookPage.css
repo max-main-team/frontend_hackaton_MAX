@@ -1,0 +1,171 @@
+.gradebook-container {
+  padding: var(--maxui-space-5);
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--maxui-bg-primary, #0b0b0b);
+  min-height: 100vh;
+}
+
+.gradebook-header {
+  margin-bottom: var(--maxui-space-6);
+}
+
+.page-title {
+  color: var(--maxui-text-primary, #ffffff);
+  margin-bottom: var(--maxui-space-2);
+  background: linear-gradient(135deg, var(--accent, #630eff), var(--accent-2, #3a89fb));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navigation {
+  padding: var(--maxui-space-2) 0;
+}
+
+.subjects-grid {
+  width: 100%;
+}
+
+.subject-card {
+  background: var(--maxui-bg-secondary, #111827);
+  border: 1px solid var(--maxui-border-primary, #1f2937);
+  border-radius: var(--maxui-radius-lg);
+  padding: var(--maxui-space-5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.subject-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent, #630eff), var(--accent-2, #3a89fb));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.subject-card:hover {
+  border-color: var(--accent, #630eff);
+  box-shadow: 0 8px 24px rgba(99, 14, 255, 0.15);
+}
+
+.subject-card:hover::before {
+  opacity: 1;
+}
+
+.subject-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.subject-name {
+  color: var(--maxui-text-primary, #ffffff);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.subject-type-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
+  font-size: var(--maxui-font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-display {
+  min-width: 100px;
+  text-align: right;
+}
+
+.status-text {
+  color: var(--maxui-text-primary, #ffffff);
+  margin: 0;
+}
+
+/* Состояния загрузки */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--maxui-space-12);
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(99, 14, 255, 0.3);
+  border-top: 3px solid var(--accent, #630eff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--maxui-space-4);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .gradebook-container {
+    padding: var(--maxui-space-4);
+  }
+  
+  .subject-card {
+    padding: var(--maxui-space-4);
+  }
+  
+  .gradebook-header {
+    flex-direction: column;
+    gap: var(--maxui-space-4);
+  }
+  
+  .navigation {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .subject-card > .maxui-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--maxui-space-3);
+  }
+  
+  .status-display {
+    text-align: left;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .gradebook-container {
+    padding: var(--maxui-space-3);
+  }
+  
+  .subject-card {
+    padding: var(--maxui-space-3);
+  }
+  
+  .subject-type-badge {
+    padding: 6px 12px;
+    font-size: var(--maxui-font-size-xs);
+  }
+}
+
+:root {
+  --accent: #630eff;
+  --accent-2: #3a89fb;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+}

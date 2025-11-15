@@ -1,8 +1,8 @@
 /* MultiSelectPage.css — stronger accent (#630eff) for dark background */
 
 :root {
-  --accent: #630eff;        /* основной акцент — вы просили чаще его использовать */
-  --accent-2: #3a89fb;      /* вспомогательный голубой для градиентов */
+  --accent: #630eff;
+  --accent-2: #3a89fb;
   --accent-glow: rgba(99,14,255,0.28);
   --accent-glow-soft: rgba(99,14,255,0.16);
   --surface: rgba(255,255,255,0.02);
@@ -12,7 +12,7 @@
   --title-color: #ffffff;
 }
 
-/* контейнер */
+
 .ms-container {
   padding-top: 8px;
   padding-bottom: 28px;
@@ -21,7 +21,6 @@
   box-sizing: border-box;
 }
 
-/* заголовок */
 .ms-title,
 .ms-title .mx-typography__title {
   margin: 0;
